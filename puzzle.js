@@ -1,0 +1,15 @@
+const puzzle = {
+    size: 5,
+
+    // The complete solution.
+    solution: [
+        1, 2, 3, 4, 5,
+        10, 9, 8, 7, 6,
+        11, 12, 13, 14, 15,
+        20, 19, 18, 17, 16,
+        21, 22, 23, 24, 25
+    ],
+
+    // Numbers visible to the player.
+    clues: [1, 10, 20]
+};
