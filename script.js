@@ -1,69 +1,130 @@
-const size = 5;
-
-const solution = [
-    1, 2, 3, 4, 5,
-    10, 9, 8, 7, 6,
-    11, 12, 13, 14, 15,
-    20, 19, 18, 17, 16,
-    21, 22, 23, 24, 25
-];
+const size = puzzle.size;
+const solution = puzzle.solution;
+const clues = puzzle.clues;
 
 const grid = document.getElementById("grid");
 
 let path = [];
+let started = false;
 
-for (let i = 0; i < size * size; i++) {
+
+// ============================================================
+// CREATE THE GRID
+// ============================================================
+
+for (let i = 0; i < solution.length; i++) {
 
     const square = document.createElement("div");
 
     square.className = "square";
 
-    square.dataset.number = solution[i];
+    square.dataset.position = i;
+
+    // Only show the official clues.
+    if (clues.includes(solution[i])) {
+        square.textContent = solution[i];
+    }
 
     square.addEventListener("click", () => {
 
-        const number = solution[i];
+        handleMove(i);
 
-        if (path.includes(number)) {
-            return;
-        }
-
-        path.push(number);
-
-        square.classList.add("selected");
-        square.textContent = number;
-
-        checkPuzzle();
     });
 
     grid.appendChild(square);
 }
 
 
-function checkPuzzle() {
+// ============================================================
+// PLAYER MOVE
+// ============================================================
 
+function handleMove(position) {
+
+    // The puzzle must start at 1.
+    if (!started) {
+
+        if (solution[position] !== 1) {
+            return;
+        }
+
+        started = true;
+
+        addMove(position);
+
+        return;
+    }
+
+
+    // Don't revisit a square.
+    if (path.includes(position)) {
+        return;
+    }
+
+
+    // The new square must be adjacent.
+    const previous = path[path.length - 1];
+
+    if (!isAdjacent(previous, position)) {
+        return;
+    }
+
+
+    addMove(position);
+
+
+    // Puzzle completed.
     if (path.length === solution.length) {
 
-        const correct = path.every(
-            (number, index) => number === solution[index]
-        );
+        puzzleComplete();
 
-        if (correct) {
-            alert("Congratulations! Puzzle solved!");
-        } else {
-            alert("That's not the correct path.");
-            resetPuzzle();
-        }
     }
 }
 
 
-function resetPuzzle() {
+// ============================================================
+// ADD MOVE
+// ============================================================
 
-    path = [];
+function addMove(position) {
 
-    document.querySelectorAll(".square").forEach(square => {
-        square.classList.remove("selected");
-        square.textContent = "";
-    });
+    path.push(position);
+
+    const square =
+        document.querySelector(
+            `[data-position="${position}"]`
+        );
+
+    square.classList.add("selected");
+
+    square.textContent = solution[position];
+}
+
+
+// ============================================================
+// CHECK ADJACENCY
+// ============================================================
+
+function isAdjacent(a, b) {
+
+    const rowA = Math.floor(a / size);
+    const colA = a % size;
+
+    const rowB = Math.floor(b / size);
+    const colB = b % size;
+
+    return (
+        Math.abs(rowA - rowB) +
+        Math.abs(colA - colB)
+    ) === 1;
+}
+
+
+// ============================================================
+// PUZZLE COMPLETE
+// ============================================================
+
+function puzzleComplete() {
+
+    alert("Congratulations! You solved today's Numstep!");
 }
