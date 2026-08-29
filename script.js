@@ -162,15 +162,13 @@ function startTimer() {
 
     startTime = Date.now();
 
-    timerInterval = setInterval(updateTimer, 1000);
-
     updateTimer();
 }
 
 
 function updateTimer() {
 
-    if (!startTime) {
+    if (!startTime || completed) {
         return;
     }
 
@@ -187,16 +185,9 @@ function updateTimer() {
         String(minutes).padStart(2, "0") +
         ":" +
         String(seconds).padStart(2, "0");
+
+    requestAnimationFrame(updateTimer);
 }
-
-
-function stopTimer() {
-
-    clearInterval(timerInterval);
-
-    timerInterval = null;
-}
-
 
 // ============================================================
 // RESET
