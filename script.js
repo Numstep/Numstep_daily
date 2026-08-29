@@ -189,6 +189,10 @@ function updateTimer() {
     requestAnimationFrame(updateTimer);
 }
 
+function stopTimer() {
+    startTime = null;
+}
+
 // ============================================================
 // RESET
 // ============================================================
