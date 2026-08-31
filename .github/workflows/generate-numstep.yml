@@ -4,14 +4,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write:
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Get repository
         uses: actions/checkout@v4
 
@@ -32,9 +31,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add "*.json"
-
           git commit -m "Generate daily Numstep puzzle" || echo "No changes to commit"
-
           git push
