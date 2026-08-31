@@ -1,26 +1,15 @@
+// ============================================================
+// NUMSTEP DAILY PUZZLE
+// ============================================================
+
 let size;
 let solution;
 let clues;
 
-async function loadPuzzle() {
-
-    const response =
-        await fetch("numstep_5_2026-08-31.json");
-
-    puzzle =
-        await response.json();
-
-    size = puzzle.size;
-    solution = puzzle.solution;
-    clues = puzzle.clues;
-
-    createGrid();
-}
-
-const grid = document.getElementById("grid");
-const timerDisplay = document.getElementById("timer");
-const message = document.getElementById("message");
-const resetButton = document.getElementById("resetButton");
+let grid;
+let timerDisplay;
+let message;
+let resetButton;
 
 let path = [];
 let started = false;
@@ -28,6 +17,85 @@ let completed = false;
 
 let startTime = null;
 let dragging = false;
+
+
+// ============================================================
+// GET TODAY'S DATE
+// ============================================================
+
+function getToday() {
+
+    const today = new Date();
+
+    const year = today.getFullYear();
+
+    const month =
+        String(today.getMonth() + 1).padStart(2, "0");
+
+    const day =
+        String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+// ============================================================
+// LOAD TODAY'S PUZZLE
+// ============================================================
+
+async function loadPuzzle() {
+
+    try {
+
+        const today = getToday();
+
+        const filename =
+            `numstep_5_${today}.json`;
+
+        const response =
+            await fetch(filename);
+
+        if (!response.ok) {
+            throw new Error("Puzzle not found");
+        }
+
+        const puzzle =
+            await response.json();
+
+        size = puzzle.size;
+        solution = puzzle.solution;
+        clues = puzzle.clues;
+
+        grid =
+            document.getElementById("grid");
+
+        timerDisplay =
+            document.getElementById("timer");
+
+        message =
+            document.getElementById("message");
+
+        resetButton =
+            document.getElementById("resetButton");
+
+        createGrid();
+
+        resetButton.addEventListener(
+            "click",
+            resetPuzzle
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        document.getElementById("grid").innerHTML =
+            "<p>Today's Numstep puzzle isn't available yet.</p>";
+
+    }
+}
 
 
 // ============================================================
@@ -40,39 +108,62 @@ function createGrid() {
 
     for (let i = 0; i < solution.length; i++) {
 
-        const square = document.createElement("div");
+        const square =
+            document.createElement("div");
 
         square.className = "square";
 
         square.dataset.position = i;
 
-        // Show only the official clues.
+
+        // ----------------------------------------------------
+        // DISPLAY CLUES
+        // ----------------------------------------------------
+
         if (clues.includes(solution[i])) {
-            square.textContent = solution[i];
+
+            square.textContent =
+                solution[i];
+
             square.classList.add("clue");
         }
 
-        // Mouse
-        square.addEventListener("mousedown", (event) => {
 
-            event.preventDefault();
+        // ----------------------------------------------------
+        // MOUSE
+        // ----------------------------------------------------
 
-            dragging = true;
+        square.addEventListener(
+            "mousedown",
+            (event) => {
 
-            handleMove(i);
+                event.preventDefault();
 
-        });
+                dragging = true;
 
-        // Touch
-        square.addEventListener("touchstart", (event) => {
+                handleMove(i);
+            }
+        );
 
-            event.preventDefault();
 
-            dragging = true;
+        // ----------------------------------------------------
+        // TOUCH
+        // ----------------------------------------------------
 
-            handleMove(i);
+        square.addEventListener(
+            "touchstart",
+            (event) => {
 
-        }, { passive: false });
+                event.preventDefault();
+
+                dragging = true;
+
+                handleMove(i);
+
+            },
+            { passive: false }
+        );
+
 
         grid.appendChild(square);
     }
@@ -83,82 +174,99 @@ function createGrid() {
 // MOUSE MOVEMENT
 // ============================================================
 
-document.addEventListener("mousemove", (event) => {
+document.addEventListener(
+    "mousemove",
+    (event) => {
 
-    if (!dragging) {
-        return;
+        if (!dragging) {
+            return;
+        }
+
+        const element =
+            document.elementFromPoint(
+                event.clientX,
+                event.clientY
+            );
+
+        if (!element) {
+            return;
+        }
+
+        if (!element.classList.contains("square")) {
+            return;
+        }
+
+        const position =
+            Number(element.dataset.position);
+
+        handleMove(position);
     }
-
-    const element = document.elementFromPoint(
-        event.clientX,
-        event.clientY
-    );
-
-    if (!element) {
-        return;
-    }
-
-    if (!element.classList.contains("square")) {
-        return;
-    }
-
-    const position =
-        Number(element.dataset.position);
-
-    handleMove(position);
-});
+);
 
 
 // ============================================================
 // TOUCH MOVEMENT
 // ============================================================
 
-document.addEventListener("touchmove", (event) => {
+document.addEventListener(
+    "touchmove",
+    (event) => {
 
-    if (!dragging) {
-        return;
-    }
+        if (!dragging) {
+            return;
+        }
 
-    event.preventDefault();
+        event.preventDefault();
 
-    const touch = event.touches[0];
+        const touch =
+            event.touches[0];
 
-    const element = document.elementFromPoint(
-        touch.clientX,
-        touch.clientY
-    );
+        const element =
+            document.elementFromPoint(
+                touch.clientX,
+                touch.clientY
+            );
 
-    if (!element) {
-        return;
-    }
+        if (!element) {
+            return;
+        }
 
-    if (!element.classList.contains("square")) {
-        return;
-    }
+        if (!element.classList.contains("square")) {
+            return;
+        }
 
-    const position =
-        Number(element.dataset.position);
+        const position =
+            Number(element.dataset.position);
 
-    handleMove(position);
+        handleMove(position);
 
-}, { passive: false });
+    },
+    { passive: false }
+);
 
 
 // ============================================================
 // END DRAG
 // ============================================================
 
-document.addEventListener("mouseup", () => {
+document.addEventListener(
+    "mouseup",
+    () => {
 
-    dragging = false;
+        dragging = false;
 
-});
+    }
+);
 
-document.addEventListener("touchend", () => {
 
-    dragging = false;
+document.addEventListener(
+    "touchend",
+    () => {
 
-});
+        dragging = false;
+
+    }
+);
 
 
 // ============================================================
@@ -172,11 +280,16 @@ function handleMove(position) {
     }
 
 
-    // First move must be 1.
+    // --------------------------------------------------------
+    // FIRST MOVE
+    // --------------------------------------------------------
+
     if (!started) {
 
         if (solution[position] !== 1) {
+
             showMessage("Start at 1.");
+
             return;
         }
 
@@ -190,13 +303,19 @@ function handleMove(position) {
     }
 
 
-    // Don't revisit a square.
+    // --------------------------------------------------------
+    // PREVENT REVISITING
+    // --------------------------------------------------------
+
     if (path.includes(position)) {
         return;
     }
 
 
-    // Must move to an adjacent square.
+    // --------------------------------------------------------
+    // CHECK ADJACENCY
+    // --------------------------------------------------------
+
     const previous =
         path[path.length - 1];
 
@@ -229,16 +348,22 @@ function addMove(position) {
 
 
 // ============================================================
-// CHECK ADJACENCY
+// ADJACENCY
 // ============================================================
 
 function isAdjacent(a, b) {
 
-    const rowA = Math.floor(a / size);
-    const colA = a % size;
+    const rowA =
+        Math.floor(a / size);
 
-    const rowB = Math.floor(b / size);
-    const colB = b % size;
+    const colA =
+        a % size;
+
+    const rowB =
+        Math.floor(b / size);
+
+    const colB =
+        b % size;
 
     return (
         Math.abs(rowA - rowB) +
@@ -248,7 +373,7 @@ function isAdjacent(a, b) {
 
 
 // ============================================================
-// CHECK COMPLETION
+// COMPLETION
 // ============================================================
 
 function checkCompletion() {
@@ -335,12 +460,6 @@ function resetPuzzle() {
 }
 
 
-resetButton.addEventListener(
-    "click",
-    resetPuzzle
-);
-
-
 // ============================================================
 // MESSAGE
 // ============================================================
@@ -363,4 +482,4 @@ function showMessage(text) {
 // START
 // ============================================================
 
-createGrid();
+loadPuzzle();
