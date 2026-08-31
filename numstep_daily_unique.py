@@ -310,7 +310,7 @@ def export_web_puzzle(grid, steps, filename):
     for row in grid:
         for number in row:
 
-            if number == 1 or number % 10 == 0:
+            if number != 0 and (number == 1 or number % 10 == 0):
                 clues.append(number)
 
     # --------------------------------------------------------
