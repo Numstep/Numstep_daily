@@ -1,4 +1,5 @@
 import random
+import json
 from datetime import date
 
 from reportlab.pdfgen import canvas
@@ -290,6 +291,70 @@ def generate_walk(n, threshold=0.80):
 
             return grid, steps
 
+
+
+# ============================================================
+# EXPORT PUZZLE FOR WEBSITE
+# ============================================================
+
+def export_web_puzzle(grid, steps, filename):
+
+    n = len(grid)
+
+    # --------------------------------------------------------
+    # Determine which numbers should be displayed as clues.
+    # --------------------------------------------------------
+
+    clues = []
+
+    for row in grid:
+        for number in row:
+
+            if number == 1 or number % 10 == 0:
+                clues.append(number)
+
+    # --------------------------------------------------------
+    # Flatten the grid into a single list.
+    # --------------------------------------------------------
+
+    solution = []
+
+    for row in grid:
+        for number in row:
+
+            solution.append(number)
+
+    # --------------------------------------------------------
+    # Create the web puzzle data.
+    # --------------------------------------------------------
+
+    puzzle_data = {
+        "date": str(date.today()),
+        "size": n,
+        "steps": steps,
+        "clues": clues,
+        "solution": solution
+    }
+
+    # --------------------------------------------------------
+    # Write JSON file.
+    # --------------------------------------------------------
+
+    with open(
+        filename,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            puzzle_data,
+            f,
+            indent=4
+        )
+
+    print(
+        f"  Web puzzle saved as: {filename}"
+    )
 
 # ============================================================
 # DRAW PUZZLE
@@ -847,8 +912,6 @@ def create_page(
     small_right_x = (
         small_left_x
         + small_size
-        + small_gap
-    )
 
     # ========================================================
     # DRAW SMALL PUZZLES
@@ -1028,6 +1091,16 @@ for size in sizes:
     )
 
     grid, steps = generate_walk(size)
+    
+    web_filename = (
+    f"numstep_{size}_{date.today()}.json"
+)
+
+    export_web_puzzle(
+    grid,
+    steps,
+    web_filename
+)
 
     grids.append(grid)
     steps_list.append(steps)
