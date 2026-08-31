@@ -1,6 +1,21 @@
-const size = puzzle.size;
-const solution = puzzle.solution;
-const clues = puzzle.clues;
+let size;
+let solution;
+let clues;
+
+async function loadPuzzle() {
+
+    const response =
+        await fetch("numstep_5_2026-08-31.json");
+
+    puzzle =
+        await response.json();
+
+    size = puzzle.size;
+    solution = puzzle.solution;
+    clues = puzzle.clues;
+
+    createGrid();
+}
 
 const grid = document.getElementById("grid");
 const timerDisplay = document.getElementById("timer");
