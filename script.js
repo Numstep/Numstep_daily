@@ -1,22 +1,64 @@
+```javascript
 // ============================================================
-// NUMSTEP DAILY PUZZLE
+// NUMSTEP
+// Daily Puzzle
 // ============================================================
 
-let size;
-let solution;
-let clues;
 
-let grid;
-let timerDisplay;
-let message;
-let resetButton;
+// ============================================================
+// GLOBAL VARIABLES
+// ============================================================
+
+let puzzle = null;
+
+let size = 0;
+let solution = [];
+let clues = [];
+
+let grid = null;
+let timerDisplay = null;
+let message = null;
+let resetButton = null;
+let attemptsDisplay = null;
 
 let path = [];
+
 let started = false;
 let completed = false;
 
 let startTime = null;
 let dragging = false;
+
+let attempts = 0;
+
+// The clue from which the current run started.
+let startingClue = null;
+
+// The next milestone the player must reach.
+let nextMilestone = null;
+
+// Number of MOVES made since the current clue.
+let movesSinceClue = 0;
+
+
+// ============================================================
+// 12-COLOUR PALETTE
+// ============================================================
+
+const colourPalette = [
+    "#4E79A7",
+    "#59A14F",
+    "#F28E2B",
+    "#E15759",
+    "#B07AA1",
+    "#76B7B2",
+    "#EDC948",
+    "#9C755F",
+    "#AF7AA1",
+    "#86BCB6",
+    "#FF9DA7",
+    "#79706E"
+];
 
 
 // ============================================================
@@ -27,7 +69,8 @@ function getToday() {
 
     const today = new Date();
 
-    const year = today.getFullYear();
+    const year =
+        today.getFullYear();
 
     const month =
         String(today.getMonth() + 1).padStart(2, "0");
@@ -56,15 +99,26 @@ async function loadPuzzle() {
             await fetch(filename);
 
         if (!response.ok) {
-            throw new Error("Puzzle not found");
+            throw new Error(
+                `Puzzle file not found: ${filename}`
+            );
         }
 
-        const puzzle =
+        puzzle =
             await response.json();
 
-        size = puzzle.size;
-        solution = puzzle.solution;
-        clues = puzzle.clues;
+        size =
+            puzzle.size;
+
+        solution =
+            puzzle.solution;
+
+        clues =
+            puzzle.clues;
+
+        // ----------------------------------------------------
+        // GET PAGE ELEMENTS
+        // ----------------------------------------------------
 
         grid =
             document.getElementById("grid");
@@ -78,7 +132,22 @@ async function loadPuzzle() {
         resetButton =
             document.getElementById("resetButton");
 
+        attemptsDisplay =
+            document.getElementById("attempts");
+
+
+        // ----------------------------------------------------
+        // CREATE PUZZLE
+        // ----------------------------------------------------
+
         createGrid();
+
+        updateAttemptsDisplay();
+
+
+        // ----------------------------------------------------
+        // RESET BUTTON
+        // ----------------------------------------------------
 
         resetButton.addEventListener(
             "click",
@@ -93,8 +162,50 @@ async function loadPuzzle() {
 
         document.getElementById("grid").innerHTML =
             "<p>Today's Numstep puzzle isn't available yet.</p>";
-
     }
+}
+
+
+// ============================================================
+// DETERMINE COLOUR FOR A NUMBER
+// ============================================================
+//
+// 1-9   → clue 1
+// 10-19 → clue 10
+// 20-29 → clue 20
+// 30-39 → clue 30
+//
+// etc.
+//
+// This means every section of the walk has a consistent colour.
+// ============================================================
+
+function getColourForNumber(number) {
+
+    if (number === 0) {
+        return null;
+    }
+
+    let clueNumber;
+
+    if (number < 10) {
+        clueNumber = 1;
+    }
+    else {
+        clueNumber =
+            Math.floor(number / 10) * 10;
+    }
+
+    const clueIndex =
+        clues.indexOf(clueNumber);
+
+    if (clueIndex === -1) {
+        return colourPalette[0];
+    }
+
+    return colourPalette[
+        clueIndex % colourPalette.length
+    ];
 }
 
 
@@ -106,26 +217,67 @@ function createGrid() {
 
     grid.innerHTML = "";
 
-    for (let i = 0; i < solution.length; i++) {
+    for (
+        let position = 0;
+        position < solution.length;
+        position++
+    ) {
+
+        const number =
+            solution[position];
 
         const square =
             document.createElement("div");
 
-        square.className = "square";
+        square.className =
+            "square";
 
-        square.dataset.position = i;
+        square.dataset.position =
+            position;
 
 
         // ----------------------------------------------------
-        // DISPLAY CLUES
+        // BLACK / UNUSED CELLS
         // ----------------------------------------------------
 
-        if (clues.includes(solution[i])) {
+        if (number === 0) {
+
+            square.classList.add("unused");
+
+        }
+
+
+        // ----------------------------------------------------
+        // COLOUR WHITE CELLS
+        // ----------------------------------------------------
+
+        else {
+
+            const colour =
+                getColourForNumber(number);
+
+            square.style.setProperty(
+                "--numstep-colour",
+                colour
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // DISPLAY CLUE
+        // ----------------------------------------------------
+
+        if (
+            number !== 0 &&
+            clues.includes(number)
+        ) {
 
             square.textContent =
-                solution[i];
+                number;
 
             square.classList.add("clue");
+
         }
 
 
@@ -135,13 +287,13 @@ function createGrid() {
 
         square.addEventListener(
             "mousedown",
-            (event) => {
+            function(event) {
 
                 event.preventDefault();
 
                 dragging = true;
 
-                handleMove(i);
+                handleMove(position);
             }
         );
 
@@ -152,13 +304,13 @@ function createGrid() {
 
         square.addEventListener(
             "touchstart",
-            (event) => {
+            function(event) {
 
                 event.preventDefault();
 
                 dragging = true;
 
-                handleMove(i);
+                handleMove(position);
 
             },
             { passive: false }
@@ -171,12 +323,12 @@ function createGrid() {
 
 
 // ============================================================
-// MOUSE MOVEMENT
+// MOUSE DRAGGING
 // ============================================================
 
 document.addEventListener(
     "mousemove",
-    (event) => {
+    function(event) {
 
         if (!dragging) {
             return;
@@ -192,12 +344,16 @@ document.addEventListener(
             return;
         }
 
-        if (!element.classList.contains("square")) {
+        if (
+            !element.classList.contains("square")
+        ) {
             return;
         }
 
         const position =
-            Number(element.dataset.position);
+            Number(
+                element.dataset.position
+            );
 
         handleMove(position);
     }
@@ -205,12 +361,12 @@ document.addEventListener(
 
 
 // ============================================================
-// TOUCH MOVEMENT
+// TOUCH DRAGGING
 // ============================================================
 
 document.addEventListener(
     "touchmove",
-    (event) => {
+    function(event) {
 
         if (!dragging) {
             return;
@@ -231,12 +387,16 @@ document.addEventListener(
             return;
         }
 
-        if (!element.classList.contains("square")) {
+        if (
+            !element.classList.contains("square")
+        ) {
             return;
         }
 
         const position =
-            Number(element.dataset.position);
+            Number(
+                element.dataset.position
+            );
 
         handleMove(position);
 
@@ -251,7 +411,7 @@ document.addEventListener(
 
 document.addEventListener(
     "mouseup",
-    () => {
+    function() {
 
         dragging = false;
 
@@ -261,7 +421,7 @@ document.addEventListener(
 
 document.addEventListener(
     "touchend",
-    () => {
+    function() {
 
         dragging = false;
 
@@ -280,29 +440,50 @@ function handleMove(position) {
     }
 
 
+    const number =
+        solution[position];
+
+
     // --------------------------------------------------------
     // BLACK / UNUSED CELL
     // --------------------------------------------------------
 
-    if (solution[position] === 0) {
+    if (number === 0) {
         return;
     }
 
 
     // --------------------------------------------------------
-    // FIRST MOVE MUST BE 1
+    // STARTING A NEW RUN
     // --------------------------------------------------------
 
     if (!started) {
 
-        if (solution[position] !== 1) {
+        if (!clues.includes(number)) {
 
-            showMessage("Start at 1.");
+            showMessage(
+                "Start on a coloured clue."
+            );
 
             return;
         }
 
+
+        // ----------------------------------------------------
+        // START FROM ANY CLUE
+        // ----------------------------------------------------
+
         started = true;
+
+        startingClue =
+            number;
+
+        nextMilestone =
+            getNextMilestone(
+                startingClue
+            );
+
+        movesSinceClue = 0;
 
         startTimer();
 
@@ -334,30 +515,81 @@ function handleMove(position) {
 
 
     // --------------------------------------------------------
-    // MUST BE THE NEXT NUMBER
-    // --------------------------------------------------------
-
-    const expectedNumber =
-        path.length + 1;
-
-    if (solution[position] !== expectedNumber) {
-        return;
-    }
-
-
-    // --------------------------------------------------------
     // ADD MOVE
     // --------------------------------------------------------
 
     addMove(position);
 
+    movesSinceClue++;
+
 
     // --------------------------------------------------------
-    // CHECK COMPLETION
+    // CHECK MILESTONE
     // --------------------------------------------------------
 
-    checkCompletion();
+    if (
+        clues.includes(number)
+    ) {
+
+        if (
+            number !== nextMilestone
+        ) {
+
+            failAttempt(
+                "You reached a clue at the wrong point."
+            );
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // CORRECT MILESTONE
+        // ----------------------------------------------------
+
+        startingClue =
+            number;
+
+        nextMilestone =
+            getNextMilestone(
+                startingClue
+            );
+
+        movesSinceClue = 0;
+    }
+
+
+    // --------------------------------------------------------
+    // CHECK WHETHER THE PUZZLE IS COMPLETE
+    // --------------------------------------------------------
+
+    if (isPuzzleComplete()) {
+
+        completePuzzle();
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // CHECK FOR DEAD END
+    // --------------------------------------------------------
+
+    if (hasNoLegalMoves()) {
+
+        const remaining =
+            countRemainingWhiteSquares();
+
+        if (remaining > 0) {
+
+            failAttempt(
+                "Dead end! There are still squares remaining."
+            );
+
+        }
+    }
 }
+
 
 // ============================================================
 // ADD MOVE
@@ -373,6 +605,45 @@ function addMove(position) {
         );
 
     square.classList.add("selected");
+
+
+    // --------------------------------------------------------
+    // Show the number once the player visits it.
+    // --------------------------------------------------------
+
+    if (
+        solution[position] !== 0
+    ) {
+
+        square.textContent =
+            solution[position];
+    }
+}
+
+
+// ============================================================
+// FIND NEXT MILESTONE
+// ============================================================
+
+function getNextMilestone(currentClue) {
+
+    const currentIndex =
+        clues.indexOf(currentClue);
+
+    if (currentIndex === -1) {
+        return null;
+    }
+
+    if (
+        currentIndex + 1 >= clues.length
+    ) {
+
+        return null;
+    }
+
+    return clues[
+        currentIndex + 1
+    ];
 }
 
 
@@ -402,24 +673,238 @@ function isAdjacent(a, b) {
 
 
 // ============================================================
-// COMPLETION
+// FIND LEGAL NEXT MOVES
 // ============================================================
 
-function checkCompletion() {
+function getLegalMoves() {
 
-    const totalSteps =
-        solution.filter(number => number !== 0).length;
-
-    if (path.length !== totalSteps) {
-        return;
+    if (path.length === 0) {
+        return [];
     }
+
+    const current =
+        path[path.length - 1];
+
+    const row =
+        Math.floor(current / size);
+
+    const col =
+        current % size;
+
+    const possibleMoves = [
+
+        [row - 1, col],
+        [row + 1, col],
+        [row, col - 1],
+        [row, col + 1]
+
+    ];
+
+    const legalMoves = [];
+
+
+    for (
+        const [newRow, newCol]
+        of possibleMoves
+    ) {
+
+        if (
+            newRow < 0 ||
+            newRow >= size ||
+            newCol < 0 ||
+            newCol >= size
+        ) {
+            continue;
+        }
+
+
+        const position =
+            newRow * size + newCol;
+
+        const number =
+            solution[position];
+
+
+        // ----------------------------------------------------
+        // Black cell
+        // ----------------------------------------------------
+
+        if (number === 0) {
+            continue;
+        }
+
+
+        // ----------------------------------------------------
+        // Already visited
+        // ----------------------------------------------------
+
+        if (path.includes(position)) {
+            continue;
+        }
+
+
+        // ----------------------------------------------------
+        // Milestone rule
+        // ----------------------------------------------------
+
+        if (
+            clues.includes(number) &&
+            number !== nextMilestone
+        ) {
+
+            continue;
+        }
+
+
+        legalMoves.push(position);
+    }
+
+    return legalMoves;
+}
+
+
+// ============================================================
+// DEAD-END CHECK
+// ============================================================
+
+function hasNoLegalMoves() {
+
+    return (
+        getLegalMoves().length === 0
+    );
+}
+
+
+// ============================================================
+// COUNT REMAINING WHITE SQUARES
+// ============================================================
+
+function countRemainingWhiteSquares() {
+
+    let totalWhite = 0;
+
+    for (
+        const number of solution
+    ) {
+
+        if (number !== 0) {
+            totalWhite++;
+        }
+    }
+
+    return (
+        totalWhite - path.length
+    );
+}
+
+
+// ============================================================
+// CHECK COMPLETION
+// ============================================================
+
+function isPuzzleComplete() {
+
+    const totalWhite =
+        solution.filter(
+            number => number !== 0
+        ).length;
+
+    return (
+        path.length === totalWhite
+    );
+}
+
+
+// ============================================================
+// FAILED ATTEMPT
+// ============================================================
+
+function failAttempt(text) {
+
+    attempts++;
+
+    updateAttemptsDisplay();
+
+    stopTimer();
+
+    started = false;
+
+    path = [];
+
+    startingClue = null;
+
+    nextMilestone = null;
+
+    movesSinceClue = 0;
+
+    clearGrid();
+
+    showMessage(
+        `${text} Attempt ${attempts}.`
+    );
+
+    timerDisplay.textContent =
+        "00:00";
+}
+
+
+// ============================================================
+// CLEAR PLAYER PATH
+// ============================================================
+
+function clearGrid() {
+
+    const squares =
+        document.querySelectorAll(
+            ".square"
+        );
+
+    squares.forEach(
+        function(square) {
+
+            square.classList.remove(
+                "selected"
+            );
+
+            const position =
+                Number(
+                    square.dataset.position
+                );
+
+            const number =
+                solution[position];
+
+            if (
+                clues.includes(number)
+            ) {
+
+                square.textContent =
+                    number;
+
+            }
+            else {
+
+                square.textContent =
+                    "";
+
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// SUCCESS
+// ============================================================
+
+function completePuzzle() {
 
     stopTimer();
 
     completed = true;
 
     showMessage(
-        "🎉 Congratulations! You solved today's Numstep!"
+        `🎉 Numstep complete!`
     );
 }
 
@@ -430,7 +915,12 @@ function checkCompletion() {
 
 function startTimer() {
 
-    startTime = Date.now();
+    if (startTime !== null) {
+        return;
+    }
+
+    startTime =
+        Date.now();
 
     updateTimer();
 }
@@ -438,7 +928,11 @@ function startTimer() {
 
 function updateTimer() {
 
-    if (!startTime || completed) {
+    if (
+        startTime === null ||
+        completed
+    ) {
+
         return;
     }
 
@@ -458,7 +952,9 @@ function updateTimer() {
         ":" +
         String(seconds).padStart(2, "0");
 
-    requestAnimationFrame(updateTimer);
+    requestAnimationFrame(
+        updateTimer
+    );
 }
 
 
@@ -469,7 +965,7 @@ function stopTimer() {
 
 
 // ============================================================
-// RESET
+// RESET PUZZLE
 // ============================================================
 
 function resetPuzzle() {
@@ -484,11 +980,34 @@ function resetPuzzle() {
 
     dragging = false;
 
-    timerDisplay.textContent = "00:00";
+    startingClue = null;
 
-    message.textContent = "";
+    nextMilestone = null;
+
+    movesSinceClue = 0;
+
+    timerDisplay.textContent =
+        "00:00";
+
+    message.textContent =
+        "";
 
     createGrid();
+}
+
+
+// ============================================================
+// ATTEMPTS DISPLAY
+// ============================================================
+
+function updateAttemptsDisplay() {
+
+    if (!attemptsDisplay) {
+        return;
+    }
+
+    attemptsDisplay.textContent =
+        `Attempts: ${attempts}`;
 }
 
 
@@ -498,15 +1017,22 @@ function resetPuzzle() {
 
 function showMessage(text) {
 
-    message.textContent = text;
+    message.textContent =
+        text;
 
-    setTimeout(() => {
+    setTimeout(
+        function() {
 
-        if (!completed) {
-            message.textContent = "";
-        }
+            if (!completed) {
 
-    }, 2000);
+                message.textContent =
+                    "";
+
+            }
+
+        },
+        3000
+    );
 }
 
 
@@ -515,3 +1041,4 @@ function showMessage(text) {
 // ============================================================
 
 loadPuzzle();
+```
