@@ -407,7 +407,10 @@ function isAdjacent(a, b) {
 
 function checkCompletion() {
 
-    if (path.length !== solution.length) {
+    const totalSteps =
+        solution.filter(number => number !== 0).length;
+
+    if (path.length !== totalSteps) {
         return;
     }
 
