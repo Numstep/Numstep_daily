@@ -105,8 +105,6 @@ function addMove(position) {
         );
 
     square.classList.add("selected");
-
-    square.textContent = solution[position];
 }
 
 
