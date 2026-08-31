@@ -24,3 +24,14 @@ jobs:
       - name: Generate Numstep
         run: |
           python numstep_daily_unique.py
+
+      - name: Save generated puzzles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add "*.json"
+
+          git commit -m "Generate daily Numstep puzzle" || echo "No changes to commit"
+
+          git push
