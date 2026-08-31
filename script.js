@@ -12,6 +12,7 @@ let started = false;
 let completed = false;
 
 let startTime = null;
+let dragging = false;
 
 
 // ============================================================
@@ -30,19 +31,119 @@ function createGrid() {
 
         square.dataset.position = i;
 
-        // Only display official clues.
+        // Show only the official clues.
         if (clues.includes(solution[i])) {
             square.textContent = solution[i];
             square.classList.add("clue");
         }
 
-        square.addEventListener("click", () => {
+        // Mouse
+        square.addEventListener("mousedown", (event) => {
+
+            event.preventDefault();
+
+            dragging = true;
+
             handleMove(i);
+
         });
+
+        // Touch
+        square.addEventListener("touchstart", (event) => {
+
+            event.preventDefault();
+
+            dragging = true;
+
+            handleMove(i);
+
+        }, { passive: false });
 
         grid.appendChild(square);
     }
 }
+
+
+// ============================================================
+// MOUSE MOVEMENT
+// ============================================================
+
+document.addEventListener("mousemove", (event) => {
+
+    if (!dragging) {
+        return;
+    }
+
+    const element = document.elementFromPoint(
+        event.clientX,
+        event.clientY
+    );
+
+    if (!element) {
+        return;
+    }
+
+    if (!element.classList.contains("square")) {
+        return;
+    }
+
+    const position =
+        Number(element.dataset.position);
+
+    handleMove(position);
+});
+
+
+// ============================================================
+// TOUCH MOVEMENT
+// ============================================================
+
+document.addEventListener("touchmove", (event) => {
+
+    if (!dragging) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const touch = event.touches[0];
+
+    const element = document.elementFromPoint(
+        touch.clientX,
+        touch.clientY
+    );
+
+    if (!element) {
+        return;
+    }
+
+    if (!element.classList.contains("square")) {
+        return;
+    }
+
+    const position =
+        Number(element.dataset.position);
+
+    handleMove(position);
+
+}, { passive: false });
+
+
+// ============================================================
+// END DRAG
+// ============================================================
+
+document.addEventListener("mouseup", () => {
+
+    dragging = false;
+
+});
+
+document.addEventListener("touchend", () => {
+
+    dragging = false;
+
+});
 
 
 // ============================================================
@@ -54,6 +155,7 @@ function handleMove(position) {
     if (completed) {
         return;
     }
+
 
     // First move must be 1.
     if (!started) {
@@ -72,18 +174,21 @@ function handleMove(position) {
         return;
     }
 
-    // Don't visit a square twice.
+
+    // Don't revisit a square.
     if (path.includes(position)) {
         return;
     }
 
+
     // Must move to an adjacent square.
-    const previous = path[path.length - 1];
+    const previous =
+        path[path.length - 1];
 
     if (!isAdjacent(previous, position)) {
-        showMessage("You can only move to an adjacent square.");
         return;
     }
+
 
     addMove(position);
 
@@ -166,7 +271,9 @@ function updateTimer() {
     }
 
     const elapsed =
-        Math.floor((Date.now() - startTime) / 1000);
+        Math.floor(
+            (Date.now() - startTime) / 1000
+        );
 
     const minutes =
         Math.floor(elapsed / 60);
@@ -203,7 +310,7 @@ function resetPuzzle() {
 
     completed = false;
 
-    startTime = null;
+    dragging = false;
 
     timerDisplay.textContent = "00:00";
 
@@ -213,7 +320,10 @@ function resetPuzzle() {
 }
 
 
-resetButton.addEventListener("click", resetPuzzle);
+resetButton.addEventListener(
+    "click",
+    resetPuzzle
+);
 
 
 // ============================================================
