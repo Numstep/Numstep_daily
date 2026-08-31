@@ -3,6 +3,9 @@ name: Generate Numstep
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write:
+
 jobs:
   generate:
     runs-on: ubuntu-latest
