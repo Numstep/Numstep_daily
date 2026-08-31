@@ -912,6 +912,7 @@ def create_page(
     small_right_x = (
         small_left_x
         + small_size
+    )
 
     # ========================================================
     # DRAW SMALL PUZZLES
