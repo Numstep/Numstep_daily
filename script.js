@@ -81,6 +81,18 @@ async function loadPuzzle() {
     }
 }
 
+const cluePositions = {};
+
+function buildCluePositions() {
+    clues.forEach(clueNumber => {
+        const position = solution.indexOf(clueNumber);
+
+        if (position !== -1) {
+            cluePositions[position] = clueNumber;
+        }
+    });
+}
+
 function getClueNumbers() {
     const numbers = [];
 
