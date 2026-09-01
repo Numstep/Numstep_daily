@@ -23,7 +23,7 @@ let dragging = false;
 
 let currentClue = null;
 let nextClue = null;
-let chainLength = 0;
+let chainLength = 0;p
 
 const colourPalette = [
     "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
@@ -244,22 +244,40 @@ function handleMove(position) {
     }
 
     if (isCluePosition(position)) {
-        const enteredClue = clueGrid[position];
 
-        if (enteredClue !== nextClue) {
-            failAttempt("Wrong clue.");
-            return;
-        }
+    const enteredClue = clueGrid[position];
+
+    // --------------------------------------------------------
+    // REACHED THE NEXT CLUE
+    // --------------------------------------------------------
+
+    if (enteredClue === nextClue) {
 
         const requiredLength =
             getRequiredChainLength(currentClue);
 
         if (chainLength !== requiredLength) {
+
             failAttempt(
                 "You reached the clue at the wrong point."
             );
+
             return;
         }
+    }
+
+    // --------------------------------------------------------
+    // REACHED A DIFFERENT CLUE
+    // --------------------------------------------------------
+
+    else {
+
+        failAttempt(
+            "Wrong clue."
+        );
+
+        return;
+    }
     }
 
     chainLength++;
@@ -348,6 +366,7 @@ function isAdjacent(a, b) {
 }
 
 function getLegalMoves() {
+
     if (path.length === 0) {
         return [];
     }
@@ -367,6 +386,7 @@ function getLegalMoves() {
     const legal = [];
 
     for (const [r, c] of possible) {
+
         if (
             r < 0 ||
             r >= size ||
@@ -377,21 +397,23 @@ function getLegalMoves() {
         }
 
         const position = r * size + c;
-        const number = solution[position];
 
-        if (number === 0) {
+        // Black / unusable square
+        if (solution[position] === 0) {
             continue;
         }
 
+        // Cannot visit a square twice
         if (path.includes(position)) {
             continue;
         }
 
-        if (isCluePosition(position)) {
-            if (clueGrid[position] !== nextClue) {
-                continue;
-            }
-        }
+        // IMPORTANT:
+        // Any unused adjacent white square is legal.
+        // Do NOT reject a square because it is a clue.
+        //
+        // The clue is checked only when the player actually
+        // moves onto it.
 
         legal.push(position);
     }
