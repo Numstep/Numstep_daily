@@ -23,7 +23,7 @@ let dragging = false;
 
 let currentClue = null;
 let nextClue = null;
-let chainLength = 0;p
+let chainLength = 0;
 
 const colourPalette = [
     "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
