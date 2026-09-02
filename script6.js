@@ -609,6 +609,15 @@ function handleCellClick(r, c) {
     // enforcing the hidden consecutive Numstep path.
     // --------------------------------------------------------
 
+
+const lastValue = grid[last.r][last.c];
+const chainEnd = getChainEnd(lastValue);
+
+if (lastValue === chainEnd) {
+    showMessage(`Chain ending at ${chainEnd} complete.`);
+    return;
+}
+
   const lastValue = grid[last.r][last.c];
 
   const expectedValue = lastValue + 1;
@@ -868,6 +877,16 @@ function showLoadError(error) {
     showMessage(
         `Unable to load today's puzzle: ${error.message}`
     );
+}
+
+function getChainEnd(value) {
+    const nextClue = clues.find(clue => clue.value > value);
+
+    if (nextClue) {
+        return nextClue.value - 1;
+    }
+
+    return Math.max(...solution);
 }
 
 // ------------------------------------------------------------
