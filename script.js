@@ -53,6 +53,17 @@ const STORAGE_KEY_LAST_PLAYED = 'numstep-last-played';
 const STORAGE_KEY_ATTEMPTS = 'numstep-attempts';
 const STORAGE_KEY_TIMER = 'numstep-timer';
 
+
+// Colours are assigned to clue/checkpoint groups.
+const colourPalette = [
+    "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
+    "#B07AA1", "#76B7B2", "#EDC948", "#9C755F",
+    "#86BCB6", "#FF9DA7", "#79706E", "#A0CBE8"
+];
+
+let clueColours = {};
+
+
 const DIRECTIONS = [
     { r: -1, c: 0 },
     { r: 1, c: 0 },
