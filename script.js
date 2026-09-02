@@ -100,7 +100,7 @@ async function loadDailyPuzzle() {
         initializePuzzle(data);
 
     } catch (err) {
-        console.error('Failed to load today's Numstep puzzle:', err);
+        console.error('Failed to load todays Numstep puzzle:', err);
         showLoadError(err);
     }
 }
