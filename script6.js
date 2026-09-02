@@ -553,25 +553,20 @@ function handleCellClick(r, c) {
     // FIRST MOVE
     // --------------------------------------------------------
 
-    if (currentPath.length === 0) {
-        const firstClue = clues[0];
+ if (currentPath.length === 0) {
 
-        if (!firstClue) {
-            showMessage("No starting clue is available.");
-            return;
-        }
-
-        if (value !== firstClue.value) {
-            showMessage(`Start from clue ${firstClue.value}.`);
-            return;
-        }
-
-        startTimer();
-        addToPath(r, c);
-        checkGameState(r, c);
-
+    // The player may start from ANY clue.
+    if (!isClueValue(value)) {
+        showMessage("Start from any coloured clue.");
         return;
     }
+
+    startTimer();
+
+    addToPath(r, c);
+
+    return;
+}
 
     const last = currentPath[currentPath.length - 1];
 
@@ -614,14 +609,16 @@ function handleCellClick(r, c) {
     // enforcing the hidden consecutive Numstep path.
     // --------------------------------------------------------
 
-    const expectedValue = currentPath.length + 1;
+  const lastValue = grid[last.r][last.c];
 
-    if (value !== expectedValue) {
-        handleFailure(
-            `Wrong step. You need ${expectedValue} next.`
-        );
-        return;
-    }
+  const expectedValue = lastValue + 1;
+
+  if (value !== expectedValue) {
+      handleFailure(
+          `Wrong step. You need ${expectedValue}      next.`
+      );
+      return;
+  }
 
     // --------------------------------------------------------
     // VALID MOVE
