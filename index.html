@@ -1,39 +1,224 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+```
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>Numstep - Daily Challenge</title>
+<title>Numstep - Daily Challenge</title>
 
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
+```
+
 </head>
 
 <body>
 
-    <h1>NUMSTEP</h1>
+```
+<h1>NUMSTEP</h1>
 
-    <h2>Daily Challenge</h2>
+<h2>Daily Challenge</h2>
 
-    <a href="pdfs/today.pdf" target="_blank">
-      <button>🖨️ Today's Printable Puzzle</button>
+
+<!-- Date navigation -->
+<div class="date-navigation">
+
+    <button id="prevDay" aria-label="Previous day">
+        ← Previous
+    </button>
+
+    <div id="currentDate"></div>
+
+    <button id="nextDay" aria-label="Next day">
+        Next →
+    </button>
+
+</div>
+
+
+<!-- Printable PDF -->
+<div class="printable-puzzle">
+
+    <a id="pdfLink" href="#" target="_blank">
+        <button>
+            🖨️ Printable Puzzle
+        </button>
     </a>
 
-    <div id="timer">00:00</div>
+</div>
 
-    <div id="attempts">Attempts: 0</div>
 
-    <div id="grid"></div>
+<!-- Game information -->
+<div id="timer">00:00</div>
 
-    <div id="message"></div>
+<div id="attempts">Attempts: 0</div>
 
-    <button id="resetButton">RESET</button>
 
-    
-    <script src="script8.js"></script>
+<!-- Numstep grid -->
+<div id="grid"></div>
+
+
+<!-- Messages -->
+<div id="message"></div>
+
+
+<!-- Reset button -->
+<button id="resetButton">RESET</button>
+
+
+<!-- Existing Numstep game -->
+<script src="script8.js"></script>
+
+
+<!-- PDF date navigation -->
+<script>
+
+    // Start with today's date
+    let selectedDate = new Date();
+
+
+    // Format date as YYYY-MM-DD
+    // This matches your PDF filenames:
+    // pdfs/2026-09-03.pdf
+
+    function formatDate(date) {
+
+        const year = date.getFullYear();
+
+        const month = String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
+
+        const day = String(
+            date.getDate()
+        ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+
+    // Friendly date for display
+
+    function displayDate(date) {
+
+        return date.toLocaleDateString(
+            "en-GB",
+            {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    // Update displayed date and PDF link
+
+    function updateDateNavigation() {
+
+        const filenameDate =
+            formatDate(selectedDate);
+
+
+        // Show selected date
+
+        document.getElementById(
+            "currentDate"
+        ).textContent =
+            displayDate(selectedDate);
+
+
+        // Update PDF link
+
+        document.getElementById(
+            "pdfLink"
+        ).href =
+            `pdfs/${filenameDate}.pdf`;
+
+
+        // Prevent users going into the future
+
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+
+
+        const selected = new Date(selectedDate);
+
+        selected.setHours(0, 0, 0, 0);
+
+
+        document.getElementById(
+            "nextDay"
+        ).disabled =
+            selected >= today;
+
+    }
+
+
+    // Previous day
+
+    document.getElementById(
+        "prevDay"
+    ).addEventListener(
+        "click",
+        function () {
+
+            selectedDate.setDate(
+                selectedDate.getDate() - 1
+            );
+
+            updateDateNavigation();
+
+        }
+    );
+
+
+    // Next day
+
+    document.getElementById(
+        "nextDay"
+    ).addEventListener(
+        "click",
+        function () {
+
+            const today = new Date();
+
+            today.setHours(0, 0, 0, 0);
+
+
+            const nextDate =
+                new Date(selectedDate);
+
+            nextDate.setDate(
+                nextDate.getDate() + 1
+            );
+
+
+            if (nextDate <= today) {
+
+                selectedDate = nextDate;
+
+                updateDateNavigation();
+
+            }
+
+        }
+    );
+
+
+    // Initialise page
+
+    updateDateNavigation();
+
+</script>
+```
 
 </body>
 
