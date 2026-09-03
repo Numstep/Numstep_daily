@@ -116,10 +116,29 @@
 
     // Update displayed date and PDF link
 
+   
+    function loadSelectedPuzzle() {
+
+    const filenameDate = formatDate(selectedDate);
+
+    window.selectedDateString = filenameDate;
+
+    // Tell script8.js to load the puzzle for this date
+    if (typeof loadPuzzleForDate === "function") {
+        loadPuzzleForDate(filenameDate);
+    }
+}
+ 
+
     function updateDateNavigation() {
 
         const filenameDate =
             formatDate(selectedDate);
+
+        const filenameDate = formatDate(selectedDate);
+
+        // Make the date available to script8.js
+window.selectedDateString = filenameDate;
 
 
         // Show selected date
@@ -160,53 +179,50 @@
 
     // Previous day
 
-    document.getElementById(
-        "prevDay"
-    ).addEventListener(
-        "click",
-        function () {
+           document.getElementById("prevDay").addEventListener(
+    "click",
+    function () {
 
-            selectedDate.setDate(
-                selectedDate.getDate() - 1
-            );
+        selectedDate.setDate(
+            selectedDate.getDate() - 1
+        );
 
-            updateDateNavigation();
+        updateDateNavigation();
+        loadSelectedPuzzle();
 
-        }
-    );
+    }
+);
 
 
     // Next day
 
-    document.getElementById(
-        "nextDay"
-    ).addEventListener(
-        "click",
-        function () {
+    document.getElementById("nextDay").addEventListener(
+    "click",
+    function () {
 
-            const today = new Date();
+        const today = new Date();
 
-            today.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
 
 
-            const nextDate =
-                new Date(selectedDate);
+        const nextDate = new Date(selectedDate);
 
-            nextDate.setDate(
-                nextDate.getDate() + 1
-            );
+        nextDate.setDate(
+            nextDate.getDate() + 1
+        );
 
 
-            if (nextDate <= today) {
+        if (nextDate <= today) {
 
-                selectedDate = nextDate;
+            selectedDate = nextDate;
 
-                updateDateNavigation();
-
-            }
+            updateDateNavigation();
+            loadSelectedPuzzle();
 
         }
-    );
+
+    }
+);
 
 
     // Initialise page
