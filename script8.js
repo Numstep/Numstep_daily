@@ -1,4 +1,4 @@
- * NUMSTEP DAILY - SCRIPT 7 REBUILD
+ /* NUMSTEP DAILY - SCRIPT 7 REBUILD
  *
  * Main features:
  *   - Supports 5x5, 7x7 and 9x9 daily puzzles.
