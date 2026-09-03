@@ -1,5 +1,5 @@
 
- * Numstep Daily - Multi-Chain Rebuild
+ /* Numstep Daily - Multi-Chain Rebuild
  *
  * Intended mechanic:
  *   - The player may start ANY chain from ANY clue.
