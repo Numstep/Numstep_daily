@@ -122,7 +122,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // DATE / FILE LOADING
 // ============================================================
 
-function getLocalDateString() {
+function getSelectedDateString() {
+
+    // Use the date selected by index.html
+    if (window.selectedDateString) {
+        return window.selectedDateString;
+    }
+
+    // Fallback to today if no date has been supplied
     const now = new Date();
 
     const year = now.getFullYear();
@@ -130,6 +137,14 @@ function getLocalDateString() {
     const day = String(now.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
+}
+
+
+function getPuzzleFilename(size) {
+
+    const selectedDate = getSelectedDateString();
+
+    return `${PUZZLE_FILE_PREFIX}_${size}_${selectedDate}.json`;
 }
 
 function getPuzzleFilename(size) {
@@ -196,18 +211,28 @@ async function loadPuzzle(size) {
     }
 }
 
+async function loadPuzzleForDate(dateString) {
+
+    // Store the selected date globally
+    window.selectedDateString = dateString;
+
+    // Reload the currently selected puzzle size
+    await selectPuzzleSize(puzzleSize);
+}
+
+
 function validatePuzzleData(data) {
     if (!data || typeof data !== "object") {
         throw new Error("Puzzle JSON is empty or invalid.");
     }
 
-    const today = getLocalDateString();
+    const selectedDate = getSelectedDateString();
 
-    if (data.date !== today) {
-        throw new Error(
-            `Puzzle date mismatch. Expected ${today}, received ${data.date}.`
-        );
-    }
+if (data.date !== selectedDate) {
+    throw new Error(
+        `Puzzle date mismatch. Expected ${selectedDate}, received ${data.date}.`
+    );
+}
 
     if (Number(data.size) !== puzzleSize) {
         throw new Error(
