@@ -115,3 +115,15 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+#currentDate {
+    min-width: 180px;
+    text-align: center;
+}
