@@ -92,24 +92,24 @@ const NumstepBadge = {
             }
         });
 
-        // 4. Stats (Match #timer and #attempts style)
-        const statsY = startY + gridSize + 60;
-        
-        // Time
-        ctx.fillStyle = this.colors.text;
-        ctx.font = 'bold 32px ' + this.fonts.monospace;
-        ctx.fillText(time, 140, statsY);
-        ctx.font = '14px ' + this.fonts.main;
-        ctx.fillStyle = this.colors.subtext;
-        ctx.fillText('TIME', 140, statsY + 25);
+        // 4. Stats (Replicating the look of your #timer and #attempts div)
+const statsY = startY + gridSize + 60;
 
-        // Attempts
-        ctx.fillStyle = this.colors.text;
-        ctx.font = 'bold 32px ' + this.fonts.main;
-        ctx.fillText(attempts, 360, statsY);
-        ctx.font = '14px ' + this.fonts.main;
-        ctx.fillStyle = this.colors.subtext;
-        ctx.fillText('ATTEMPTS', 360, statsY + 25);
+// Time (Left Side)
+ctx.fillStyle = this.colors.text;
+ctx.font = 'bold 32px monospace'; // Match your #timer monospace font
+ctx.fillText(time, 140, statsY);
+ctx.font = '16px ' + this.fonts.main;
+ctx.fillStyle = this.colors.subtext;
+ctx.fillText('TIME', 140, statsY + 25);
+
+// Attempts (Right Side)
+ctx.fillStyle = this.colors.text;
+ctx.font = 'bold 32px ' + this.fonts.main;
+ctx.fillText(attempts, 360, statsY); // Just the number
+ctx.font = '16px ' + this.fonts.main;
+ctx.fillStyle = this.colors.subtext;
+ctx.fillText('ATTEMPTS', 360, statsY + 25);
 
         // 5. Footer URL
         ctx.font = '14px ' + this.fonts.main;
