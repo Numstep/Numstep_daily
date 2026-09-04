@@ -1102,7 +1102,7 @@ for size in sizes:
 )
 
     web_filename_share = (
-    f"numstep_{size}_{date.today()_share}.json"
+    f"numstep_{size}_{date.today()}_share.json"
 )
 
     export_web_puzzle(
