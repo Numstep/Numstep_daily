@@ -1305,6 +1305,7 @@ function formatElapsedTime(milliseconds) {
 // WIN
 // ============================================================
 
+
 function handlePuzzleWin() {
     if (isSolved) {
         return;
@@ -1316,7 +1317,6 @@ function handlePuzzleWin() {
     dragging = false;
 
     stopTimer(false);
-
     updateTimerDisplay();
 
     showMessage(
@@ -1324,6 +1324,16 @@ function handlePuzzleWin() {
         `${attempts} attempt${attempts === 1 ? "" : "s"} ` +
         `in ${formatElapsedTime(finalElapsed)}.`
     );
+
+    // Show the sharing popup
+    if (typeof showShareModal === "function") {
+        showShareModal({
+            attempts,
+            elapsed: finalElapsed,
+            size: puzzleSize,
+            date: puzzleData?.date
+        });
+    }
 }
 
 // ============================================================
