@@ -1084,6 +1084,9 @@ sizes = [
 
 grids = []
 steps_list = []
+grids_share =[]
+steps_list_share=[]
+
 
 for size in sizes:
 
@@ -1092,9 +1095,14 @@ for size in sizes:
     )
 
     grid, steps = generate_walk(size)
+    grid_share, steps_share = generate_walk(size)
     
     web_filename = (
     f"numstep_{size}_{date.today()}.json"
+)
+
+    web_filename_share = (
+    f"numstep_{size}_{date.today()_share}.json"
 )
 
     export_web_puzzle(
@@ -1103,8 +1111,17 @@ for size in sizes:
     web_filename
 )
 
+    export_web_puzzle(
+    grid_share,
+    steps_share,
+    web_filename_share
+)
+
     grids.append(grid)
     steps_list.append(steps)
+    grids_share.append(grid)
+    steps_list_share.append(steps)
+
 
     print(
         f"  {steps} squares visited "
