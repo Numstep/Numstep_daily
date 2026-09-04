@@ -1305,7 +1305,6 @@ function formatElapsedTime(milliseconds) {
 // WIN
 // ============================================================
 
-
 function handlePuzzleWin() {
     if (isSolved) {
         return;
@@ -1319,11 +1318,26 @@ function handlePuzzleWin() {
     stopTimer(false);
     updateTimerDisplay();
 
+    const formattedTime = formatElapsedTime(finalElapsed);
+
     showMessage(
         `Congratulations! Puzzle complete — ` +
         `${attempts} attempt${attempts === 1 ? "" : "s"} ` +
-        `in ${formatElapsedTime(finalElapsed)}.`
+        `in ${formattedTime}.`
     );
+
+    // --- NEW: Generate the Shareable PNG Badge ---
+    if (typeof NumstepBadge !== "undefined") {
+        // We pass the raw puzzleSize, the date string, 
+        // the formatted time string, and the attempt count.
+        NumstepBadge.generate(
+            puzzleSize, 
+            puzzleData?.date || window.selectedDateString, 
+            formattedTime, 
+            attempts
+        );
+    }
+    // ----------------------------------------------
 
     // Show the sharing popup
     if (typeof showShareModal === "function") {
@@ -1336,7 +1350,7 @@ function handlePuzzleWin() {
     }
 }
 
-// ============================================================
+ ============================================================
 // ATTEMPTS
 // ============================================================
 
