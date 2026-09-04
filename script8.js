@@ -147,9 +147,7 @@ function getPuzzleFilename(size) {
     return `${PUZZLE_FILE_PREFIX}_${size}_${selectedDate}.json`;
 }
 
-function getPuzzleFilename(size) {
-    return `${PUZZLE_FILE_PREFIX}_${size}_${getLocalDateString()}.json`;
-}
+
 
 async function selectPuzzleSize(size) {
     size = Number(size);
