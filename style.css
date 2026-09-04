@@ -20,6 +20,106 @@ h2 {
     font-family: monospace;
 }
 
+.shareModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+}
+
+.shareModal.open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shareOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.shareBox {
+    position: relative;
+    z-index: 1;
+
+    width: min(90%, 420px);
+
+    padding: 30px;
+
+    background: white;
+    border-radius: 20px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.shareClose {
+    position: absolute;
+
+    top: 10px;
+    right: 15px;
+
+    border: none;
+    background: transparent;
+
+    font-size: 32px;
+
+    cursor: pointer;
+}
+
+.shareGraphic {
+    padding: 25px;
+
+    border-radius: 15px;
+
+    background: #f5f5f5;
+}
+
+.shareBrand {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 3px;
+
+    margin: 15px 0;
+}
+
+.shareStat {
+    margin: 15px 0;
+}
+
+.shareStat strong {
+    display: block;
+
+    font-size: 32px;
+}
+
+.shareStat span {
+    color: #666;
+}
+
+.shareButtons {
+    display: flex;
+
+    gap: 10px;
+
+    justify-content: center;
+
+    margin-top: 20px;
+}
+
+.shareButtons button {
+    padding: 12px 18px;
+
+    border: none;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+}
 #grid {
     display: grid;
 
