@@ -314,7 +314,7 @@ const NumstepBadge = {
             ctx.fillStyle = "#ffffff";
 
             ctx.font =
-                `bold ${cellSize * 0.4}px ` +
+                `bold ${cellSize * 0.004}px ` +
                 this.fonts.main;
 
             ctx.textBaseline =
