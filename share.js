@@ -99,7 +99,11 @@ async function nativeShareResult() {
 
     try {
         if (currentShareResult.badgeImageUrl && navigator.canShare && navigator.share) {
-            const blob = await fetch(currentShareResult.badgeImageUrl).then(r => r.blob());
+            const response = await fetch(currentShareResult.badgeImageUrl);
+            if (!response.ok) {
+                throw new Error("Could not read the badge PNG.");
+            }
+            const blob = await response.blob();
             const file = new File(
                 [blob],
                 `numstep_${currentShareResult.date}_badge.png`,
