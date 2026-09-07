@@ -404,12 +404,9 @@ const NumstepBadge = {
         const imageUrl =
             canvas.toDataURL("image/png");
 
-        // Display only. No automatic download.
-        this.showBadgeModal(
-            imageUrl,
-            dateString,
-            n
-        );
+        // Return the PNG data URL so script8.js can place the badge
+        // inside the unified sharing popup.
+        return imageUrl;
     },
 
     /**

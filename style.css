@@ -227,3 +227,67 @@ button:disabled {
     min-width: 180px;
     text-align: center;
 }
+
+
+.shareBox {
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+.shareBadgeImage {
+    display: block;
+    width: min(100%, 360px);
+    height: auto;
+    margin: 0 auto 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.shareStatsRow {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.shareStatsRow .shareStat {
+    flex: 1;
+    margin: 0;
+}
+
+.shareStatsRow .shareStat strong {
+    font-size: 24px;
+}
+
+.shareDate {
+    margin-top: 12px;
+    color: #666;
+}
+
+.shareButtons {
+    flex-wrap: wrap;
+}
+
+.shareButtons button {
+    min-width: 92px;
+}
+
+@media (max-width: 480px) {
+    .shareBox {
+        width: min(94%, 420px);
+        padding: 18px;
+    }
+
+    .shareGraphic {
+        padding: 16px 10px;
+    }
+
+    .shareStatsRow .shareStat strong {
+        font-size: 20px;
+    }
+
+    .shareButtons button {
+        flex: 1 1 40%;
+        min-width: 0;
+    }
+}
