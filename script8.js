@@ -1326,26 +1326,36 @@ function handlePuzzleWin() {
         `in ${formattedTime}.`
     );
 
-    // --- NEW: Generate the Shareable PNG Badge ---
-    if (typeof NumstepBadge !== "undefined") {
-        // We pass the raw puzzleSize, the date string, 
-        // the formatted time string, and the attempt count.
-        NumstepBadge.generate(
-            puzzleSize, 
-            puzzleData?.date || window.selectedDateString, 
-            formattedTime, 
-            attempts
-        );
-    }
-    // ----------------------------------------------
+    // Generate the PNG badge first, then place it inside the same
+    // sharing popup as the result statistics.
+    const resultDate =
+        puzzleData?.date ||
+        window.selectedDateString ||
+        getSelectedDateString();
 
-    // Show the sharing popup
+    let badgeImageUrl = "";
+
+    if (typeof NumstepBadge !== "undefined") {
+        try {
+            badgeImageUrl = await NumstepBadge.generate(
+                puzzleSize,
+                resultDate,
+                formattedTime,
+                attempts
+            );
+        } catch (error) {
+            console.error("Could not generate share badge:", error);
+        }
+    }
+
     if (typeof showShareModal === "function") {
         showShareModal({
             attempts,
             elapsed: finalElapsed,
             size: puzzleSize,
-            date: puzzleData?.date
+            date: resultDate,
+            badgeImageUrl,
+            url: window.location.href
         });
     }
 }
