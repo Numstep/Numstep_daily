@@ -4,6 +4,11 @@ body {
     margin: 20px;
 }
 
+body.rules-open {
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
 h1 {
     font-size: 38px;
     margin-bottom: 5px;
@@ -228,42 +233,61 @@ button:disabled {
     color: #666;
 }
 
-/* Rules are hidden completely until HOW TO PLAY is clicked. */
+/* Rules stay hidden until HOW TO PLAY is pressed. */
 .rulesModal {
-    display: none;
-    position: fixed;
-    inset: 0;
+    display: none !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     z-index: 1100;
+    box-sizing: border-box;
     align-items: center;
     justify-content: center;
+    padding: 12px;
 }
 
 .rulesModal.open {
-    display: flex;
+    display: flex !important;
+}
+
+.rulesModal[hidden] {
+    display: none !important;
 }
 
 .rulesOverlay {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.65);
+    touch-action: none;
 }
 
 .rulesBox {
     position: relative;
     z-index: 1;
-    width: min(90%, 520px);
-    max-height: 85vh;
+    box-sizing: border-box;
+    width: min(520px, calc(100vw - 24px));
+    max-width: 520px;
+    max-height: min(700px, calc(100vh - 24px));
+    max-height: min(700px, calc(100dvh - 24px));
+    overflow-x: hidden;
     overflow-y: auto;
-    padding: 30px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 46px 24px 24px;
+    margin: 0;
     background: white;
-    border-radius: 20px;
+    border-radius: 16px;
     text-align: left;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
 .rulesBox h2 {
     text-align: center;
-    margin: 0 40px 20px;
+    margin: 0 34px 20px;
 }
 
 .rulesBox p {
@@ -273,23 +297,38 @@ button:disabled {
 
 .rulesClose {
     position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 42px;
-    height: 42px;
+    top: 4px;
+    right: 6px;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: none;
     background: transparent;
     font-size: 32px;
-    line-height: 1;
+    line-height: 44px;
+    text-align: center;
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #rulesButton {
     margin: 10px;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 480px) {
+    body {
+        margin: 12px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
     .shareBox {
         width: min(94%, 420px);
         padding: 18px;
@@ -308,9 +347,26 @@ button:disabled {
         min-width: 0;
     }
 
+    .rulesModal {
+        padding: 12px;
+    }
+
     .rulesBox {
-        width: min(92%, 520px);
-        max-height: 88vh;
-        padding: 24px 18px;
+        width: calc(100vw - 24px);
+        max-width: none;
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        padding: 46px 18px 22px;
+        border-radius: 14px;
+    }
+
+    .rulesBox h2 {
+        font-size: 24px;
+        margin: 0 34px 18px;
+    }
+
+    .rulesBox p {
+        font-size: 16px;
+        line-height: 1.5;
     }
 }
