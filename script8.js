@@ -1305,7 +1305,7 @@ function formatElapsedTime(milliseconds) {
 // WIN
 // ============================================================
 
-function handlePuzzleWin() {
+async function handlePuzzleWin() {
     if (isSolved) {
         return;
     }
