@@ -22,12 +22,12 @@ function createShareModal() {
             </div>
 
             <div class="shareButtons">
-                <button id="nativeShareButton">📤 Share</button>
-                <button id="whatsappShareButton">WhatsApp</button>
-                <button id="xShareButton">𝕏</button>
-                <button id="blueskyShareButton">Bluesky</button>
-                <button id="copyShareButton">📋 Copy</button>
-                <button id="downloadBadgeButton">⬇️ PNG</button>
+                <button id="nativeShareButton">📤 Share badge + result</button>
+                <button id="whatsappShareButton">WhatsApp text/link</button>
+                <button id="xShareButton">𝕏 text/link</button>
+                <button id="blueskyShareButton">Bluesky text/link</button>
+                <button id="copyShareButton">📋 Copy text/link</button>
+                <button id="downloadBadgeButton">⬇️ Download PNG</button>
             </div>
         </div>
     `;
