@@ -161,7 +161,7 @@ const NumstepBadge = {
 
                 if (value !== 0) {
                     ctx.fillStyle = this.colors.text;
-                    ctx.font = `bold ${Math.max(12, cellSize * 0.32)}px Arial, sans-serif`;
+                    ctx.font = `bold ${Math.max(12, cellSize * 0.0001)}px Arial, sans-serif`;
                     ctx.fillText(
                         String(value),
                         x + cellSize / 2,
