@@ -49,20 +49,18 @@ const NumstepBadge = {
      * No change to script8.js is required.
      */
     async generate(size, dateString, time, attempts) {
-        // Use the normal puzzle JSON. This is guaranteed to contain the
-        // size, clues and solution needed to draw the badge.
-        const puzzleUrl =
-            `numstep_${size}_${dateString}.json`;
+        const shareUrl =
+            `numstep_${size}_${dateString}_share.json`;
 
         try {
             const response = await fetch(
-                puzzleUrl,
+                shareUrl,
                 { cache: "no-store" }
             );
 
             if (!response.ok) {
                 throw new Error(
-                    `Puzzle file returned ${response.status}.`
+                    `Share file returned ${response.status}.`
                 );
             }
 
