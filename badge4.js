@@ -49,24 +49,26 @@ const NumstepBadge = {
      * No change to script8.js is required.
      */
     async generate(size, dateString, time, attempts) {
-        const shareUrl =
-            `numstep_${size}_${dateString}_share.json`;
+        // Use the normal puzzle JSON. This is guaranteed to contain the
+        // size, clues and solution needed to draw the badge.
+        const puzzleUrl =
+            `numstep_${size}_${dateString}.json`;
 
         try {
             const response = await fetch(
-                shareUrl,
+                puzzleUrl,
                 { cache: "no-store" }
             );
 
             if (!response.ok) {
                 throw new Error(
-                    `Share file returned ${response.status}.`
+                    `Puzzle file returned ${response.status}.`
                 );
             }
 
             const shareData = await response.json();
 
-            await this.drawAndDisplay(
+            return await this.drawAndDisplay(
                 shareData,
                 dateString,
                 time,
@@ -78,9 +80,9 @@ const NumstepBadge = {
                 error
             );
 
-            alert(
-                "Could not generate badge. Check console for details."
-            );
+            // Let script8.js continue to the results popup even if badge
+            // generation fails.
+            return "";
         }
     },
 
@@ -314,7 +316,7 @@ const NumstepBadge = {
             ctx.fillStyle = "#ffffff";
 
             ctx.font =
-                `bold ${cellSize * 0.004}px ` +
+                `bold ${Math.max(12, cellSize * 0.32)}px ` +
                 this.fonts.main;
 
             ctx.textBaseline =
