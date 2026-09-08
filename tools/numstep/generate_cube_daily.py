@@ -65,12 +65,12 @@ def main():
         description="Generate the daily Numstep Cube using the original NumstepCube.py."
     )
     parser.add_argument("--date", default=None)
-    parser.add_argument("--size", type=int, default=4)
+    parser.add_argument("--size", type=int, default=3)
     parser.add_argument("--output-root", default="games/numstep-cube")
     args = parser.parse_args()
 
     if args.size != 3:
-        raise SystemExit("Numstep Cube currently supports only a 4 x 4 x 4 cube.")
+        raise SystemExit("Numstep Cube currently supports only a 3cube.")
 
     puzzle_date = date.fromisoformat(args.date) if args.date else date.today()
     grid, steps, pdf_bytes = generate_from_original(puzzle_date, args.size)
