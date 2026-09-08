@@ -382,8 +382,9 @@ button:disabled {
     border: 1px solid black;
     background: #f5f5f5;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     overflow-wrap: anywhere;
 }
 
@@ -401,17 +402,21 @@ button:disabled {
 
 
 .sponsorMessage {
+    width: 100%;
     max-width: 100%;
     font-size: 18px;
     line-height: 1.5;
+    text-align: left;
 }
 
 .sponsorLink {
     display: inline-block;
+    align-self: center;
     margin-top: 18px;
     color: inherit;
     font-size: 16px;
     font-weight: bold;
+    text-align: center;
 }
 
 .sponsorLink:hover,
