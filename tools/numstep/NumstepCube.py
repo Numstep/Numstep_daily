@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import A4
 # SETTINGS
 # ============================================================
 
-COVERAGE_THRESHOLD = 0.70
+COVERAGE_THRESHOLD = 0.50
 
 # Starting cube size
 N = 4
