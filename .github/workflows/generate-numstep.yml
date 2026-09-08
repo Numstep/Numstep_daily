@@ -28,6 +28,7 @@ jobs:
       - name: Generate Numstep puzzles and PDF
         run: |
           python tools/numstep/generate_daily.py
+          python tools/numstep/generate_cube_daily.py
 
       - name: Save generated puzzle resources
         run: |
@@ -35,5 +36,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add games/numstep/data/
           git add games/numstep/printables/
-          git commit -m "Generate daily Numstep puzzle and printable" || echo "No changes to commit"
+          git add games/numstep-cube/data/
+          git add games/numstep-cube/printables/
+          git commit -m "Generate daily Numstep puzzles and printables" || echo "No changes to commit"
           git push
