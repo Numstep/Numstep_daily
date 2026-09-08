@@ -9,10 +9,10 @@ from reportlab.lib.pagesizes import A4
 # SETTINGS
 # ============================================================
 
-COVERAGE_THRESHOLD = 0.50
+COVERAGE_THRESHOLD = 0.80
 
 # Starting cube size
-N = 4
+N = 3
 
 # Output filename
 OUTPUT_FILENAME = f"numstep_cube_{N}x{N}x{N}.pdf"
