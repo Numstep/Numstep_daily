@@ -36,7 +36,11 @@ def generate_from_original(puzzle_date, size):
                 run_name="__main__",
             )
 
-            generated_pdf = Path(namespace["OUTPUT_FILENAME"])
+            # The original program creates its daily PDF using date.today(),
+            # rather than OUTPUT_FILENAME. Capture that exact file.
+            generated_pdf = Path(
+                f"numstep_cube_{puzzle_date.strftime('%Y-%m-%d')}.pdf"
+            )
             if not generated_pdf.exists():
                 raise RuntimeError(
                     "Original NumstepCube.py completed without creating its PDF."
@@ -70,7 +74,7 @@ def main():
     args = parser.parse_args()
 
     if args.size != 3:
-        raise SystemExit("Numstep Cube currently supports only a 3cube.")
+        raise SystemExit("Numstep Cube currently supports only a 3 × 3 × 3 cube.")
 
     puzzle_date = date.fromisoformat(args.date) if args.date else date.today()
     grid, steps, pdf_bytes = generate_from_original(puzzle_date, args.size)
