@@ -5,21 +5,35 @@
 <head>
     <meta charset="UTF-8">
 
-
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
-<title>Numstep - Daily Challenge</title>
+<title>Numstep:Classic - Daily Challenge</title>
 
 <link rel="stylesheet" href="style.css">
-
 
 </head>
 
 <body>
 
+<header class="siteHeader">
+    <h1>NUMSTEP</h1>
 
-<h1>NUMSTEP</h1>
+    <button
+        class="moreButton"
+        id="moreButton"
+        type="button"
+        aria-expanded="false"
+        aria-controls="moreMenu"
+    >
+        <span class="hamburgerIcon" aria-hidden="true">☰</span>
+        <span>more</span>
+    </button>
+</header>
+
+<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
+    <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
+</nav>
 
 <h2>Daily Challenge</h2>
 
@@ -69,7 +83,28 @@
 <div class="sponsorBox" id="sponsorBox"></div>
 
 
+<!-- Game selector -->
+<script>
+    const moreButton = document.getElementById("moreButton");
+    const moreMenu = document.getElementById("moreMenu");
 
+    moreButton.addEventListener("click", function () {
+        const isOpen = moreButton.getAttribute("aria-expanded") === "true";
+        moreButton.setAttribute("aria-expanded", String(!isOpen));
+        moreMenu.hidden = isOpen;
+    });
+
+    document.addEventListener("click", function (event) {
+        if (
+            !moreMenu.hidden &&
+            !moreMenu.contains(event.target) &&
+            !moreButton.contains(event.target)
+        ) {
+            moreMenu.hidden = true;
+            moreButton.setAttribute("aria-expanded", "false");
+        }
+    });
+</script>
 
 
 <!-- PDF date navigation -->
