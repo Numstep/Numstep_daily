@@ -33,11 +33,16 @@ function renderNumstepCube(grid = DEMO_CUBE) {
     layer.forEach(row => row.forEach(value => {
       const cell = document.createElement("div");
       cell.className = "cubeCell";
-      if (value === 0) {
+      // Match Classic: ordinary playable squares are white.
+      // Only explicit blocked cells should be black.
+      if (value === null || value === -1) {
         cell.classList.add("cubeBlocked");
-      } else if (value === 1 || value % 10 === 0) {
-        cell.classList.add("cubeClue");
-        cell.textContent = value;
+      } else {
+        cell.classList.add("cubePlayable");
+        if (value === 1 || (Number.isInteger(value) && value % 10 === 0 && value > 0)) {
+          cell.classList.add("cubeClue");
+          cell.textContent = value;
+        }
       }
       board.appendChild(cell);
     }));
