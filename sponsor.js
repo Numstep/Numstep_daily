@@ -3,17 +3,10 @@
 // Potential sponsor messages.
 // Add or replace strings in this array as new sponsors are added.
 const SPONSOR_MESSAGES = [
-    "George Pólya —
-
-\“If you can\'t solve a problem, then there is an easier problem you can solve: find it.\”",
-    "G. H. Hardy —
-
-\“A mathematician, like a painter or a poet, is a maker of patterns.”,
-    "Gian-Carlo Rota —
-
-\“One starts out in life trying to do mathematics, and winds up doing combinatorics.\”"
+    "George Pólya —\n\n“If you can't solve a problem, then there is an easier problem you can solve: find it.”",
+    "G. H. Hardy —\n\n“A mathematician, like a painter or a poet, is a maker of patterns.”",
+    "Gian-Carlo Rota —\n\n“One starts out in life trying to do mathematics, and winds up doing combinatorics.”"
 ];
-
 const SPONSOR_URL = "https://ko-fi.com/c/14accf6daa";
 
 function getRandomSponsorMessage() {
