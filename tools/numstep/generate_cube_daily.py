@@ -5,6 +5,7 @@ import random
 from datetime import date
 from pathlib import Path
 
+COVERAGE_THRESHOLD = 0.70
 
 ROOT = Path(__file__).resolve().parents[2]
 CUBE_SOURCE = ROOT / "tools" / "numstep" / "NumstepCube.py"
