@@ -18,8 +18,20 @@
 
 <body>
 
+<header class="siteHeader">
+    <div class="siteHeaderBrand">NUMSTEP</div>
+    <button class="moreButton" id="moreButton" aria-expanded="false" aria-controls="moreMenu">
+        <span class="hamburgerIcon" aria-hidden="true">☰</span>
+        <span>more</span>
+    </button>
+</header>
 
-<h1>NUMSTEP</h1>
+<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
+    <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
+</nav>
+
+
+<h1 class="visuallyHidden">NUMSTEP</h1>
 
 <h2>Daily Challenge</h2>
 
@@ -71,6 +83,22 @@
 
 
 
+
+<script>
+const moreButton = document.getElementById("moreButton");
+const moreMenu = document.getElementById("moreMenu");
+moreButton.addEventListener("click", () => {
+ const open = moreButton.getAttribute("aria-expanded") === "true";
+ moreButton.setAttribute("aria-expanded", String(!open));
+ moreMenu.hidden = open;
+});
+document.addEventListener("click", event => {
+ if (!moreMenu.hidden && !moreMenu.contains(event.target) && !moreButton.contains(event.target)) {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+ }
+});
+</script>
 
 <!-- PDF date navigation -->
 <script>
