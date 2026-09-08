@@ -33,6 +33,7 @@
 
 <nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
     <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
+    <a class="gameMenuItem" href="#cube" id="cubeMenuLink">Cube</a>
 </nav>
 
 <h2>Daily Challenge</h2>
@@ -79,9 +80,18 @@
 <!-- Reset button -->
 <button id="resetButton">RESET</button>
 
+<!-- Numstep: Cube -->
+<section class="cubeGame" id="cube" hidden aria-labelledby="cubeTitle">
+    <h2 id="cubeTitle">NUMSTEP: CUBE</h2>
+    <p class="cubeIntro">Complete the continuous path through every white cube.</p>
+    <div class="cubeLayers" id="cubeLayers"></div>
+</section>
+
 <!-- Sponsor message box -->
 <div class="sponsorBox" id="sponsorBox"></div>
 
+
+<script src="cube.js"></script>
 
 <!-- Game selector -->
 <script>
@@ -92,6 +102,21 @@
         const isOpen = moreButton.getAttribute("aria-expanded") === "true";
         moreButton.setAttribute("aria-expanded", String(!isOpen));
         moreMenu.hidden = isOpen;
+    });
+
+    const cubeMenuLink = document.getElementById("cubeMenuLink");
+    const cubeGame = document.getElementById("cube");
+    const classicContent = Array.from(document.body.children).filter(function (el) {
+        return !el.matches(".siteHeader, .moreMenu, .cubeGame, script");
+    });
+
+    cubeMenuLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        cubeGame.hidden = false;
+        classicContent.forEach(function (el) { el.hidden = true; });
+        if (typeof renderNumstepCube === "function") renderNumstepCube();
+        moreMenu.hidden = true;
+        moreButton.setAttribute("aria-expanded", "false");
     });
 
     document.addEventListener("click", function (event) {
