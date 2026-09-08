@@ -15,26 +15,17 @@
 </head>
 
 <body>
-
 <header class="siteHeader">
-    <h1>NUMSTEP</h1>
-
-    <button
-        class="moreButton"
-        id="moreButton"
-        type="button"
-        aria-expanded="false"
-        aria-controls="moreMenu"
-    >
-        <span class="hamburgerIcon" aria-hidden="true">☰</span>
-        <span>more</span>
-    </button>
+    <a class="siteHeaderBrand" href="index.html">NUMSTEP</a>
+    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button>
 </header>
-
 <nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
-    <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
-    <a class="gameMenuItem" href="#cube" id="cubeMenuLink">Cube</a>
+    <a class="gameMenuItem" href="index.html">Classic</a>
+    <a class="gameMenuItem" href="cube.html">Cube</a>
 </nav>
+<script src="navigation.js"></script>
+
+
 
 <h2>Daily Challenge</h2>
 
@@ -94,44 +85,6 @@
 <script src="cube.js"></script>
 
 <!-- Game selector -->
-<script>
-    const moreButton = document.getElementById("moreButton");
-    const moreMenu = document.getElementById("moreMenu");
-
-    moreButton.addEventListener("click", function () {
-        const isOpen = moreButton.getAttribute("aria-expanded") === "true";
-        moreButton.setAttribute("aria-expanded", String(!isOpen));
-        moreMenu.hidden = isOpen;
-    });
-
-    const cubeMenuLink = document.getElementById("cubeMenuLink");
-    const cubeGame = document.getElementById("cube");
-    const classicContent = Array.from(document.body.children).filter(function (el) {
-        return !el.matches(".siteHeader, .moreMenu, .cubeGame, script");
-    });
-
-    cubeMenuLink.addEventListener("click", function (event) {
-        event.preventDefault();
-        cubeGame.hidden = false;
-        classicContent.forEach(function (el) { el.hidden = true; });
-        if (typeof renderNumstepCube === "function") renderNumstepCube();
-        moreMenu.hidden = true;
-        moreButton.setAttribute("aria-expanded", "false");
-    });
-
-    document.addEventListener("click", function (event) {
-        if (
-            !moreMenu.hidden &&
-            !moreMenu.contains(event.target) &&
-            !moreButton.contains(event.target)
-        ) {
-            moreMenu.hidden = true;
-            moreButton.setAttribute("aria-expanded", "false");
-        }
-    });
-</script>
-
-
 <!-- PDF date navigation -->
 <script>
 
@@ -299,6 +252,7 @@ window.selectedDateString = filenameDate;
 <script src="share.js"></script>
 <script src="sponsor.js"></script>
 
+<script src="sponsor.js"></script>
 </body>
 
 </html>
