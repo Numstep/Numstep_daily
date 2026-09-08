@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numstep: Cube</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="siteHeader">
+    <a class="siteHeaderBrand" href="index.html">NUMSTEP</a>
+    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button>
+</header>
+<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
+    <a class="gameMenuItem" href="index.html">Classic</a>
+    <a class="gameMenuItem" href="cube.html">Cube</a>
+</nav>
+<script src="navigation.js"></script>
+<main class="gamePage">
+<h1>NUMSTEP: CUBE</h1>
+<div class="date-navigation">
+<button id="prevDay" aria-label="Previous day">←</button>
+<div id="currentDate"></div>
+<button id="nextDay" aria-label="Next day">→</button>
+</div>
+<div class="printable-puzzle"><a id="pdfLink" href="#" target="_blank"><button>🖨️ Printable Puzzle</button></a></div>
+<section class="cubeGame" aria-labelledby="cubeTitle">
+<p id="cubeTitle" class="cubeIntro">Complete the continuous path through every available cube.</p>
+<div class="cubeLayers" id="cubeLayers"></div>
+</section>
+<button id="resetCube">RESET</button>
+<div class="sponsorBox" id="sponsorBox"></div>
+</main>
+<script src="cube.js"></script>
+<script src="cube-page.js"></script>
+<script src="sponsor.js"></script>
+</body>
+</html>
