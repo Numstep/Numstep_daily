@@ -1,0 +1,4 @@
+{
+  "title": "How to Play Numstep",
+  "body": "<p><strong>Draw a numbered walk through every white square.</strong></p><p>Fill the grid with chains connecting the coloured clues. Every chain must start on a clue and count its steps correctly to get to the next clue. You cannot visit a square more than once, and you must never visit the black squares. Moves must be up-down-left-right, never diagonal. Every white square must be filled.</p>"
+}

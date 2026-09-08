@@ -2,9 +2,7 @@ name: Generate Daily Numstep
 
 on:
   workflow_dispatch:
-
   schedule:
-    # Runs every day at 00:05 UTC
     - cron: "5 0 * * *"
 
 permissions:
@@ -13,7 +11,6 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
-
     steps:
       - name: Get repository
         uses: actions/checkout@v4
@@ -30,28 +27,13 @@ jobs:
 
       - name: Generate Numstep puzzles and PDF
         run: |
-          python numstep_daily_unique.py
+          python tools/numstep/generate_daily.py
 
-      - name: Create printable PDF folder
-        run: |
-          mkdir -p pdfs
-
-          TODAY=$(date +'%Y-%m-%d')
-
-          cp "Numstep_Daily_Unique_${TODAY}.pdf" "pdfs/${TODAY}.pdf"
-
-          # Also create a permanent link/file for today's puzzle
-          cp "Numstep_Daily_Unique_${TODAY}.pdf" "pdfs/today.pdf"
-
-      - name: Save generated puzzles and PDF
+      - name: Save generated puzzle resources
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add "*.json"
-          git add "Numstep_Daily_Unique_*.pdf"
-          git add pdfs/
-
-          git commit -m "Generate daily Numstep puzzle and PDF" || echo "No changes to commit"
-
+          git add games/numstep/data/
+          git add games/numstep/printables/
+          git commit -m "Generate daily Numstep puzzle and printable" || echo "No changes to commit"
           git push
