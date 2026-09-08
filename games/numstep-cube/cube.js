@@ -2,16 +2,34 @@
 
 let selectedDate = new Date();
 let puzzle = null;
-let path = [];
+let chains = new Map();
+let activeChainClue = null;
 let attempts = 0;
 let timerStartedAt = null;
 let timerHandle = null;
+let solved = false;
 
 const gridElement = document.getElementById("cubeGrid");
 const messageElement = document.getElementById("message");
 const progressElement = document.getElementById("cubeProgress");
 const attemptsElement = document.getElementById("attempts");
 const timerElement = document.getElementById("timer");
+
+// Keep the same clue/chain palette used by Numstep Classic.
+const COLOUR_PALETTE = [
+    "#4E79A7",
+    "#59A14F",
+    "#F28E2B",
+    "#E15759",
+    "#B07AA1",
+    "#76B7B2",
+    "#EDC948",
+    "#9C755F",
+    "#86BCB6",
+    "#FF9DA7",
+    "#79706E",
+    "#A0CBE8"
+];
 
 function formatDate(date) {
     const year = date.getFullYear();
@@ -37,15 +55,37 @@ function isFuture(date) {
     return candidate > today;
 }
 
-function cluePositionMap() {
+function isClue(value) {
+    return value > 0 && (value === 1 || value % 10 === 0);
+}
+
+function positionKey(position) {
+    return position.join(",");
+}
+
+function samePosition(a, b) {
+    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+}
+
+function areAdjacent(a, b) {
+    return Math.abs(a[0] - b[0]) +
+        Math.abs(a[1] - b[1]) +
+        Math.abs(a[2] - b[2]) === 1;
+}
+
+function getValue(position) {
+    return puzzle.solution[position[0]][position[1]][position[2]];
+}
+
+function getCluePositions() {
     const positions = new Map();
 
     for (let layer = 0; layer < puzzle.size; layer += 1) {
         for (let row = 0; row < puzzle.size; row += 1) {
             for (let col = 0; col < puzzle.size; col += 1) {
-                const number = puzzle.solution[layer][row][col];
-                if (number !== 0 && (number === 1 || number % 10 === 0)) {
-                    positions.set(number, [layer, row, col]);
+                const value = puzzle.solution[layer][row][col];
+                if (isClue(value)) {
+                    positions.set(value, [layer, row, col]);
                 }
             }
         }
@@ -54,16 +94,46 @@ function cluePositionMap() {
     return positions;
 }
 
-function cellIsClue(number) {
-    return number !== 0 && (number === 1 || number % 10 === 0);
+function initialiseChains() {
+    chains = new Map();
+    const cluePositions = getCluePositions();
+    const values = puzzle.solution.flat(2).filter(value => value > 0);
+    const maxValue = Math.max(...values);
+    const clueValues = [...cluePositions.keys()].sort((a, b) => a - b);
+
+    clueValues.forEach((clueValue, index) => {
+        const nextClue = clueValues[index + 1];
+
+        // A clue that is also the highest numbered cell is the terminal
+        // marker, matching Classic's final-clue behaviour.
+        if (clueValue === maxValue && !nextClue) {
+            return;
+        }
+
+        const endValue = nextClue ? nextClue - 1 : maxValue;
+
+        chains.set(clueValue, {
+            clueValue,
+            endValue,
+            path: [cluePositions.get(clueValue)],
+            complete: false
+        });
+    });
 }
 
-function samePosition(a, b) {
-    return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+function getClueColour(clueValue) {
+    const clueValues = [...chains.keys()].sort((a, b) => a - b);
+    const index = clueValues.indexOf(clueValue);
+    return COLOUR_PALETTE[(index < 0 ? 0 : index) % COLOUR_PALETTE.length];
 }
 
-function areAdjacent(a, b) {
-    return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) === 1;
+function resetTimer() {
+    if (timerHandle !== null) {
+        window.clearInterval(timerHandle);
+        timerHandle = null;
+    }
+    timerStartedAt = null;
+    timerElement.textContent = "00:00";
 }
 
 function startTimer() {
@@ -95,19 +165,15 @@ function updateTimer() {
     timerElement.textContent = `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
 }
 
-function resetGame(message = "") {
-    path = [];
+function resetGame(message = "Choose any coloured clue to start.") {
+    activeChainClue = null;
     attempts = 0;
-    timerStartedAt = null;
-    stopTimer();
-    updateTimer();
+    solved = false;
+    resetTimer();
+    initialiseChains();
     attemptsElement.textContent = "Attempts: 0";
     messageElement.textContent = message;
     renderPuzzle();
-}
-
-function setMessage(text) {
-    messageElement.textContent = text;
 }
 
 function renderPuzzle() {
@@ -118,12 +184,16 @@ function renderPuzzle() {
         return;
     }
 
-    const visited = new Map();
-    path.forEach((position, index) => {
-        visited.set(position.join(","), index + 1);
-    });
-
-    const cluePositions = cluePositionMap();
+    const rendered = new Map();
+    for (const chain of chains.values()) {
+        chain.path.forEach((position, index) => {
+            rendered.set(positionKey(position), {
+                value: getValue(position),
+                clueValue: chain.clueValue,
+                step: index + chain.clueValue
+            });
+        });
+    }
 
     for (let layer = 0; layer < puzzle.size; layer += 1) {
         const layerContainer = document.createElement("section");
@@ -139,39 +209,51 @@ function renderPuzzle() {
 
         for (let row = 0; row < puzzle.size; row += 1) {
             for (let col = 0; col < puzzle.size; col += 1) {
-                const number = puzzle.solution[layer][row][col];
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "cubeCell";
-                button.dataset.position = `${layer},${row},${col}`;
-                button.setAttribute("aria-label", `Layer ${layer + 1}, row ${row + 1}, column ${col + 1}`);
+                const position = [layer, row, col];
+                const value = getValue(position);
+                const cell = document.createElement("button");
+                const key = positionKey(position);
 
-                if (number === 0) {
-                    button.classList.add("black");
-                    button.disabled = true;
+                cell.type = "button";
+                cell.className = "cubeCell";
+                cell.dataset.position = key;
+                cell.setAttribute("aria-label", `Layer ${layer + 1}, row ${row + 1}, column ${col + 1}`);
+
+                if (value === 0) {
+                    cell.classList.add("black");
+                    cell.disabled = true;
                 } else {
-                    const key = `${layer},${row},${col}`;
-                    const entered = visited.get(key);
+                    const state = rendered.get(key);
+                    const clue = isClue(value);
 
-                    if (cellIsClue(number)) {
-                        button.classList.add("clue");
+                    if (clue) {
+                        cell.classList.add("clue");
                     }
 
-                    if (entered !== undefined) {
-                        button.classList.add("visited");
-                        button.textContent = String(entered);
-                    } else if (cellIsClue(number)) {
-                        button.textContent = String(number);
+                    if (state) {
+                        cell.classList.add("chainCell");
+                        cell.textContent = String(state.step);
+                        cell.style.setProperty("background-color", getClueColour(state.clueValue), "important");
+                        cell.style.setProperty("color", "#FFFFFF", "important");
+                    } else if (clue) {
+                        cell.textContent = String(value);
+                        cell.style.setProperty("background-color", getClueColour(value), "important");
+                        cell.style.setProperty("color", "#FFFFFF", "important");
+                    } else {
+                        cell.textContent = "";
                     }
 
-                    if (path.length > 0 && samePosition(path[path.length - 1], [layer, row, col])) {
-                        button.classList.add("current");
-                    }
-
-                    button.addEventListener("click", () => attemptMove([layer, row, col]));
+                    cell.addEventListener("click", () => selectCell(position));
                 }
 
-                layerGrid.appendChild(button);
+                if (activeChainClue !== null) {
+                    const active = chains.get(activeChainClue);
+                    if (active && active.path.length > 0 && samePosition(active.path[active.path.length - 1], position)) {
+                        cell.classList.add("current");
+                    }
+                }
+
+                layerGrid.appendChild(cell);
             }
         }
 
@@ -179,72 +261,169 @@ function renderPuzzle() {
         gridElement.appendChild(layerContainer);
     }
 
-    progressElement.textContent = `${path.length} / ${puzzle.steps}`;
+    const completedCells = [...chains.values()].reduce((total, chain) => total + chain.path.length, 0);
+    progressElement.textContent = `${completedCells} / ${puzzle.steps}`;
 }
 
-function attemptMove(position) {
-    if (!puzzle) {
+function selectCell(position) {
+    if (!puzzle || solved || getValue(position) === 0) {
         return;
     }
 
+    if (activeChainClue === null) {
+        if (!isClue(getValue(position))) {
+            setMessage("Start from a coloured clue.");
+            return;
+        }
+
+        startChain(getValue(position));
+        return;
+    }
+
+    const chain = chains.get(activeChainClue);
+    if (!chain || chain.complete) {
+        activeChainClue = null;
+        renderPuzzle();
+        return;
+    }
+
+    const last = chain.path[chain.path.length - 1];
+    const expected = getValue(last) + 1;
+
+    // Selecting a different clue switches to that chain only when it is
+    // an explicit click after the current chain has been completed. During
+    // an active chain, any other selection is evaluated as the next move.
+    if (!areAdjacent(last, position)) {
+        failActiveChain("The next step must share a face with the current cube.");
+        return;
+    }
+
+    if (chain.path.some(existing => samePosition(existing, position))) {
+        failActiveChain("You cannot revisit a cube. The current chain is broken.");
+        return;
+    }
+
+    const value = getValue(position);
+
+    if (value !== expected || value > chain.endValue) {
+        failActiveChain(`Wrong next step. You need ${expected}. The current chain is broken.`);
+        return;
+    }
+
+    chain.path.push(position);
+    startTimer();
+    renderPuzzle();
+
+    if (value === chain.endValue) {
+        completeChain(chain);
+    }
+}
+
+function startChain(clueValue) {
+    const chain = chains.get(clueValue);
+
+    if (!chain) {
+        setMessage(`Clue ${clueValue} is the final marker.`);
+        return;
+    }
+
+    if (chain.complete) {
+        setMessage(`Chain ${clueValue} is already complete.`);
+        return;
+    }
+
+    activeChainClue = clueValue;
+    startTimer();
+    renderPuzzle();
+    setMessage(`Chain ${clueValue}–${chain.endValue} started. Select ${clueValue + 1} next.`);
+}
+
+function completeChain(chain) {
+    chain.complete = true;
+    activeChainClue = null;
+
+    if ([...chains.values()].every(item => item.complete)) {
+        solved = true;
+        stopTimer();
+        renderPuzzle();
+        setMessage("Solved! Every chain is complete.");
+        return;
+    }
+
+    renderPuzzle();
+    setMessage(`Chain ${chain.clueValue}–${chain.endValue} complete. Start from any remaining coloured clue.`);
+}
+
+function failActiveChain(message) {
+    const chain = chains.get(activeChainClue);
     attempts += 1;
     attemptsElement.textContent = `Attempts: ${attempts}`;
 
-    if (path.some(existing => samePosition(existing, position))) {
-        setMessage("That cube is already in your path.");
-        return;
+    if (chain) {
+        // Keep the clue itself, but erase the player's current chain.
+        chain.path = [chain.path[0]];
+        chain.complete = false;
     }
 
-    const number = puzzle.solution[position[0]][position[1]][position[2]];
-    if (number === 0) {
-        return;
-    }
-
-    const expectedStep = path.length + 1;
-    const clues = cluePositionMap();
-
-    if (path.length > 0 && !areAdjacent(path[path.length - 1], position)) {
-        setMessage("The next cube must share a face with the current cube.");
-        return;
-    }
-
-    if (expectedStep === 1 && number !== 1) {
-        setMessage("The path must begin at 1.");
-        return;
-    }
-
-    if (cellIsClue(number) && number !== expectedStep) {
-        setMessage(`That clue is ${number}; you need ${expectedStep}.`);
-        return;
-    }
-
-    if (clues.has(expectedStep) && !samePosition(clues.get(expectedStep), position)) {
-        setMessage(`Step ${expectedStep} has a fixed clue elsewhere.`);
-        return;
-    }
-
-    startTimer();
-    path.push(position);
-    setMessage("");
+    activeChainClue = null;
     renderPuzzle();
+    setMessage(message);
+}
 
-    if (path.length === puzzle.steps) {
-        stopTimer();
-        setMessage("Solved! Every white cube is in one continuous path.");
+function setMessage(text) {
+    messageElement.textContent = text;
+}
+
+function validatePuzzle(data) {
+    if (!data || typeof data !== "object") {
+        throw new Error("Invalid puzzle JSON.");
+    }
+
+    const size = Number(data.size);
+    if (!Number.isInteger(size) || size < 1) {
+        throw new Error("Invalid cube size.");
+    }
+
+    if (!Array.isArray(data.solution) || data.solution.length !== size) {
+        throw new Error(`Expected ${size} cube layers.`);
+    }
+
+    for (const layer of data.solution) {
+        if (!Array.isArray(layer) || layer.length !== size || layer.some(row => !Array.isArray(row) || row.length !== size)) {
+            throw new Error(`Expected a ${size} × ${size} × ${size} solution array.`);
+        }
+    }
+
+    if (!Number.isInteger(Number(data.steps)) || Number(data.steps) <= 0) {
+        throw new Error("Invalid step count.");
     }
 }
 
 async function loadPuzzleForDate(dateString) {
-    const response = await fetch(`data/${dateString}.json`, { cache: "no-store" });
+    try {
+        const response = await fetch(`data/${dateString}.json`, { cache: "no-store" });
 
-    if (!response.ok) {
+        if (!response.ok) {
+            puzzle = null;
+            resetTimer();
+            gridElement.replaceChildren();
+            progressElement.textContent = "0 / 0";
+            setMessage(`No Cube puzzle is available for ${displayDate(selectedDate)}.`);
+            return;
+        }
+
+        const data = await response.json();
+        validatePuzzle(data);
+        puzzle = data;
+        resetGame("Choose any coloured clue to start.");
+    } catch (error) {
+        console.error(error);
         puzzle = null;
-        resetGame(`No Cube puzzle is available for ${displayDate(selectedDate)}.`);
-        return;
+        resetTimer();
+        gridElement.replaceChildren();
+        progressElement.textContent = "0 / 0";
+        setMessage("Unable to load this Cube puzzle.");
     }
-
-    puzzle = await response.json();
-    resetGame("");
 }
 
 function updateDateNavigation() {
@@ -272,7 +451,9 @@ document.getElementById("nextDay").addEventListener("click", async () => {
 });
 
 document.getElementById("resetButton").addEventListener("click", () => {
-    resetGame("");
+    if (puzzle) {
+        resetGame("Choose any coloured clue to start.");
+    }
 });
 
 const moreButton = document.getElementById("moreButton");
@@ -292,8 +473,4 @@ document.addEventListener("click", event => {
 });
 
 updateDateNavigation();
-loadPuzzleForDate(formatDate(selectedDate)).catch(error => {
-    console.error(error);
-    puzzle = null;
-    resetGame("Unable to load this Cube puzzle.");
-});
+loadPuzzleForDate(formatDate(selectedDate));
