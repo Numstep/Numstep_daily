@@ -13,15 +13,18 @@
 
 .cubeGrid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(220px, 330px));
-    gap: 28px 36px;
+    grid-template-columns: repeat(2, minmax(176px, 264px));
+    gap: 24px 32px;
     justify-content: center;
+    width: min(90vw, 560px);
+    max-width: 90vw;
     margin: 28px auto;
-    max-width: 740px;
 }
 
 .cubeLayer {
     min-width: 0;
+    width: 100%;
+    max-width: 264px;
 }
 
 .cubeLayerTitle {
@@ -32,7 +35,7 @@
 
 .cubeLayerGrid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(52px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     border: 1px solid black;
     background: white;
 }
@@ -46,7 +49,7 @@
     border-bottom: 1px solid black;
     background: white;
     color: black;
-    font-size: clamp(17px, 3vw, 26px);
+    font-size: clamp(15px, 2.4vw, 21px);
     font-weight: normal;
     cursor: pointer;
     user-select: none;
@@ -100,10 +103,10 @@
     .cubeGrid {
         grid-template-columns: minmax(0, 1fr);
         gap: 22px;
-        max-width: 360px;
+        max-width: 90vw;
     }
 
-    .cubeLayerGrid {
-        grid-template-columns: repeat(3, minmax(56px, 1fr));
+    .cubeLayer {
+        justify-self: center;
     }
 }
