@@ -1,0 +1,102 @@
+.cube-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 12px 0 8px;
+}
+
+.cube-status #timer {
+    margin: 0;
+}
+
+.cubeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(260px, 360px));
+    gap: 28px 36px;
+    justify-content: center;
+    margin: 28px auto;
+    max-width: 800px;
+}
+
+.cubeLayer {
+    min-width: 0;
+}
+
+.cubeLayerTitle {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.cubeLayerGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(44px, 1fr));
+    border: 1px solid black;
+    background: white;
+}
+
+.cubeCell {
+    aspect-ratio: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    background: white;
+    color: black;
+    font-size: clamp(15px, 3vw, 24px);
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.cubeCell:nth-child(4n) {
+    border-right: 0;
+}
+
+.cubeCell:nth-last-child(-n + 4) {
+    border-bottom: 0;
+}
+
+.cubeCell.black {
+    background: black;
+    color: black;
+    cursor: default;
+}
+
+.cubeCell.clue {
+    font-weight: bold;
+}
+
+.cubeCell.visited {
+    background: #e9e9e9;
+}
+
+.cubeCell.current {
+    background: black;
+    color: white;
+}
+
+.cubeCell:focus-visible {
+    outline: 3px solid #666;
+    outline-offset: -3px;
+}
+
+#cubeProgress {
+    font-family: monospace;
+    font-size: 18px;
+}
+
+@media (max-width: 700px) {
+    .cubeGrid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+    }
+
+    .cubeLayerGrid {
+        grid-template-columns: repeat(4, minmax(48px, 1fr));
+    }
+}
