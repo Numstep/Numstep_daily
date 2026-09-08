@@ -4,255 +4,112 @@
 
 <head>
     <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>Numstep:Classic - Daily Challenge</title>
-
-<link rel="stylesheet" href="style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numstep:Classic - Daily Challenge</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 <header class="siteHeader">
     <a class="siteHeaderBrand" href="index.html">NUMSTEP</a>
-    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button>
+    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu">
+        <span class="hamburgerIcon" aria-hidden="true">☰</span>
+        <span>more</span>
+    </button>
 </header>
+
 <nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
-    <a class="gameMenuItem" href="index.html">Classic</a>
-    <a class="gameMenuItem" href="cube.html">Cube</a>
+    <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
+    <a class="gameMenuItem" href="games/numstep-cube/index.html">Cube</a>
 </nav>
 <script src="navigation.js"></script>
 
-
-
 <h2>Daily Challenge</h2>
 
-
-<!-- Date navigation -->
 <div class="date-navigation">
-
-    <button id="prevDay" aria-label="Previous day">
-        ←
-    </button> <div id="currentDate"></div> <button id="nextDay" aria-label="Next day">
-        →
-    </button>
-
+    <button id="prevDay" aria-label="Previous day">←</button>
+    <div id="currentDate"></div>
+    <button id="nextDay" aria-label="Next day">→</button>
 </div>
 
-
-<!-- Printable PDF -->
 <div class="printable-puzzle">
-
-    <a id="pdfLink" href="#" target="_blank">
-        <button>
-            🖨️ Printable Puzzle
-        </button>
+    <a id="pdfLink" href="#" target="_blank" rel="noopener noreferrer">
+        <button type="button">🖨️ Printable Puzzle</button>
     </a>
-
 </div>
 
-
-<!-- Game information -->
 <div id="timer">00:00</div>
-
 <div id="attempts">Attempts: 0</div>
-
-
-<!-- Numstep grid -->
 <div id="grid"></div>
-
-
-<!-- Messages -->
 <div id="message"></div>
+<button id="resetButton" type="button">RESET</button>
 
-
-<!-- Reset button -->
-<button id="resetButton">RESET</button>
-
-<!-- Numstep: Cube -->
-<section class="cubeGame" id="cube" hidden aria-labelledby="cubeTitle">
-    <h2 id="cubeTitle">NUMSTEP: CUBE</h2>
-    <p class="cubeIntro">Complete the continuous path through every white cube.</p>
-    <div class="cubeLayers" id="cubeLayers"></div>
-</section>
-
-<!-- Sponsor message box -->
 <div class="sponsorBox" id="sponsorBox"></div>
 
-
-<script src="cube.js"></script>
-
-<!-- Game selector -->
-<!-- PDF date navigation -->
 <script>
-
-    // Start with today's date
     let selectedDate = new Date();
 
-
-    // Format date as YYYY-MM-DD
-    // This matches your PDF filenames:
-    // pdfs/2026-09-03.pdf
-
     function formatDate(date) {
-
         const year = date.getFullYear();
-
-        const month = String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
-
-        const day = String(
-            date.getDate()
-        ).padStart(2, "0");
-
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     }
 
-
-    // Friendly date for display
-
     function displayDate(date) {
-
-        return date.toLocaleDateString(
-            "en-GB",
-            {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-            }
-        );
-
+        return date.toLocaleDateString("en-GB", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        });
     }
-
-
-    // Update displayed date and PDF link
-
-   
-    function loadSelectedPuzzle() {
-
-    const filenameDate = formatDate(selectedDate);
-
-    window.selectedDateString = filenameDate;
-
-    // Tell script8.js to load the puzzle for this date
-    if (typeof loadPuzzleForDate === "function") {
-        loadPuzzleForDate(filenameDate);
-    }
-}
- 
 
     function updateDateNavigation() {
-
-        const filenameDate =
-            formatDate(selectedDate);
-
-
-        // Make the date available to script8.js
-window.selectedDateString = filenameDate;
-
-
-        // Show selected date
-
-        document.getElementById(
-            "currentDate"
-        ).textContent =
-            displayDate(selectedDate);
-
-
-        // Update PDF link
-
-        document.getElementById(
-            "pdfLink"
-        ).href =
-            `pdfs/${filenameDate}.pdf`;
-
-
-        // Prevent users going into the future
+        const filenameDate = formatDate(selectedDate);
+        window.selectedDateString = filenameDate;
+        document.getElementById("currentDate").textContent = displayDate(selectedDate);
+        document.getElementById("pdfLink").href = `pdfs/${filenameDate}.pdf`;
 
         const today = new Date();
-
         today.setHours(0, 0, 0, 0);
-
-
         const selected = new Date(selectedDate);
-
         selected.setHours(0, 0, 0, 0);
-
-
-        document.getElementById(
-            "nextDay"
-        ).disabled =
-            selected >= today;
-
+        document.getElementById("nextDay").disabled = selected >= today;
     }
 
+    function loadSelectedPuzzle() {
+        const filenameDate = formatDate(selectedDate);
+        window.selectedDateString = filenameDate;
+        if (typeof loadPuzzleForDate === "function") {
+            loadPuzzleForDate(filenameDate);
+        }
+    }
 
-    // Previous day
-
-           document.getElementById("prevDay").addEventListener(
-    "click",
-    function () {
-
-        selectedDate.setDate(
-            selectedDate.getDate() - 1
-        );
-
+    document.getElementById("prevDay").addEventListener("click", () => {
+        selectedDate.setDate(selectedDate.getDate() - 1);
         updateDateNavigation();
         loadSelectedPuzzle();
+    });
 
-    }
-);
-
-
-    // Next day
-
-    document.getElementById("nextDay").addEventListener(
-    "click",
-    function () {
-
+    document.getElementById("nextDay").addEventListener("click", () => {
         const today = new Date();
-
         today.setHours(0, 0, 0, 0);
-
-
         const nextDate = new Date(selectedDate);
-
-        nextDate.setDate(
-            nextDate.getDate() + 1
-        );
-
-
+        nextDate.setDate(nextDate.getDate() + 1);
         if (nextDate <= today) {
-
             selectedDate = nextDate;
-
             updateDateNavigation();
             loadSelectedPuzzle();
-
         }
-
-    }
-);
-
-
-    // Initialise page
+    });
 
     updateDateNavigation();
-
 </script>
 
-
-<!-- Existing Numstep game -->
 <script src="badge4.js"></script>
 <script src="script8.js"></script>
 <script src="share.js"></script>
 <script src="sponsor.js"></script>
-
-<script src="sponsor.js"></script>
 </body>
-
 </html>
