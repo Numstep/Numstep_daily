@@ -113,8 +113,8 @@ h2 {
     grid-template-columns: repeat(5, minmax(45px, 60px));
     gap: 2px;
     justify-content: center;
-    width: min(90vw, 300px);
-    max-width: 90vw;
+    width: min(90%, 300px);
+    max-width: 90%;
     box-sizing: border-box;
     margin: 25px auto;
 }
@@ -123,17 +123,17 @@ h2 {
    The 9x9 board is capped at 504px, about 20% smaller than the
    previous 70px-per-cell maximum. */
 #grid[style*="repeat(5"] {
-    width: min(90vw, 300px);
+    width: min(90%, 300px);
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
 }
 
 #grid[style*="repeat(7"] {
-    width: min(90vw, 420px);
+    width: min(90%, 420px);
     grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
 }
 
 #grid[style*="repeat(9"] {
-    width: min(90vw, 504px);
+    width: min(90%, 504px);
     grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
 }
 
