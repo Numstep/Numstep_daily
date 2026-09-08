@@ -69,7 +69,7 @@ def main():
     parser.add_argument("--output-root", default="games/numstep-cube")
     args = parser.parse_args()
 
-    if args.size != 4:
+    if args.size != 3:
         raise SystemExit("Numstep Cube currently supports only a 4 x 4 x 4 cube.")
 
     puzzle_date = date.fromisoformat(args.date) if args.date else date.today()
