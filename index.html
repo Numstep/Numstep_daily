@@ -1,115 +1,15 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Numstep:Classic - Daily Challenge</title>
-    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="refresh" content="0; url=games/numstep/index.html">
+    <title>Numstep</title>
 </head>
-
 <body>
-<header class="siteHeader">
-    <a class="siteHeaderBrand" href="index.html">NUMSTEP</a>
-    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu">
-        <span class="hamburgerIcon" aria-hidden="true">☰</span>
-        <span>more</span>
-    </button>
-</header>
-
-<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
-    <a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a>
-    <a class="gameMenuItem" href="games/numstep-cube/index.html">Cube</a>
-</nav>
-<script src="navigation.js"></script>
-
-<h2>Daily Challenge</h2>
-
-<div class="date-navigation">
-    <button id="prevDay" aria-label="Previous day">←</button>
-    <div id="currentDate"></div>
-    <button id="nextDay" aria-label="Next day">→</button>
-</div>
-
-<div class="printable-puzzle">
-    <a id="pdfLink" href="#" target="_blank" rel="noopener noreferrer">
-        <button type="button">🖨️ Printable Puzzle</button>
-    </a>
-</div>
-
-<div id="timer">00:00</div>
-<div id="attempts">Attempts: 0</div>
-<div id="grid"></div>
-<div id="message"></div>
-<button id="resetButton" type="button">RESET</button>
-
-<div class="sponsorBox" id="sponsorBox"></div>
-
-<script>
-    let selectedDate = new Date();
-
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    }
-
-    function displayDate(date) {
-        return date.toLocaleDateString("en-GB", {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        });
-    }
-
-    function updateDateNavigation() {
-        const filenameDate = formatDate(selectedDate);
-        window.selectedDateString = filenameDate;
-        document.getElementById("currentDate").textContent = displayDate(selectedDate);
-        document.getElementById("pdfLink").href = `pdfs/${filenameDate}.pdf`;
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selected = new Date(selectedDate);
-        selected.setHours(0, 0, 0, 0);
-        document.getElementById("nextDay").disabled = selected >= today;
-    }
-
-    function loadSelectedPuzzle() {
-        const filenameDate = formatDate(selectedDate);
-        window.selectedDateString = filenameDate;
-        if (typeof loadPuzzleForDate === "function") {
-            loadPuzzleForDate(filenameDate);
-        }
-    }
-
-    document.getElementById("prevDay").addEventListener("click", () => {
-        selectedDate.setDate(selectedDate.getDate() - 1);
-        updateDateNavigation();
-        loadSelectedPuzzle();
-    });
-
-    document.getElementById("nextDay").addEventListener("click", () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const nextDate = new Date(selectedDate);
-        nextDate.setDate(nextDate.getDate() + 1);
-        if (nextDate <= today) {
-            selectedDate = nextDate;
-            updateDateNavigation();
-            loadSelectedPuzzle();
-        }
-    });
-
-    updateDateNavigation();
-</script>
-
-<script src="badge4.js"></script>
-<script src="script8.js"></script>
-<script src="share.js"></script>
-<script src="sponsor.js"></script>
+    <p>Redirecting to Numstep…</p>
+    <script>
+        window.location.replace("games/numstep/index.html" + window.location.search + window.location.hash);
+    </script>
 </body>
 </html>
