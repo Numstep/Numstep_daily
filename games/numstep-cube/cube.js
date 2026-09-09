@@ -347,6 +347,7 @@ function completeChain(chain) {
         stopTimer();
         renderPuzzle();
         setMessage("Solved! Every chain is complete.");
+        createShareResult();
         return;
     }
 
@@ -368,6 +369,37 @@ function failActiveChain(message) {
     activeChainClue = null;
     renderPuzzle();
     setMessage(message);
+}
+
+async function createShareResult() {
+    const elapsed = timerStartedAt === null ? 0 : Date.now() - timerStartedAt;
+    let badgeImageUrl = "";
+
+    // The Classic badge renderer is 2D-only, so Cube uses the same result
+    // modal and PNG pipeline when available, falling back cleanly if absent.
+    if (typeof NumstepBadge !== "undefined" && NumstepBadge.generate) {
+        try {
+            badgeImageUrl = await NumstepBadge.generate(
+                puzzle.size,
+                formatDate(selectedDate),
+                timerElement.textContent,
+                attempts
+            );
+        } catch (error) {
+            console.error("Could not generate Cube badge:", error);
+        }
+    }
+
+    if (typeof showShareModal === "function") {
+        showShareModal({
+            size: puzzle.size,
+            date: formatDate(selectedDate),
+            elapsed,
+            attempts,
+            url: window.location.href,
+            badgeImageUrl
+        });
+    }
 }
 
 function setMessage(text) {
