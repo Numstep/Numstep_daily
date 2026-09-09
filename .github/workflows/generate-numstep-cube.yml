@@ -29,7 +29,9 @@ jobs:
         run: python tools/numstep/generate_cube_daily.py
 
       - name: Generate Cube sharing puzzle
-        run: python tools/numstep/generate_cube_share.py
+        run: |
+          cd tools/numstep
+          python generate_cube_share.py
 
       - name: Save Cube puzzle resources
         run: |
