@@ -1,15 +1,15 @@
-name: Generate Daily Numstep Classic
+name: Generate Daily Numstep Cube
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 0 * * *"
+    - cron: "10 0 * * *"
 
 permissions:
   contents: write
 
 jobs:
-  generate-classic:
+  generate-cube:
     runs-on: ubuntu-latest
     steps:
       - name: Get repository
@@ -25,14 +25,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install reportlab
 
-      - name: Generate Classic puzzles and printable
-        run: python tools/numstep/generate_daily.py
+      - name: Generate Cube puzzle and printable
+        run: python tools/numstep/generate_cube_daily.py
 
-      - name: Save Classic puzzle resources
+      - name: Save Cube puzzle resources
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add games/numstep/data/
-          git add games/numstep/printables/
-          git commit -m "Generate daily Numstep Classic puzzles" || echo "No changes to commit"
+          git add games/numstep-cube/data/
+          git add games/numstep-cube/printables/
+          git commit -m "Generate daily Numstep Cube puzzle"
           git push
