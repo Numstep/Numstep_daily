@@ -445,31 +445,19 @@ function renderBoard(gridElement) {
                 renderEmptyPlayableCell(cell);
             }
 
-            cell.addEventListener("click", () => {
+            cell.addEventListener("pointerdown", event => {
+                if (isSolved || event.button > 0) return;
+                event.preventDefault();
+                dragging = true;
+                gridElement.setPointerCapture?.(event.pointerId);
                 handleCellSelection(r, c);
             });
 
-            cell.addEventListener("mousedown", event => {
-                event.preventDefault();
-
-                if (!isSolved) {
-                    dragging = true;
+            cell.addEventListener("pointerenter", event => {
+                if (!isSolved && dragging && (event.buttons !== 0 || event.pointerType === "touch")) {
                     handleCellSelection(r, c);
                 }
             });
-
-            cell.addEventListener(
-                "touchstart",
-                event => {
-                    event.preventDefault();
-
-                    if (!isSolved) {
-                        dragging = true;
-                        handleCellSelection(r, c);
-                    }
-                },
-                { passive: false }
-            );
 
             gridElement.appendChild(cell);
         }
@@ -1108,68 +1096,10 @@ function renderPathPosition(
 // ============================================================
 
 function setupDragControls() {
-    document.addEventListener("mousemove", event => {
-        if (!dragging || isSolved) {
-            return;
-        }
-
-        const element = document.elementFromPoint(
-            event.clientX,
-            event.clientY
-        );
-
-        if (!isBoardCell(element)) {
-            return;
-        }
-
-        handleCellSelection(
-            Number(element.dataset.r),
-            Number(element.dataset.c)
-        );
-    });
-
-    document.addEventListener(
-        "touchmove",
-        event => {
-            if (!dragging || isSolved) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const touch = event.touches[0];
-
-            if (!touch) {
-                return;
-            }
-
-            const element = document.elementFromPoint(
-                touch.clientX,
-                touch.clientY
-            );
-
-            if (!isBoardCell(element)) {
-                return;
-            }
-
-            handleCellSelection(
-                Number(element.dataset.r),
-                Number(element.dataset.c)
-            );
-        },
-        { passive: false }
-    );
-
-    document.addEventListener("mouseup", () => {
-        dragging = false;
-    });
-
-    document.addEventListener("touchend", () => {
-        dragging = false;
-    });
-
-    document.addEventListener("touchcancel", () => {
-        dragging = false;
+    document.addEventListener("pointerup", () => { dragging = false; });
+    document.addEventListener("pointercancel", () => { dragging = false; });
+    document.addEventListener("pointerleave", event => {
+        if (event.target === document.documentElement) dragging = false;
     });
 }
 
