@@ -15,18 +15,36 @@ const NumstepBadge = {
 
     async generate(size, dateString, time, attempts, variant = null) {
         variant = variant || this.detectVariant();
-        const paths = {
+        const sharePaths = {
             classic: `data/${size}x${size}/${dateString}_share.json`,
             taurus: `data/${size}x${size}/${dateString}_share.json`,
             cube: `data/${dateString}_share.json`,
             box: `data/${dateString}_share.json`
         };
-        const shareUrl = paths[variant] || paths.classic;
+        const puzzlePaths = {
+            classic: `data/${size}x${size}/${dateString}.json`,
+            taurus: `data/${size}x${size}/${dateString}.json`,
+            cube: `data/${dateString}.json`,
+            box: `data/${dateString}.json`
+        };
 
         try {
-            const response = await fetch(shareUrl, { cache: "no-store" });
-            if (!response.ok) throw new Error(`Share file returned ${response.status}.`);
-            const fileData = await response.json();
+            const response = await fetch(sharePaths[variant] || sharePaths.classic, { cache: "no-store" });
+            let fileData;
+
+            if (response.ok) {
+                fileData = await response.json();
+            } else {
+                // A share file may not exist yet for a newly generated game.
+                // The normal daily puzzle contains the same solution data needed
+                // to render the badge, so use it as a safe fallback.
+                const puzzleResponse = await fetch(puzzlePaths[variant] || puzzlePaths.classic, { cache: "no-store" });
+                if (!puzzleResponse.ok) {
+                    throw new Error(`Puzzle data returned ${puzzleResponse.status}.`);
+                }
+                fileData = await puzzleResponse.json();
+            }
+
             const shareData = typeof fileData.content === "string"
                 ? JSON.parse(fileData.content)
                 : fileData;
@@ -47,7 +65,7 @@ const NumstepBadge = {
 
     async generateFromData(shareData, dateString, time, attempts, variant = "classic") {
         const data = this.normalise(shareData, variant);
-        return this.drawAndDisplay(data, dateString, time, attempts, variant);
+        return this.drawAndDisplay(data, dateString, time, attempts);
     },
 
     normalise(shareData, variant) {
