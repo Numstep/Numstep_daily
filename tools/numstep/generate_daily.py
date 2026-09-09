@@ -1,6 +1,7 @@
 import random
 import json
 from datetime import date
+from pathlib import Path
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -339,6 +340,9 @@ def export_web_puzzle(grid, steps, filename):
     # --------------------------------------------------------
     # Write JSON file.
     # --------------------------------------------------------
+
+    filename = Path(filename)
+    filename.parent.mkdir(parents=True, exist_ok=True)
 
     with open(
         filename,
@@ -1098,12 +1102,15 @@ for size in sizes:
     grid_share, steps_share = generate_walk(size)
     
     web_filename = (
-    f"numstep_{size}_{date.today()}.json"
-)
+        Path("games") / "numstep" / "data" / f"{size}x{size}" /
+        f"{date.today().isoformat()}.json"
+    )
+    web_filename.parent.mkdir(parents=True, exist_ok=True)
 
     web_filename_share = (
-    f"numstep_{size}_{date.today()}_share.json"
-)
+        Path("games") / "numstep" / "data" / f"{size}x{size}" /
+        f"{date.today().isoformat()}_share.json"
+    )
 
     export_web_puzzle(
     grid,
@@ -1134,8 +1141,10 @@ for size in sizes:
 # ============================================================
 
 filename = (
-    f"Numstep_Daily_Unique_{date.today().strftime('%Y-%m-%d')}.pdf"
+    Path("games") / "numstep" / "printables" /
+    f"{date.today().strftime('%Y-%m-%d')}.pdf"
 )
+filename.parent.mkdir(parents=True, exist_ok=True)
 
 create_page(
     grids,
