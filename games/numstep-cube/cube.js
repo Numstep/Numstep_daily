@@ -67,10 +67,25 @@ function samePosition(a, b) {
     return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 }
 
+// Cube coordinates are [layer, row, column]. Two cells share a face when
+// exactly one coordinate changes by one and the other two stay unchanged.
+// In particular, [layer, row, column] -> [layer + 1, row, column] is a
+// valid move: the two cells occupy the same row/column location in adjacent
+// layers.
 function areAdjacent(a, b) {
-    return Math.abs(a[0] - b[0]) +
-        Math.abs(a[1] - b[1]) +
-        Math.abs(a[2] - b[2]) === 1;
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== 3 || b.length !== 3) {
+        return false;
+    }
+
+    const layerDelta = Math.abs(Number(a[0]) - Number(b[0]));
+    const rowDelta = Math.abs(Number(a[1]) - Number(b[1]));
+    const columnDelta = Math.abs(Number(a[2]) - Number(b[2]));
+
+    return (
+        (layerDelta === 1 && rowDelta === 0 && columnDelta === 0) ||
+        (layerDelta === 0 && rowDelta === 1 && columnDelta === 0) ||
+        (layerDelta === 0 && rowDelta === 0 && columnDelta === 1)
+    );
 }
 
 function getValue(position) {
@@ -104,8 +119,6 @@ function initialiseChains() {
     clueValues.forEach((clueValue, index) => {
         const nextClue = clueValues[index + 1];
 
-        // A clue that is also the highest numbered cell is the terminal
-        // marker, matching Classic's final-clue behaviour.
         if (clueValue === maxValue && !nextClue) {
             return;
         }
@@ -290,9 +303,6 @@ function selectCell(position) {
     const last = chain.path[chain.path.length - 1];
     const expected = getValue(last) + 1;
 
-    // Selecting a different clue switches to that chain only when it is
-    // an explicit click after the current chain has been completed. During
-    // an active chain, any other selection is evaluated as the next move.
     if (!areAdjacent(last, position)) {
         failActiveChain("The next step must share a face with the current cube.");
         return;
@@ -361,7 +371,6 @@ function failActiveChain(message) {
     attemptsElement.textContent = `Attempts: ${attempts}`;
 
     if (chain) {
-        // Keep the clue itself, but erase the player's current chain.
         chain.path = [chain.path[0]];
         chain.complete = false;
     }
@@ -375,8 +384,6 @@ async function createShareResult() {
     const elapsed = timerStartedAt === null ? 0 : Date.now() - timerStartedAt;
     let badgeImageUrl = "";
 
-    // The Classic badge renderer is 2D-only, so Cube uses the same result
-    // modal and PNG pipeline when available, falling back cleanly if absent.
     if (typeof NumstepBadge !== "undefined" && NumstepBadge.generate) {
         try {
             badgeImageUrl = await NumstepBadge.generate(
