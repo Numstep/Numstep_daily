@@ -1,7 +1,26 @@
 body {
+    --page-bg: #ffffff;
+    --text: #000000;
+    --surface: #ffffff;
+    --surface-muted: #f5f5f5;
+    --border: #000000;
+    --muted: #666666;
+    --overlay: rgba(0, 0, 0, 0.65);
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 20px;
+    background: var(--page-bg);
+    color: var(--text);
+}
+
+body.dark-theme {
+    --page-bg: #111111;
+    --text: #eeeeee;
+    --surface: #1d1d1d;
+    --surface-muted: #292929;
+    --border: #777777;
+    --muted: #b7b7b7;
+    --overlay: rgba(0, 0, 0, 0.78);
 }
 
 body.rules-open {
@@ -41,7 +60,7 @@ h2 {
 .shareOverlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--overlay);
 }
 
 .shareBox {
@@ -49,7 +68,8 @@ h2 {
     z-index: 1;
     width: min(90%, 420px);
     padding: 30px;
-    background: white;
+    background: var(--surface);
+    color: var(--text);
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -61,6 +81,7 @@ h2 {
     right: 15px;
     border: none;
     background: transparent;
+    color: inherit;
     font-size: 32px;
     cursor: pointer;
 }
@@ -68,7 +89,7 @@ h2 {
 .shareGraphic {
     padding: 25px;
     border-radius: 15px;
-    background: #f5f5f5;
+    background: var(--surface-muted);
 }
 
 .shareBrand {
@@ -88,7 +109,7 @@ h2 {
 }
 
 .shareStat span {
-    color: #666;
+    color: var(--muted);
 }
 
 .shareButtons {
@@ -101,7 +122,7 @@ h2 {
 
 .shareButtons button {
     padding: 12px 18px;
-    border: none;
+    border: 1px solid var(--border);
     border-radius: 10px;
     cursor: pointer;
     font-size: 16px;
@@ -119,9 +140,6 @@ h2 {
     margin: 25px auto;
 }
 
-/* Keep every Classic puzzle at or below 90% of the viewport width.
-   The 9x9 board is capped at 504px, about 20% smaller than the
-   previous 70px-per-cell maximum. */
 #grid[style*="repeat(5"] {
     width: min(90%, 300px);
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
@@ -139,7 +157,7 @@ h2 {
 
 .cell {
     aspect-ratio: 1;
-    border: 1px solid black;
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -158,6 +176,12 @@ h2 {
     color: white;
 }
 
+.dark-theme .cell.active,
+.dark-theme .cell.black {
+    background: #000000;
+    color: #ffffff;
+}
+
 .cell.black {
     background: black;
     border-color: black;
@@ -173,9 +197,15 @@ h2 {
 button {
     padding: 10px 25px;
     font-size: 16px;
-    background: white;
-    border: 1px solid black;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
     cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .pdf-date-nav {
@@ -207,11 +237,6 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
 .date-navigation {
     display: flex;
     align-items: center;
@@ -229,7 +254,7 @@ button:disabled {
     width: min(100%, 360px);
     height: auto;
     margin: 0 auto 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 8px;
 }
 
@@ -251,10 +276,9 @@ button:disabled {
 
 .shareDate {
     margin-top: 12px;
-    color: #666;
+    color: var(--muted);
 }
 
-/* Rules stay hidden until HOW TO PLAY is pressed. */
 .rulesModal {
     display: none !important;
     position: fixed !important;
@@ -282,7 +306,7 @@ button:disabled {
     inset: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--overlay);
     touch-action: none;
 }
 
@@ -300,7 +324,8 @@ button:disabled {
     overscroll-behavior: contain;
     padding: 46px 24px 24px;
     margin: 0;
-    background: white;
+    background: var(--surface);
+    color: var(--text);
     border-radius: 16px;
     text-align: left;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -326,6 +351,7 @@ button:disabled {
     padding: 0;
     border: none;
     background: transparent;
+    color: inherit;
     font-size: 32px;
     line-height: 44px;
     text-align: center;
@@ -392,16 +418,14 @@ button:disabled {
     }
 }
 
-
-/* Sponsor message box */
 .sponsorBox {
     width: 100%;
     min-height: 180px;
     box-sizing: border-box;
     margin: 18px 0 0;
     padding: 20px;
-    border: 1px solid black;
-    background: #f5f5f5;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -421,7 +445,6 @@ button:disabled {
 .sponsorBox a:focus-visible {
     text-decoration: underline;
 }
-
 
 .sponsorMessage {
     position: absolute;
@@ -452,15 +475,22 @@ button:disabled {
     text-decoration: none;
 }
 
-
-/* Main template header and game selector */
 .siteHeader { display:flex; align-items:center; justify-content:space-between; max-width:900px; margin:0 auto 10px; }
 .siteHeaderBrand { font-size:38px; font-weight:bold; }
-.moreButton { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:white; }
+.headerControls { display:flex; align-items:center; gap:8px; }
+.moreButton, .themeToggle { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:var(--surface); color:var(--text); }
 .hamburgerIcon { font-size:22px; line-height:1; }
-.moreMenu { position:absolute; top:64px; right:20px; z-index:1200; min-width:170px; padding:8px; background:white; border:1px solid black; text-align:left; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+.themeToggleIcon { font-size:18px; line-height:1; }
+.moreMenu { position:absolute; top:64px; right:20px; z-index:1200; min-width:170px; padding:8px; background:var(--surface); color:var(--text); border:1px solid var(--border); text-align:left; box-shadow:0 8px 24px rgba(0,0,0,.15); }
 .moreMenu[hidden] { display:none; }
 .gameMenuItem { display:block; padding:10px 12px; color:inherit; text-decoration:none; }
 .gameMenuItem:hover, .gameMenuItem:focus-visible, .gameMenuItem.active { text-decoration:underline; font-weight:bold; }
 .visuallyHidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-@media (max-width:480px) { .siteHeaderBrand { font-size:32px; } .moreMenu { top:56px; right:12px; } }
+
+@media (max-width:480px) {
+    .siteHeaderBrand { font-size:32px; }
+    .siteHeader { gap:8px; }
+    .headerControls { gap:4px; }
+    .moreButton, .themeToggle { padding:8px 10px; }
+    .moreMenu { top:56px; right:12px; }
+}
