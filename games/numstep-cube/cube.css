@@ -19,6 +19,7 @@
     width: min(90vw, 560px);
     max-width: 90vw;
     margin: 28px auto;
+    touch-action: none;
 }
 
 .cubeLayer {
@@ -53,7 +54,7 @@
     font-weight: normal;
     cursor: pointer;
     user-select: none;
-    touch-action: manipulation;
+    touch-action: none;
 }
 
 .cubeCell:nth-child(3n) {
