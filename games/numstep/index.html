@@ -1,12 +1,36 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Numstep - Daily Challenge</title><link rel="stylesheet" href="../../shared/styles/main.css"></head>
 <body>
-<header class="siteHeader"><div class="siteHeaderBrand">NUMSTEP</div><button class="moreButton" id="moreButton" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button></header>
+<header class="siteHeader"><div class="siteHeaderBrand">NUMSTEP</div><div class="headerControls"><button class="themeToggle" id="themeToggle" type="button" aria-label="Switch to dark theme"><span class="themeToggleIcon" aria-hidden="true">◐</span><span id="themeToggleLabel">dark</span></button><button class="moreButton" id="moreButton" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button></div></header>
 <nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties"><a class="gameMenuItem active" href="index.html" aria-current="page">Classic</a><a class="gameMenuItem" href="../numstep-cube/index.html">Cube</a><a class="gameMenuItem" href="../numstep-taurus/index.html">Taurus</a><a class="gameMenuItem" href="../numstep-box/index.html">Box</a></nav>
 <h1 class="visuallyHidden">NUMSTEP</h1><h2>Daily Challenge</h2>
 <div class="date-navigation"><button id="prevDay" aria-label="Previous day">←</button><div id="currentDate"></div><button id="nextDay" aria-label="Next day">→</button></div>
 <div class="printable-puzzle"><a id="pdfLink" href="#" target="_blank"><button>🖨️ Printable Puzzle</button></a></div>
 <div id="timer">00:00</div><div id="attempts">Attempts: 0</div><div id="grid"></div><div id="message"></div><button id="resetButton">RESET</button><div class="sponsorBox" id="sponsorBox"></div>
-<script>const moreButton=document.getElementById("moreButton"),moreMenu=document.getElementById("moreMenu");moreButton.addEventListener("click",()=>{const open=moreButton.getAttribute("aria-expanded")==="true";moreButton.setAttribute("aria-expanded",String(!open));moreMenu.hidden=open});document.addEventListener("click",e=>{if(!moreMenu.hidden&&!moreMenu.contains(e.target)&&!moreButton.contains(e.target)){moreMenu.hidden=true;moreButton.setAttribute("aria-expanded","false")}});let selectedDate=new Date();function formatDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}function displayDate(d){return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}function loadSelectedPuzzle(){const ds=formatDate(selectedDate);window.selectedDateString=ds;if(typeof loadPuzzleForDate==="function")loadPuzzleForDate(ds)}function updateDateNavigation(){const ds=formatDate(selectedDate);window.selectedDateString=ds;document.getElementById("currentDate").textContent=displayDate(selectedDate);document.getElementById("pdfLink").href=`printables/${ds}.pdf`;const t=new Date();t.setHours(0,0,0,0);const s=new Date(selectedDate);s.setHours(0,0,0,0);document.getElementById("nextDay").disabled=s>=t}document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);updateDateNavigation();loadSelectedPuzzle()};document.getElementById("nextDay").onclick=()=>{const t=new Date();t.setHours(0,0,0,0);const n=new Date(selectedDate);n.setDate(n.getDate()+1);if(n<=t){selectedDate=n;updateDateNavigation();loadSelectedPuzzle()}};updateDateNavigation();</script>
+<script>
+const moreButton=document.getElementById("moreButton"),moreMenu=document.getElementById("moreMenu");
+moreButton.addEventListener("click",()=>{const open=moreButton.getAttribute("aria-expanded")==="true";moreButton.setAttribute("aria-expanded",String(!open));moreMenu.hidden=open});
+document.addEventListener("click",e=>{if(!moreMenu.hidden&&!moreMenu.contains(e.target)&&!moreButton.contains(e.target)){moreMenu.hidden=true;moreButton.setAttribute("aria-expanded","false")}});
+
+const themeToggle=document.getElementById("themeToggle"),themeToggleLabel=document.getElementById("themeToggleLabel");
+function applyTheme(theme){
+    const dark=theme==="dark";
+    document.body.classList.toggle("dark-theme",dark);
+    themeToggleLabel.textContent=dark?"classic":"dark";
+    themeToggle.setAttribute("aria-label",dark?"Switch to classic theme":"Switch to dark theme");
+}
+const savedTheme=localStorage.getItem("numstep-theme");
+applyTheme(savedTheme==="dark"?"dark":"classic");
+themeToggle.addEventListener("click",()=>{const next=document.body.classList.contains("dark-theme")?"classic":"dark";localStorage.setItem("numstep-theme",next);applyTheme(next)});
+
+let selectedDate=new Date();
+function formatDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function displayDate(d){return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}
+function loadSelectedPuzzle(){const ds=formatDate(selectedDate);window.selectedDateString=ds;if(typeof loadPuzzleForDate==="function")loadPuzzleForDate(ds)}
+function updateDateNavigation(){const ds=formatDate(selectedDate);window.selectedDateString=ds;document.getElementById("currentDate").textContent=displayDate(selectedDate);document.getElementById("pdfLink").href=`printables/${ds}.pdf`;const t=new Date();t.setHours(0,0,0,0);const s=new Date(selectedDate);s.setHours(0,0,0,0);document.getElementById("nextDay").disabled=s>=t}
+document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);updateDateNavigation();loadSelectedPuzzle()};
+document.getElementById("nextDay").onclick=()=>{const t=new Date();t.setHours(0,0,0,0);const n=new Date(selectedDate);n.setDate(n.getDate()+1);if(n<=t){selectedDate=n;updateDateNavigation();loadSelectedPuzzle()}};
+updateDateNavigation();
+</script>
 <script src="js/badge.js"></script><script src="js/game.js"></script><script src="../../shared/js/drag-fix.js"></script><script src="../../shared/js/share.js"></script><script src="../../shared/js/sponsor.js"></script>
 </body></html>
