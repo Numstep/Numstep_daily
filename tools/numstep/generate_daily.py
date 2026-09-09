@@ -189,7 +189,7 @@ page_width, page_height = A5
 # GENERATE SELF-AVOIDING WALK
 # ============================================================
 
-def generate_walk(n, threshold=0.80):
+def generate_walk(n, threshold=0.80, require_unique=True):
 
     total_cells = n * n
     required_steps = threshold * total_cells
@@ -260,36 +260,16 @@ def generate_walk(n, threshold=0.80):
 
         if steps < required_steps:
             continue
+        if not require_unique:
+            print(f"  Valid share puzzle found after {attempts} attempts (uniqueness not required).")
+            return grid, steps
 
-        print(
-            f"Checking {n} x {n} candidate "
-            f"with {steps} cells..."
-        )
-
-        # ----------------------------------------------------
-        # CHECK UNIQUENESS
-        # ----------------------------------------------------
-
-        solution_count = count_solutions(
-            grid,
-            max_solutions=2
-        )
-
-        print(
-            f"  Solutions found: {solution_count}"
-        )
-
-        # ----------------------------------------------------
-        # ACCEPT ONLY UNIQUE PUZZLES
-        # ----------------------------------------------------
+        print(f"Checking {n} x {n} candidate with {steps} cells...")
+        solution_count = count_solutions(grid, max_solutions=2)
+        print(f"  Solutions found: {solution_count}")
 
         if solution_count == 1:
-
-            print(
-                f"  Unique puzzle found "
-                f"after {attempts} attempts."
-            )
-
+            print(f"  Unique puzzle found after {attempts} attempts.")
             return grid, steps
 
 
@@ -1099,7 +1079,7 @@ for size in sizes:
     )
 
     grid, steps = generate_walk(size)
-    grid_share, steps_share = generate_walk(size)
+    grid_share, steps_share = generate_walk(size, require_unique=False)
     
     web_filename = (
         Path("games") / "numstep" / "data" / f"{size}x{size}" /
