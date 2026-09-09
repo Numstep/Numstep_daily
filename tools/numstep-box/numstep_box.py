@@ -7,7 +7,7 @@ from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-N = 4
+N = 3
 COVERAGE_THRESHOLD = 0.60
 CLUE_INTERVAL = 10
 MAX_SOLUTIONS = 2
