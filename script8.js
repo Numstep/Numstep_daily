@@ -2,7 +2,7 @@
  *
  * Main features:
  *   - Supports 5x5, 7x7 and 9x9 daily puzzles.
- *   - Loads: numstep_[size]_[YYYY-MM-DD].json
+ *   - Loads daily puzzle JSON from games/numstep/data/[size]x[size]/.
  *   - Final clue is treated as a TERMINAL CLUE when it is also the
  *     highest solution value. It is not treated as a chain of one.
  *     Therefore a puzzle ending at 40 is won when 39 is completed.
@@ -40,6 +40,7 @@ const AVAILABLE_SIZES = [5, 7, 9];
 const DEFAULT_SIZE = 5;
 
 const PUZZLE_FILE_PREFIX = "numstep";
+const PUZZLE_DATA_DIRECTORY = "games/numstep/data";
 const RULES_FILE = "rules.json";
 
 const STORAGE_KEY_ATTEMPTS = "numstep-attempts";
@@ -123,15 +124,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 
 function getSelectedDateString() {
-
-    // Use the date selected by index.html
     if (window.selectedDateString) {
         return window.selectedDateString;
     }
 
-    // Fallback to today if no date has been supplied
     const now = new Date();
-
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
@@ -139,15 +136,12 @@ function getSelectedDateString() {
     return `${year}-${month}-${day}`;
 }
 
-
 function getPuzzleFilename(size) {
-
     const selectedDate = getSelectedDateString();
 
-    return `${PUZZLE_FILE_PREFIX}_${size}_${selectedDate}.json`;
+    // Daily Classic files are generated under the website data folders.
+    return `${PUZZLE_DATA_DIRECTORY}/${size}x${size}/${selectedDate}.json`;
 }
-
-
 
 async function selectPuzzleSize(size) {
     size = Number(size);
@@ -156,7 +150,6 @@ async function selectPuzzleSize(size) {
         return;
     }
 
-    // If the player changes size, that is a new puzzle context.
     stopTimer(false);
 
     puzzleSize = size;
@@ -210,14 +203,9 @@ async function loadPuzzle(size) {
 }
 
 async function loadPuzzleForDate(dateString) {
-
-    // Store the selected date globally
     window.selectedDateString = dateString;
-
-    // Reload the currently selected puzzle size
     await selectPuzzleSize(puzzleSize);
 }
-
 
 function validatePuzzleData(data) {
     if (!data || typeof data !== "object") {
@@ -226,11 +214,11 @@ function validatePuzzleData(data) {
 
     const selectedDate = getSelectedDateString();
 
-if (data.date !== selectedDate) {
-    throw new Error(
-        `Puzzle date mismatch. Expected ${selectedDate}, received ${data.date}.`
-    );
-}
+    if (data.date !== selectedDate) {
+        throw new Error(
+            `Puzzle date mismatch. Expected ${selectedDate}, received ${data.date}.`
+        );
+    }
 
     if (Number(data.size) !== puzzleSize) {
         throw new Error(
@@ -350,9 +338,7 @@ function buildBoardData() {
 }
 
 function buildClueData(data) {
-    const clueValues = [...new Set(
-        data.clues.map(Number)
-    )]
+    const clueValues = [...new Set(data.clues.map(Number))]
         .filter(value => solution.includes(value))
         .sort((a, b) => a - b);
 
@@ -387,23 +373,6 @@ function initialiseChains() {
     clues.forEach((clue, index) => {
         const nextClue = clues[index + 1];
 
-        /*
-         * IMPORTANT:
-         * If the final clue is also the highest solution value,
-         * it is a terminal marker, not a separate chain.
-         *
-         * Example:
-         *   clues = [1, 10, 20, 30, 40]
-         *   maxValue = 40
-         *
-         * Chains are:
-         *   1–9
-         *   10–19
-         *   20–29
-         *   30–39
-         *
-         * The 40 clue is the finish marker.
-         */
         if (!nextClue && clue.value === maxValue) {
             return;
         }
@@ -429,11 +398,9 @@ function renderBoard(gridElement) {
     for (let r = 0; r < puzzleSize; r++) {
         for (let c = 0; c < puzzleSize; c++) {
             const value = board[r][c];
-
             const cell = document.createElement("div");
 
             cell.classList.add("cell", "square");
-
             cell.dataset.r = r;
             cell.dataset.c = c;
 
@@ -477,100 +444,34 @@ function renderBoard(gridElement) {
 }
 
 function renderBlockedCell(cell) {
-    cell.classList.remove(
-        "clue",
-        "active",
-        "selected"
-    );
-
+    cell.classList.remove("clue", "active", "selected");
     cell.classList.add("black", "unused");
-
     cell.textContent = "";
-
-    cell.style.setProperty(
-        "background-color",
-        "#000000",
-        "important"
-    );
-
-    cell.style.setProperty(
-        "color",
-        "#FFFFFF",
-        "important"
-    );
+    cell.style.setProperty("background-color", "#000000", "important");
+    cell.style.setProperty("color", "#FFFFFF", "important");
 }
 
 function renderEmptyPlayableCell(cell) {
-    cell.classList.remove(
-        "black",
-        "unused",
-        "clue",
-        "active",
-        "selected"
-    );
-
+    cell.classList.remove("black", "unused", "clue", "active", "selected");
     cell.textContent = "";
-
-    cell.style.setProperty(
-        "background-color",
-        "#FFFFFF",
-        "important"
-    );
-
-    cell.style.setProperty(
-        "color",
-        "#000000",
-        "important"
-    );
+    cell.style.setProperty("background-color", "#FFFFFF", "important");
+    cell.style.setProperty("color", "#000000", "important");
 }
 
 function renderClueCell(cell, clueValue) {
-    cell.classList.remove(
-        "black",
-        "unused",
-        "active",
-        "selected"
-    );
-
+    cell.classList.remove("black", "unused", "active", "selected");
     cell.classList.add("clue");
-
     cell.textContent = clueValue;
-
-    cell.style.setProperty(
-        "background-color",
-        getClueColour(clueValue),
-        "important"
-    );
-
-    cell.style.setProperty(
-        "color",
-        "#FFFFFF",
-        "important"
-    );
+    cell.style.setProperty("background-color", getClueColour(clueValue), "important");
+    cell.style.setProperty("color", "#FFFFFF", "important");
 }
 
 function renderChainCell(cell, value, clueValue) {
-    cell.classList.remove(
-        "black",
-        "unused",
-        "clue"
-    );
-
+    cell.classList.remove("black", "unused", "clue");
     cell.classList.add("active", "selected");
-
     cell.textContent = value;
-
-    cell.style.setProperty(
-        "background-color",
-        getClueColour(clueValue),
-        "important"
-    );
-
-    cell.style.setProperty(
-        "color",
-        "#FFFFFF",
-        "important"
-    );
+    cell.style.setProperty("background-color", getClueColour(clueValue), "important");
+    cell.style.setProperty("color", "#FFFFFF", "important");
 }
 
 // ============================================================
@@ -578,13 +479,8 @@ function renderChainCell(cell, value, clueValue) {
 // ============================================================
 
 function handleCellSelection(r, c) {
-    if (isSolved) {
-        return;
-    }
-
-    if (!isInsideBoard(r, c)) {
-        return;
-    }
+    if (isSolved) return;
+    if (!isInsideBoard(r, c)) return;
 
     const value = board[r][c];
 
@@ -593,573 +489,390 @@ function handleCellSelection(r, c) {
         return;
     }
 
-    /*
-     * No active chain:
-     * only a clue can begin a chain.
-     */
     if (activeChainClue === null) {
         if (!isClueValue(value)) {
-            showMessage("Start from a clue square.");
+            showMessage("Start on a coloured clue.");
             return;
         }
 
-        startOrResumeChain(value);
-        return;
-    }
+        const chain = chains.get(value);
 
-    const activeChain = chains.get(activeChainClue);
-
-    if (!activeChain || activeChain.complete) {
-        activeChainClue = null;
-        showMessage("Choose another unfinished coloured clue.");
-        return;
-    }
-
-    const path = activeChain.path;
-
-    if (path.length === 0) {
-        startOrResumeChain(activeChainClue);
-        return;
-    }
-
-    const last = path[path.length - 1];
-
-    // Ignore repeated mouse/touch events on the same cell.
-    if (last.r === r && last.c === c) {
-        return;
-    }
-
-    /*
-     * Clicking another unfinished clue switches chains.
-     * This is deliberately allowed for normal clicks.
-     * Dragging across a clue still behaves as a move.
-     */
-    if (
-        isClueValue(value) &&
-        value !== activeChainClue &&
-        !dragging
-    ) {
-        const otherChain = chains.get(value);
-
-        if (!otherChain) {
-            showMessage("That clue is the terminal finish clue.");
+        if (!chain) {
+            showMessage("That clue is the final marker.");
             return;
         }
 
-        if (otherChain.complete) {
-            showMessage(
-                `The chain starting at ${value} is already complete.`
-            );
+        if (chain.complete) {
+            showMessage("That chain is already complete.");
             return;
         }
 
-        activeChainClue = null;
-        startOrResumeChain(value);
+        activeChainClue = value;
+        chain.path = [{ r, c }];
+
+        startTimerIfNeeded();
+        renderChainCellAt(r, c, value);
+        showMessage(`Chain started at ${value}.`);
         return;
     }
 
-    if (!isAdjacent(last.r, last.c, r, c)) {
-        showMessage("That square is not adjacent.");
-        return;
-    }
+    const chain = chains.get(activeChainClue);
 
-    if (isUsedByAnyChain(r, c)) {
-        showMessage("That square is already part of a chain.");
-        return;
-    }
-
-    const expectedValue = getExpectedNextValue(activeChain);
-
-    if (expectedValue > activeChain.endValue) {
-        finishActiveChain();
-        return;
-    }
-
-    if (value !== expectedValue) {
-        handleChainFailure(
-            activeChain,
-            `Wrong step. You need ${expectedValue} next.`
-        );
-        return;
-    }
-
-    addCellToActiveChain(r, c);
-
-    /*
-     * This is the key completion check.
-     *
-     * If the final chain ends at 39 and the terminal clue is 40,
-     * reaching 39 completes the puzzle. No attempt is made to
-     * connect 40 to 40.
-     */
-    if (value === activeChain.endValue) {
-        finishActiveChain();
-    }
-}
-
-function startOrResumeChain(clueValue) {
-    const chain = chains.get(clueValue);
-
-    /*
-     * A terminal final clue is not a chain. It cannot be started.
-     * It is reached implicitly by completing the preceding chain.
-     */
     if (!chain) {
-        const terminalClue = getTerminalClue();
-
-        if (
-            terminalClue &&
-            terminalClue.value === Number(clueValue)
-        ) {
-            showMessage(
-                `The puzzle finishes when you reach ${terminalClue.value - 1}.`
-            );
-            return;
-        }
-
-        showMessage("That clue does not have a valid chain.");
+        activeChainClue = null;
         return;
-    }
-
-    if (chain.complete) {
-        showMessage(
-            `The chain starting at ${clueValue} is already complete.`
-        );
-        return;
-    }
-
-    if (chain.path.length === 0) {
-        const clue = getClueByValue(clueValue);
-
-        if (!clue) {
-            showMessage("Could not locate that clue.");
-            return;
-        }
-
-        if (isUsedByAnotherChain(
-            clue.r,
-            clue.c,
-            clueValue
-        )) {
-            showMessage(
-                "That clue square is already occupied by another chain."
-            );
-            return;
-        }
-
-        chain.path.push({
-            r: clue.r,
-            c: clue.c
-        });
-
-        renderPathPosition(
-            clue.r,
-            clue.c,
-            clueValue,
-            clueValue
-        );
-    }
-
-    activeChainClue = clueValue;
-
-    startTimer();
-
-    showMessage(
-        `Chain ${clueValue}–${chain.endValue} is active.`
-    );
-}
-
-function getExpectedNextValue(chain) {
-    if (chain.path.length === 0) {
-        return chain.clueValue;
     }
 
     const last = chain.path[chain.path.length - 1];
 
-    return board[last.r][last.c] + 1;
-}
+    if (last.r === r && last.c === c) return;
 
-function addCellToActiveChain(r, c) {
-    const chain = chains.get(activeChainClue);
-
-    if (!chain) {
+    if (!isAdjacent(last.r, last.c, r, c)) {
+        breakCurrentChain("Move to an adjacent square.");
         return;
     }
 
-    const value = board[r][c];
+    if (chain.path.some(position => position.r === r && position.c === c)) {
+        breakCurrentChain("You cannot revisit a square.");
+        return;
+    }
+
+    const expectedValue = board[last.r][last.c] + 1;
+
+    if (value !== expectedValue) {
+        breakCurrentChain(`The next number must be ${expectedValue}.`);
+        return;
+    }
+
+    const nextClue = getNextClueAfter(activeChainClue);
+
+    if (nextClue && value === nextClue.value) {
+        completeCurrentChain();
+        return;
+    }
 
     chain.path.push({ r, c });
+    renderChainCellAt(r, c, activeChainClue);
 
-    renderPathPosition(
-        r,
-        c,
-        value,
-        activeChainClue
-    );
-
-    showMessage("");
+    if (value === chain.endValue) {
+        completeCurrentChain();
+    }
 }
 
-// ============================================================
-// CHAIN COMPLETION / FAILURE
-// ============================================================
-
-function finishActiveChain() {
+function completeCurrentChain() {
     const chain = chains.get(activeChainClue);
 
     if (!chain) {
+        activeChainClue = null;
         return;
     }
 
     chain.complete = true;
 
-    const completedClue = activeChainClue;
-    const completedEnd = chain.endValue;
-
+    const nextClue = getNextClueAfter(activeChainClue);
     activeChainClue = null;
 
-    /*
-     * Win is based on the actual chain set, not on a fictional
-     * final chain beginning at the terminal clue.
-     */
-    if (allChainsComplete()) {
-        handlePuzzleWin();
+    if (!nextClue) {
+        finishPuzzle();
         return;
     }
 
-    showMessage(
-        `Chain ${completedClue}–${completedEnd} complete! ` +
-        "Choose another coloured clue."
-    );
+    showMessage(`Chain complete. Start the ${nextClue.value} chain.`);
 }
 
-function allChainsComplete() {
-    if (chains.size === 0) {
-        return false;
-    }
-
-    for (const chain of chains.values()) {
-        if (!chain.complete) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function handleChainFailure(chain, message) {
-    attempts++;
-
-    saveAttempts();
+function breakCurrentChain(message) {
+    attempts += 1;
+    storeAttempts();
     updateAttemptsDisplay();
-
-    clearChainFromBoard(chain);
-
-    chain.path = [];
-    chain.complete = false;
-
-    activeChainClue = null;
-    dragging = false;
-
-    showMessage(
-        `${message} The active chain has been reset.`
-    );
-}
-
-function clearChainFromBoard(chain) {
-    for (const position of chain.path) {
-        const value = board[position.r][position.c];
-        const cell = getCellElement(position.r, position.c);
-
-        if (!cell) {
-            continue;
-        }
-
-        if (isClueValue(value)) {
-            renderClueCell(cell, value);
-        } else {
-            renderEmptyPlayableCell(cell);
-        }
-    }
-}
-
-// ============================================================
-// REACHABILITY / ERROR CHECKS
-// ============================================================
-
-function canContinueActiveChain() {
-    if (activeChainClue === null) {
-        return true;
-    }
 
     const chain = chains.get(activeChainClue);
 
-    if (!chain || chain.path.length === 0) {
-        return true;
-    }
+    if (chain) chain.path = [];
 
-    const expected = getExpectedNextValue(chain);
-
-    if (expected > chain.endValue) {
-        return true;
-    }
-
-    const target = findPositionForValue(expected);
-
-    if (!target) {
-        return false;
-    }
-
-    const last = chain.path[chain.path.length - 1];
-
-    if (!isAdjacent(
-        last.r,
-        last.c,
-        target.r,
-        target.c
-    )) {
-        return false;
-    }
-
-    if (isUsedByAnotherChain(
-        target.r,
-        target.c,
-        activeChainClue
-    )) {
-        return false;
-    }
-
-    return true;
+    activeChainClue = null;
+    rerenderCompletedChains();
+    showMessage(`${message} Attempt recorded.`);
 }
 
-/*
- * Called when a drag/mouseup ends. If the player has reached the
- * end of a chain, there must be no additional move: finishActiveChain()
- * has already handled the chain when its final value was selected.
- *
- * We retain this reachability helper so the game can be extended
- * without changing the core board representation.
- */
-function isReachable(start, target, ignoreChainClue = null) {
-    const queue = [start];
+function finishPuzzle() {
+    isSolved = true;
+    stopTimer(true);
 
-    const visited = new Set([
-        `${start.r},${start.c}`
-    ]);
+    const maxAttempts = attempts;
 
-    while (queue.length > 0) {
-        const current = queue.shift();
+    showMessage(
+        `Puzzle complete! ${maxAttempts} attempt${maxAttempts === 1 ? "" : "s"} • ${formatTime(finalElapsed)}`
+    );
 
-        if (
-            current.r === target.r &&
-            current.c === target.c
-        ) {
-            return true;
-        }
-
-        for (const direction of DIRECTIONS) {
-            const nr = current.r + direction.r;
-            const nc = current.c + direction.c;
-            const key = `${nr},${nc}`;
-
-            if (!isInsideBoard(nr, nc)) {
-                continue;
-            }
-
-            if (visited.has(key)) {
-                continue;
-            }
-
-            if (board[nr][nc] === 0) {
-                continue;
-            }
-
-            if (isUsedByAnotherChain(
-                nr,
-                nc,
-                ignoreChainClue
-            )) {
-                continue;
-            }
-
-            visited.add(key);
-            queue.push({ r: nr, c: nc });
-        }
-    }
-
-    return false;
+    createShareResult();
 }
 
 // ============================================================
-// LOOKUPS
+// CHAIN / CLUE HELPERS
 // ============================================================
 
 function isClueValue(value) {
-    return clues.some(
-        clue => clue.value === Number(value)
-    );
+    return clues.some(clue => clue.value === value);
 }
 
-function getClueByValue(value) {
-    return clues.find(
-        clue => clue.value === Number(value)
-    ) || null;
-}
+function getNextClueAfter(clueValue) {
+    const index = clues.findIndex(clue => clue.value === clueValue);
 
-function getTerminalClue() {
-    const playableValues = solution.filter(
-        value => value > 0
-    );
+    if (index === -1 || index >= clues.length - 1) return null;
 
-    if (playableValues.length === 0) {
-        return null;
-    }
-
-    const maxValue = Math.max(...playableValues);
-    const lastClue = clues[clues.length - 1];
-
-    if (
-        lastClue &&
-        lastClue.value === maxValue
-    ) {
-        return lastClue;
-    }
-
-    return null;
+    return clues[index + 1];
 }
 
 function getClueColour(clueValue) {
-    return (
-        clueColours.get(Number(clueValue)) ||
-        COLOUR_PALETTE[0]
-    );
+    return clueColours.get(clueValue) || "#000000";
 }
 
-function findPositionForValue(value) {
-    const index = solution.indexOf(Number(value));
+function renderChainCellAt(r, c, clueValue) {
+    const gridElement = document.getElementById("grid");
+    if (!gridElement) return;
 
-    if (index === -1) {
-        return null;
-    }
+    const cell = gridElement.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+    if (!cell) return;
 
-    return {
-        r: Math.floor(index / puzzleSize),
-        c: index % puzzleSize
-    };
+    renderChainCell(cell, board[r][c], clueValue);
 }
 
-function isUsedByAnyChain(r, c) {
+function rerenderCompletedChains() {
+    const gridElement = document.getElementById("grid");
+    if (!gridElement) return;
+
     for (const chain of chains.values()) {
-        if (chain.path.some(
-            position =>
-                position.r === r &&
-                position.c === c
-        )) {
-            return true;
+        for (const position of chain.path) {
+            renderChainCellAt(position.r, position.c, chain.clueValue);
         }
     }
-
-    return false;
-}
-
-function isUsedByAnotherChain(
-    r,
-    c,
-    allowedChainClue
-) {
-    for (const [clueValue, chain] of chains.entries()) {
-        if (clueValue === Number(allowedChainClue)) {
-            continue;
-        }
-
-        if (chain.path.some(
-            position =>
-                position.r === r &&
-                position.c === c
-        )) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function renderPathPosition(
-    r,
-    c,
-    value,
-    clueValue
-) {
-    const cell = getCellElement(r, c);
-
-    if (!cell) {
-        return;
-    }
-
-    renderChainCell(
-        cell,
-        value,
-        clueValue
-    );
 }
 
 // ============================================================
-// DRAG / TOUCH
+// TIMER
+// ============================================================
+
+function startTimerIfNeeded() {
+    if (puzzleStartTime !== null || isSolved) return;
+
+    puzzleStartTime = Date.now();
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+
+function stopTimer(finalise) {
+    if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    if (puzzleStartTime !== null) {
+        elapsedBeforeStart += Date.now() - puzzleStartTime;
+    }
+
+    puzzleStartTime = null;
+
+    if (finalise) finalElapsed = elapsedBeforeStart;
+}
+
+function resetTimerDisplay() {
+    const timerElement = document.getElementById("timer");
+    if (timerElement) timerElement.textContent = "00:00";
+}
+
+function updateTimerDisplay() {
+    const timerElement = document.getElementById("timer");
+    if (!timerElement) return;
+
+    let elapsed = elapsedBeforeStart;
+
+    if (puzzleStartTime !== null) {
+        elapsed += Date.now() - puzzleStartTime;
+    }
+
+    timerElement.textContent = formatTime(elapsed);
+}
+
+function formatTime(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+// ============================================================
+// ATTEMPTS / STORAGE
+// ============================================================
+
+function getAttemptsStorageKey() {
+    return `${STORAGE_KEY_ATTEMPTS}-${getSelectedDateString()}-${puzzleSize}`;
+}
+
+function getStoredAttempts() {
+    try {
+        return Number(localStorage.getItem(getAttemptsStorageKey())) || 0;
+    } catch (error) {
+        return 0;
+    }
+}
+
+function storeAttempts() {
+    try {
+        localStorage.setItem(getAttemptsStorageKey(), String(attempts));
+    } catch (error) {
+        console.error("Could not store attempts:", error);
+    }
+}
+
+function updateAttemptsDisplay() {
+    const attemptsElement = document.getElementById("attempts");
+
+    if (attemptsElement) {
+        attemptsElement.textContent = `Attempts: ${attempts}`;
+    }
+}
+
+// ============================================================
+// RESET
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    const resetButton = document.getElementById("resetButton");
+    if (!resetButton) return;
+
+    resetButton.addEventListener("click", () => {
+        if (isSolved) return;
+
+        stopTimer(false);
+        activeChainClue = null;
+
+        for (const chain of chains.values()) {
+            chain.path = [];
+            chain.complete = false;
+        }
+
+        renderPuzzleCells();
+        showMessage("Puzzle reset.");
+    });
+});
+
+function renderPuzzleCells() {
+    const gridElement = document.getElementById("grid");
+    if (!gridElement) return;
+
+    gridElement.innerHTML = "";
+    renderBoard(gridElement);
+}
+
+// ============================================================
+// RULES
+// ============================================================
+
+async function loadRules() {
+    try {
+        const response = await fetch(RULES_FILE, { cache: "no-store" });
+
+        if (!response.ok) {
+            throw new Error(`Rules returned ${response.status}.`);
+        }
+
+        const data = await response.json();
+        applyRules(data);
+    } catch (error) {
+        applyRules(DEFAULT_RULES);
+    }
+}
+
+function applyRules(rules) {
+    const rulesTitle = document.getElementById("rulesTitle");
+    const rulesBody = document.getElementById("rulesBody");
+
+    if (rulesTitle) rulesTitle.textContent = rules.title || DEFAULT_RULES.title;
+    if (rulesBody) rulesBody.innerHTML = rules.body || DEFAULT_RULES.body;
+}
+
+// ============================================================
+// UI CONTROLS
+// ============================================================
+
+function createInterfaceControls() {
+    const grid = document.getElementById("grid");
+    if (!grid) return;
+
+    if (!document.getElementById("sizeTabs")) {
+        const wrapper = document.createElement("div");
+        wrapper.id = "sizeTabs";
+        wrapper.className = "sizeTabs";
+
+        AVAILABLE_SIZES.forEach(size => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.size = size;
+            button.textContent = `${size}×${size}`;
+            button.addEventListener("click", () => selectPuzzleSize(size));
+            wrapper.appendChild(button);
+        });
+
+        grid.parentNode.insertBefore(wrapper, grid);
+    }
+
+    if (!document.getElementById("rulesButton")) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = "rulesButton";
+        button.textContent = "RULES";
+        button.addEventListener("click", openRules);
+        grid.parentNode.insertBefore(button, grid);
+    }
+
+    if (!document.getElementById("rulesModal")) {
+        const modal = document.createElement("div");
+        modal.id = "rulesModal";
+        modal.className = "rulesModal";
+        modal.setAttribute("aria-hidden", "true");
+
+        modal.innerHTML = `
+            <div class="rulesOverlay"></div>
+            <div class="rulesBox" role="dialog" aria-modal="true">
+                <button type="button" class="rulesClose" aria-label="Close">×</button>
+                <h2 id="rulesTitle">How to Play Numstep</h2>
+                <div id="rulesBody"></div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.querySelector(".rulesClose").addEventListener("click", closeRules);
+        modal.querySelector(".rulesOverlay").addEventListener("click", closeRules);
+    }
+}
+
+function updateSizeTabs() {
+    document.querySelectorAll("#sizeTabs button").forEach(button => {
+        button.classList.toggle("active", Number(button.dataset.size) === puzzleSize);
+    });
+}
+
+function openRules() {
+    const modal = document.getElementById("rulesModal");
+    if (!modal) return;
+
+    modal.setAttribute("aria-hidden", "false");
+    modal.classList.add("open");
+}
+
+function closeRules() {
+    const modal = document.getElementById("rulesModal");
+    if (!modal) return;
+
+    modal.setAttribute("aria-hidden", "true");
+    modal.classList.remove("open");
+}
+
+// ============================================================
+// DRAG CONTROLS
 // ============================================================
 
 function setupDragControls() {
-    document.addEventListener("mousemove", event => {
-        if (!dragging || isSolved) {
-            return;
-        }
-
-        const element = document.elementFromPoint(
-            event.clientX,
-            event.clientY
-        );
-
-        if (!isBoardCell(element)) {
-            return;
-        }
-
-        handleCellSelection(
-            Number(element.dataset.r),
-            Number(element.dataset.c)
-        );
-    });
-
-    document.addEventListener(
-        "touchmove",
-        event => {
-            if (!dragging || isSolved) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const touch = event.touches[0];
-
-            if (!touch) {
-                return;
-            }
-
-            const element = document.elementFromPoint(
-                touch.clientX,
-                touch.clientY
-            );
-
-            if (!isBoardCell(element)) {
-                return;
-            }
-
-            handleCellSelection(
-                Number(element.dataset.r),
-                Number(element.dataset.c)
-            );
-        },
-        { passive: false }
-    );
-
     document.addEventListener("mouseup", () => {
         dragging = false;
     });
@@ -1167,631 +880,56 @@ function setupDragControls() {
     document.addEventListener("touchend", () => {
         dragging = false;
     });
-
-    document.addEventListener("touchcancel", () => {
-        dragging = false;
-    });
-}
-
-function isBoardCell(element) {
-    return (
-        element &&
-        (
-            element.classList.contains("cell") ||
-            element.classList.contains("square")
-        ) &&
-        element.dataset.r !== undefined &&
-        element.dataset.c !== undefined
-    );
 }
 
 // ============================================================
-// TIMER
+// SHARE RESULT
 // ============================================================
 
-function startTimer() {
-    if (isSolved) {
-        return;
-    }
-
-    if (timerInterval !== null) {
-        return;
-    }
-
-    puzzleStartTime = Date.now();
-
-    timerInterval = setInterval(
-        updateTimerDisplay,
-        250
-    );
-}
-
-function stopTimer(saveElapsed) {
-    if (timerInterval !== null) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-
-    if (
-        saveElapsed &&
-        puzzleStartTime !== null
-    ) {
-        elapsedBeforeStart +=
-            Date.now() - puzzleStartTime;
-    }
-
-    puzzleStartTime = null;
-}
-
-function getElapsedMilliseconds() {
-    if (puzzleStartTime === null) {
-        return elapsedBeforeStart;
-    }
-
-    return (
-        elapsedBeforeStart +
-        (Date.now() - puzzleStartTime)
-    );
-}
-
-function updateTimerDisplay() {
-    const elapsed = isSolved
-        ? finalElapsed
-        : getElapsedMilliseconds();
-
-    const totalSeconds = Math.floor(
-        elapsed / 1000
-    );
-
-    const minutes = Math.floor(
-        totalSeconds / 60
-    );
-
-    const seconds = totalSeconds % 60;
-
-    const timerElement =
-        document.getElementById("timer");
-
-    if (timerElement) {
-        timerElement.textContent =
-            `${String(minutes).padStart(2, "0")}:` +
-            `${String(seconds).padStart(2, "0")}`;
-    }
-}
-
-function resetTimerDisplay() {
-    const timerElement =
-        document.getElementById("timer");
-
-    if (timerElement) {
-        timerElement.textContent = "00:00";
-    }
-}
-
-function formatElapsedTime(milliseconds) {
-    const totalSeconds = Math.floor(
-        milliseconds / 1000
-    );
-
-    const hours = Math.floor(
-        totalSeconds / 3600
-    );
-
-    const minutes = Math.floor(
-        (totalSeconds % 3600) / 60
-    );
-
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-        return (
-            `${hours}h ` +
-            `${String(minutes).padStart(2, "0")}m ` +
-            `${String(seconds).padStart(2, "0")}s`
-        );
-    }
-
-    if (minutes > 0) {
-        return (
-            `${minutes}m ` +
-            `${String(seconds).padStart(2, "0")}s`
-        );
-    }
-
-    return `${seconds}s`;
-}
-
-// ============================================================
-// WIN
-// ============================================================
-
-async function handlePuzzleWin() {
-    if (isSolved) {
-        return;
-    }
-
-    finalElapsed = getElapsedMilliseconds();
-
-    isSolved = true;
-    dragging = false;
-
-    stopTimer(false);
-    updateTimerDisplay();
-
-    const formattedTime = formatElapsedTime(finalElapsed);
-
-    showMessage(
-        `Congratulations! Puzzle complete — ` +
-        `${attempts} attempt${attempts === 1 ? "" : "s"} ` +
-        `in ${formattedTime}.`
-    );
-
-    // Generate the PNG badge first, then place it inside the same
-    // sharing popup as the result statistics.
-    const resultDate =
-        puzzleData?.date ||
-        window.selectedDateString ||
-        getSelectedDateString();
-
+async function createShareResult() {
+    const dateString = getSelectedDateString();
     let badgeImageUrl = "";
 
-    if (typeof NumstepBadge !== "undefined") {
-        try {
-            badgeImageUrl = await NumstepBadge.generate(
-                puzzleSize,
-                resultDate,
-                formattedTime,
-                attempts
-            );
-        } catch (error) {
-            console.error("Could not generate share badge:", error);
-        }
+    if (typeof NumstepBadge !== "undefined" && NumstepBadge.generate) {
+        badgeImageUrl = await NumstepBadge.generate(
+            puzzleSize,
+            dateString,
+            formatTime(finalElapsed),
+            attempts
+        );
     }
+
+    const result = {
+        size: puzzleSize,
+        date: dateString,
+        elapsed: finalElapsed,
+        attempts,
+        url: window.location.href,
+        badgeImageUrl
+    };
 
     if (typeof showShareModal === "function") {
-        showShareModal({
-            attempts,
-            elapsed: finalElapsed,
-            size: puzzleSize,
-            date: resultDate,
-            badgeImageUrl,
-            url: window.location.href
-        });
-    }
-}
-
- // ============================================================
-// ATTEMPTS
-// ============================================================
-
-function getAttemptStorageKey() {
-    const date = puzzleData && puzzleData.date
-        ? puzzleData.date
-        : getLocalDateString();
-
-    return (
-        `${STORAGE_KEY_ATTEMPTS}-` +
-        `${date}-${puzzleSize}`
-    );
-}
-
-function getStoredAttempts() {
-    const raw = localStorage.getItem(
-        getAttemptStorageKey()
-    );
-
-    const value = Number(raw);
-
-    return (
-        Number.isInteger(value) &&
-        value >= 0
-    )
-        ? value
-        : 0;
-}
-
-function saveAttempts() {
-    localStorage.setItem(
-        getAttemptStorageKey(),
-        String(attempts)
-    );
-}
-
-function updateAttemptsDisplay() {
-    const attemptsElement =
-        document.getElementById("attempts");
-
-    if (!attemptsElement) {
-        return;
-    }
-
-    /*
-     * Compatible with both:
-     *   <div id="attempts"></div>
-     * and the old:
-     *   <div id="attempts">Attempts: 0</div>
-     */
-    attemptsElement.textContent =
-        `Attempts: ${attempts}`;
-}
-
-// ============================================================
-// RESET
-// ============================================================
-
-function resetEntirePuzzle() {
-    if (isSolved) {
-        return;
-    }
-
-    for (const chain of chains.values()) {
-        chain.path = [];
-        chain.complete = false;
-    }
-
-    activeChainClue = null;
-    dragging = false;
-
-    rerenderBoard();
-
-    showMessage(
-        "All chains cleared. Choose any coloured clue to begin."
-    );
-}
-
-function setupResetButton() {
-    const resetButton =
-        document.getElementById("resetButton");
-
-    if (!resetButton) {
-        return;
-    }
-
-    resetButton.addEventListener(
-        "click",
-        resetEntirePuzzle
-    );
-}
-
-// ============================================================
-// SIZE TABS / RULES UI
-// ============================================================
-
-function createInterfaceControls() {
-    const grid = document.getElementById("grid");
-
-    if (!grid) {
-        return;
-    }
-
-    setupResetButton();
-
-    createSizeTabs(grid);
-    createRulesButton();
-    createRulesModal();
-}
-
-function createSizeTabs(grid) {
-    let tabs = document.getElementById("sizeTabs");
-
-    if (!tabs) {
-        tabs = document.createElement("div");
-        tabs.id = "sizeTabs";
-        tabs.setAttribute(
-            "role",
-            "tablist"
-        );
-
-        grid.parentNode.insertBefore(
-            tabs,
-            grid
-        );
-    }
-
-    tabs.innerHTML = "";
-
-    AVAILABLE_SIZES.forEach(size => {
-        const button =
-            document.createElement("button");
-
-        button.type = "button";
-        button.className = "sizeTab";
-        button.dataset.size = size;
-        button.textContent = `${size}×${size}`;
-
-        button.setAttribute(
-            "role",
-            "tab"
-        );
-
-        button.addEventListener(
-            "click",
-            () => selectPuzzleSize(size)
-        );
-
-        tabs.appendChild(button);
-    });
-
-    updateSizeTabs();
-}
-
-function updateSizeTabs() {
-    const tabs =
-        document.querySelectorAll(".sizeTab");
-
-    tabs.forEach(tab => {
-        const active =
-            Number(tab.dataset.size) === puzzleSize;
-
-        tab.classList.toggle(
-            "active",
-            active
-        );
-
-        tab.setAttribute(
-            "aria-selected",
-            active ? "true" : "false"
-        );
-    });
-}
-
-function createRulesButton() {
-    if (document.getElementById("rulesButton")) {
-        return;
-    }
-
-    const button =
-        document.createElement("button");
-
-    button.type = "button";
-    button.id = "rulesButton";
-    button.textContent = "HOW TO PLAY";
-
-    button.addEventListener(
-        "click",
-        openRulesModal
-    );
-
-    const resetButton =
-        document.getElementById("resetButton");
-
-    if (resetButton && resetButton.parentNode) {
-        resetButton.parentNode.insertBefore(
-            button,
-            resetButton
-        );
-    } else {
-        document.body.appendChild(button);
-    }
-}
-
-function createRulesModal() {
-    if (document.getElementById("rulesModal")) {
-        return;
-    }
-
-    const modal =
-        document.createElement("div");
-
-    modal.id = "rulesModal";
-    modal.className = "rulesModal";
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    modal.innerHTML = `
-        <div class="rulesOverlay" data-close-rules="true"></div>
-        <div class="rulesBox"
-             role="dialog"
-             aria-modal="true"
-             aria-labelledby="rulesTitle">
-            <button type="button"
-                    class="rulesClose"
-                    id="rulesClose"
-                    aria-label="Close rules">
-                ×
-            </button>
-            <h2 id="rulesTitle">How to Play Numstep</h2>
-            <div id="rulesContent"></div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    const closeButton =
-        document.getElementById("rulesClose");
-
-    if (closeButton) {
-        closeButton.addEventListener(
-            "click",
-            closeRulesModal
-        );
-    }
-
-    modal.addEventListener(
-        "click",
-        event => {
-            if (
-                event.target.dataset &&
-                event.target.dataset.closeRules === "true"
-            ) {
-                closeRulesModal();
-            }
-        }
-    );
-
-    document.addEventListener(
-        "keydown",
-        event => {
-            if (
-                event.key === "Escape" &&
-                modal.getAttribute("aria-hidden") === "false"
-            ) {
-                closeRulesModal();
-            }
-        }
-    );
-
-    renderRules(DEFAULT_RULES);
-}
-
-function openRulesModal() {
-    const modal =
-        document.getElementById("rulesModal");
-
-    if (!modal) {
-        return;
-    }
-
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-    modal.classList.add("open");
-}
-
-function closeRulesModal() {
-    const modal =
-        document.getElementById("rulesModal");
-
-    if (!modal) {
-        return;
-    }
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    modal.classList.remove("open");
-}
-
-function renderRules(rules) {
-    const title =
-        document.getElementById("rulesTitle");
-
-    const content =
-        document.getElementById("rulesContent");
-
-    if (!title || !content) {
-        return;
-    }
-
-    title.textContent =
-        rules.title || DEFAULT_RULES.title;
-
-    content.innerHTML =
-        rules.body || DEFAULT_RULES.body;
-}
-
-async function loadRules() {
-    try {
-        const response = await fetch(
-            RULES_FILE,
-            { cache: "no-store" }
-        );
-
-        if (!response.ok) {
-            throw new Error(
-                `Rules file returned ${response.status}.`
-            );
-        }
-
-        const rules = await response.json();
-
-        if (
-            !rules ||
-            typeof rules !== "object"
-        ) {
-            throw new Error(
-                "Rules JSON is invalid."
-            );
-        }
-
-        renderRules({
-            title: rules.title || DEFAULT_RULES.title,
-            body: rules.body || DEFAULT_RULES.body
-        });
-
-    } catch (error) {
-        /*
-         * rules.json is deliberately optional.
-         * The game remains usable with the built-in rules.
-         */
-        console.warn(
-            "Using built-in Numstep rules:",
-            error.message
-        );
-
-        renderRules(DEFAULT_RULES);
+        showShareModal(result);
     }
 }
 
 // ============================================================
-// GENERAL HELPERS
+// MISC HELPERS
 // ============================================================
-
-function isInsideBoard(r, c) {
-    return (
-        r >= 0 &&
-        r < puzzleSize &&
-        c >= 0 &&
-        c < puzzleSize
-    );
-}
-
-function isAdjacent(
-    r1,
-    c1,
-    r2,
-    c2
-) {
-    const rowDifference =
-        Math.abs(r1 - r2);
-
-    const columnDifference =
-        Math.abs(c1 - c2);
-
-    return (
-        (
-            rowDifference === 1 &&
-            columnDifference === 0
-        ) ||
-        (
-            rowDifference === 0 &&
-            columnDifference === 1
-        )
-    );
-}
-
-function getCellElement(r, c) {
-    return document.querySelector(
-        `.cell[data-r="${r}"][data-c="${c}"]`
-    );
-}
 
 function showMessage(message) {
-    const messageElement =
-        document.getElementById("message");
-
-    if (messageElement) {
-        messageElement.textContent = message;
-    }
+    const element = document.getElementById("message");
+    if (element) element.textContent = message;
 }
 
 function showLoadError(error) {
-    const gridElement =
-        document.getElementById("grid");
+    showMessage(`Unable to load today's ${puzzleSize}×${puzzleSize} puzzle: ${error.message}`);
+}
 
-    if (gridElement) {
-        gridElement.innerHTML = "";
-    }
+function isInsideBoard(r, c) {
+    return r >= 0 && r < puzzleSize && c >= 0 && c < puzzleSize;
+}
 
-    showMessage(
-        `Unable to load today's ` +
-        `${puzzleSize}×${puzzleSize} puzzle: ` +
-        `${error.message}`
-    );
+function isAdjacent(r1, c1, r2, c2) {
+    return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
 }
