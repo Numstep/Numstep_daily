@@ -1,0 +1,39 @@
+name: Generate Daily Numstep Box
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 0 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  generate-box:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install reportlab
+
+      - name: Generate Box puzzle, printable, and share image
+        run: python tools/numstep-box/numstep_box.py
+
+      - name: Save Box puzzle resources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add games/numstep-box/data/
+          git add games/numstep-box/printables/
+          git add games/numstep-box/share/
+          git commit -m "Generate daily Numstep Box puzzle" || echo "No changes to commit"
+          git push
