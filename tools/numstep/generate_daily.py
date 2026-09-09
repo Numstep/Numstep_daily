@@ -693,7 +693,7 @@ def create_page(
     page_width, page_height = A4
 
     c = canvas.Canvas(
-        filename,
+        str(filename),
         pagesize=A4
     )
 
