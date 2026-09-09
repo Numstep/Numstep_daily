@@ -1,48 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Numstep: Taurus - Daily Challenge</title>
-<link rel="stylesheet" href="../../shared/styles/main.css">
-</head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Numstep: Taurus - Daily Challenge</title><link rel="stylesheet" href="../../shared/styles/main.css"></head>
 <body>
-<header class="siteHeader">
-  <div class="siteHeaderBrand">NUMSTEP</div>
-  <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu">
-    <span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span>
-  </button>
-</header>
-<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
-  <a class="gameMenuItem" href="../numstep/index.html">Classic</a>
-  <a class="gameMenuItem" href="../numstep-cube/index.html">Cube</a>
-  <a class="gameMenuItem active" href="index.html" aria-current="page">Taurus</a>
-</nav>
-<h1 class="visuallyHidden">NUMSTEP: TAURUS</h1>
-<h2>Taurus</h2>
-<div class="date-navigation">
-<button id="prevDay" aria-label="Previous day">←</button>
-<div id="currentDate"></div>
-<button id="nextDay" aria-label="Next day">→</button>
-</div>
+<header class="siteHeader"><div class="siteHeaderBrand">NUMSTEP</div><button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button></header>
+<nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties"><a class="gameMenuItem" href="../numstep/index.html">Classic</a><a class="gameMenuItem" href="../numstep-cube/index.html">Cube</a><a class="gameMenuItem active" href="index.html" aria-current="page">Taurus</a><a class="gameMenuItem" href="../numstep-box/index.html">Box</a></nav>
+<h1 class="visuallyHidden">NUMSTEP: TAURUS</h1><h2>Taurus</h2>
+<div class="date-navigation"><button id="prevDay" aria-label="Previous day">←</button><div id="currentDate"></div><button id="nextDay" aria-label="Next day">→</button></div>
 <div class="printable-puzzle"><a id="pdfLink" href="#" target="_blank" rel="noopener noreferrer"><button type="button">🖨️ Printable Puzzle</button></a></div>
-<div id="timer">00:00</div><div id="attempts">Attempts: 0</div>
-<div id="grid"></div><div id="message" role="status" aria-live="polite"></div>
-<button id="resetButton" type="button">RESET</button>
-<div class="sponsorBox" id="sponsorBox"></div>
-<script>
-const moreButton=document.getElementById("moreButton"),moreMenu=document.getElementById("moreMenu");
-moreButton.addEventListener("click",()=>{const open=moreButton.getAttribute("aria-expanded")==="true";moreButton.setAttribute("aria-expanded",String(!open));moreMenu.hidden=open;});
-document.addEventListener("click",e=>{if(!moreMenu.hidden&&!moreMenu.contains(e.target)&&!moreButton.contains(e.target)){moreMenu.hidden=true;moreButton.setAttribute("aria-expanded","false");}});
-let selectedDate=new Date();
-function formatDate(d){return d.toISOString().slice(0,10);}
-function updateDateNavigation(){const ds=formatDate(selectedDate);window.selectedDateString=ds;document.getElementById("currentDate").textContent=selectedDate.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});document.getElementById("pdfLink").href="printables/"+ds+".pdf";const today=new Date();today.setHours(0,0,0,0);document.getElementById("nextDay").disabled=selectedDate>=today;if(typeof loadPuzzleForDate==="function")loadPuzzleForDate(ds);}
-document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);updateDateNavigation();};
-document.getElementById("nextDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()+1);updateDateNavigation();};
-updateDateNavigation();
-</script>
-<script src="../numstep/js/badge.js"></script>
-<script src="taurus.js"></script>
-<script src="../../shared/js/share.js"></script>
-<script src="../../shared/js/sponsor.js"></script>
+<div id="timer">00:00</div><div id="attempts">Attempts: 0</div><div id="grid"></div><div id="message" role="status" aria-live="polite"></div><button id="resetButton" type="button">RESET</button><div class="sponsorBox" id="sponsorBox"></div>
+<script>const moreButton=document.getElementById("moreButton"),moreMenu=document.getElementById("moreMenu");moreButton.addEventListener("click",()=>{const open=moreButton.getAttribute("aria-expanded")==="true";moreButton.setAttribute("aria-expanded",String(!open));moreMenu.hidden=open});document.addEventListener("click",e=>{if(!moreMenu.hidden&&!moreMenu.contains(e.target)&&!moreButton.contains(e.target)){moreMenu.hidden=true;moreButton.setAttribute("aria-expanded","false")}});let selectedDate=new Date();function formatDate(d){return d.toISOString().slice(0,10)}function updateDateNavigation(){const ds=formatDate(selectedDate);window.selectedDateString=ds;document.getElementById("currentDate").textContent=selectedDate.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});document.getElementById("pdfLink").href="printables/"+ds+".pdf";const today=new Date();today.setHours(0,0,0,0);document.getElementById("nextDay").disabled=selectedDate>=today;if(typeof loadPuzzleForDate==="function")loadPuzzleForDate(ds)}document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);updateDateNavigation()};document.getElementById("nextDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()+1);updateDateNavigation()};updateDateNavigation();</script>
+<script src="../numstep/js/badge.js"></script><script src="taurus.js"></script><script src="../../shared/js/share.js"></script><script src="../../shared/js/sponsor.js"></script>
 </body></html>
