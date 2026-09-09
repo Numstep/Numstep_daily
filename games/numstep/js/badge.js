@@ -13,7 +13,8 @@ const NumstepBadge = {
         "#86BCB6", "#FF9DA7", "#79706E", "#A0CBE8"
     ],
 
-    async generate(size, dateString, time, attempts, variant = "classic") {
+    async generate(size, dateString, time, attempts, variant = null) {
+        variant = variant || this.detectVariant();
         const paths = {
             classic: `data/${size}x${size}/${dateString}_share.json`,
             taurus: `data/${size}x${size}/${dateString}_share.json`,
@@ -36,6 +37,14 @@ const NumstepBadge = {
         }
     },
 
+    detectVariant() {
+        const path = window.location.pathname || "";
+        if (path.includes("/numstep-cube/")) return "cube";
+        if (path.includes("/numstep-taurus/")) return "taurus";
+        if (path.includes("/numstep-box/")) return "box";
+        return "classic";
+    },
+
     async generateFromData(shareData, dateString, time, attempts, variant = "classic") {
         const data = this.normalise(shareData, variant);
         return this.drawAndDisplay(data, dateString, time, attempts, variant);
@@ -47,13 +56,13 @@ const NumstepBadge = {
 
         if (Array.isArray(shareData.solution)) {
             if (Array.isArray(shareData.solution[0])) {
-                // Cube: use the top layer as the compact 2D badge view.
+                // Cube share data is 3D; use the top layer for the compact badge view.
                 solution = shareData.solution[0].flat().map(Number);
             } else {
                 solution = shareData.solution.map(Number);
             }
         } else if (shareData.solution && typeof shareData.solution === "object") {
-            // Box: use the FRONT face as the compact 2D badge view.
+            // Box share data is face-keyed; use the FRONT face for the compact badge view.
             const face = shareData.solution.FRONT || shareData.solution.TOP;
             if (Array.isArray(face)) solution = face.flat().map(Number);
         }
@@ -62,12 +71,7 @@ const NumstepBadge = {
             throw new Error("Invalid solution shape in share data.");
         }
 
-        return {
-            ...shareData,
-            size,
-            solution,
-            variant
-        };
+        return { ...shareData, size, solution, variant };
     },
 
     buildClueColours(shareData) {
@@ -90,7 +94,7 @@ const NumstepBadge = {
         return null;
     },
 
-    drawAndDisplay(shareData, dateString, time, attempts, variant) {
+    drawAndDisplay(shareData, dateString, time, attempts) {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Could not create badge canvas.");
