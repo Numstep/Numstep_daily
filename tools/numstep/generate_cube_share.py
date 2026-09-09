@@ -4,7 +4,7 @@ import random
 from datetime import date
 from pathlib import Path
 
-from tools.numstep.NumstepCube import generate_walk
+from NumstepCube import generate_walk
 
 
 def export_share_json(grid, steps, puzzle_date, filename):
