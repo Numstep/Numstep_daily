@@ -1,17 +1,26 @@
 (function () {
     "use strict";
 
+    const STORAGE_KEY = "numstep-theme";
+
     function getSavedTheme() {
         try {
-            return localStorage.getItem("numstep-theme");
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved === "dark" || saved === "classic" ? saved : null;
         } catch (error) {
             return null;
         }
     }
 
+    function getBrowserTheme() {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "classic";
+    }
+
     function saveTheme(theme) {
         try {
-            localStorage.setItem("numstep-theme", theme);
+            localStorage.setItem(STORAGE_KEY, theme);
         } catch (error) {
             // Theme still works for the current page if storage is unavailable.
         }
@@ -34,8 +43,8 @@
         const toggle = document.getElementById("themeToggle");
         if (!toggle) return;
 
-        const initialTheme = getSavedTheme() === "dark" ? "dark" : "classic";
-        applyTheme(initialTheme);
+        // An explicit player choice wins; otherwise follow the browser/OS preference.
+        applyTheme(getSavedTheme() || getBrowserTheme());
 
         toggle.addEventListener("click", function () {
             const nextTheme = document.body.classList.contains("dark-theme") ? "classic" : "dark";

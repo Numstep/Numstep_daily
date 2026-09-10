@@ -10,10 +10,10 @@
 <body>
 <header class="siteHeader">
     <div class="siteHeaderBrand">NUMSTEP</div>
-    <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu">
-        <span class="hamburgerIcon" aria-hidden="true">☰</span>
-        <span>more</span>
-    </button>
+    <div class="headerControls">
+        <button class="themeToggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to dark theme"><span class="themeToggleIcon" aria-hidden="true">◐</span><span id="themeToggleLabel">dark</span></button>
+        <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button>
+    </div>
 </header>
 <nav class="moreMenu" id="moreMenu" hidden aria-label="Game varieties">
     <a class="gameMenuItem" href="../numstep/index.html">Classic</a>
@@ -30,6 +30,6 @@
 <div id="message" role="status" aria-live="polite"></div>
 <button id="resetButton" type="button">RESET</button>
 <div class="sponsorBox" id="sponsorBox"></div>
-<script src="../numstep/js/badge.js"></script><script src="../../shared/js/share.js"></script><script src="cube.js"></script><script src="../../shared/js/cube-drag.js"></script><script src="../../shared/js/sponsor.js"></script>
+<script src="../../shared/js/theme.js"></script><script src="../numstep/js/badge.js"></script><script src="../../shared/js/share.js"></script><script src="cube.js"></script><script src="../../shared/js/cube-drag.js"></script><script src="../../shared/js/sponsor.js"></script>
 </body>
 </html>
