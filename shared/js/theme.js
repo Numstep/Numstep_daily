@@ -39,26 +39,38 @@
             cell.style.setProperty("background-color", dark ? DARK_BLOCKED : "#000000", "important");
         });
 
-        if (!dark) return;
-
         const colouredCells = document.querySelectorAll(".clue, .chainCell, .cell.active");
         const colourIndexes = new Map();
         let nextColour = 0;
 
         colouredCells.forEach(cell => {
+            // Keep the game's original clue/chain colour as stable metadata.
+            // Puzzle scripts re-render cells, so using only the current inline
+            // colour would cause the dark palette to be remapped on every render.
+            let sourceColour = cell.dataset.numstepColour;
             const inlineColour = cell.style.getPropertyValue("background-color");
-            if (!inlineColour) return;
 
-            if (!colourIndexes.has(inlineColour)) {
-                colourIndexes.set(inlineColour, nextColour % DARK_CHAIN_PALETTE.length);
+            if (!sourceColour && inlineColour) {
+                sourceColour = inlineColour;
+                cell.dataset.numstepColour = sourceColour;
+            }
+
+            if (!sourceColour) return;
+
+            if (!colourIndexes.has(sourceColour)) {
+                colourIndexes.set(sourceColour, nextColour % DARK_CHAIN_PALETTE.length);
                 nextColour += 1;
             }
 
-            cell.style.setProperty(
-                "background-color",
-                DARK_CHAIN_PALETTE[colourIndexes.get(inlineColour)],
-                "important"
-            );
+            if (dark) {
+                cell.style.setProperty(
+                    "background-color",
+                    DARK_CHAIN_PALETTE[colourIndexes.get(sourceColour)],
+                    "important"
+                );
+            } else {
+                cell.style.setProperty("background-color", sourceColour, "important");
+            }
         });
     }
 
