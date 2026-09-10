@@ -6,6 +6,7 @@
 (function setupCubeDrag() {
     let activePointerId = null;
     let lastPositionKey = null;
+    let suppressClickUntil = 0;
 
     function selectPosition(cell) {
         const positionKey = cell?.dataset.position;
@@ -58,8 +59,24 @@
         if (event.pointerId === activePointerId) {
             activePointerId = null;
             lastPositionKey = null;
+            suppressClickUntil = Date.now() + 500;
         }
     }
+
+    // Cube cells are buttons and cube.js also installs a click listener. The
+    // pointerdown above already handles the tap, so suppress the synthetic
+    // click that mobile browsers can dispatch immediately afterwards.
+    document.addEventListener("click", event => {
+        if (Date.now() >= suppressClickUntil) {
+            return;
+        }
+
+        if (event.target.closest?.("#cubeGrid .cubeCell:not(.black)")) {
+            event.preventDefault();
+            event.stopPropagation();
+            suppressClickUntil = 0;
+        }
+    }, true);
 
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("pointermove", handlePointerMove, true);
