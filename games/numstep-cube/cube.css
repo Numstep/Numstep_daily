@@ -52,7 +52,7 @@
 .cubeCell.clue, .cubeCell.chainCell { font-weight: bold; }
 .cubeCell.current { outline: 4px solid var(--border); outline-offset: -4px; }
 .cubeCell:focus-visible { outline: 3px solid var(--border); outline-offset: -3px; }
-#cubeProgress { font-family: monospace; font-size: 18px; }
+#cubeProgress { font-size: 18px; }
 #message { min-height: 24px; margin: 10px auto; text-align: center; }
 
 @media (max-width: 700px) {
