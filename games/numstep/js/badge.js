@@ -7,10 +7,12 @@ const NumstepBadge = {
         blackCell: "#6b1f2b"
     },
 
+    // Keep share colours aligned with the playable Cube palette so a chain has
+    // the same identity in the puzzle and in the exported badge.
     colourPalette: [
-        "#A8C7E6", "#A9D6A0", "#F6C58B", "#F3A6A8",
-        "#D2B7D9", "#A9D8D3", "#F3E39A", "#D8B79A",
-        "#B9DDD8", "#F2C1C8", "#C7C2BE", "#B8D3E8"
+        "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
+        "#B07AA1", "#76B7B2", "#EDC948", "#9C755F",
+        "#86BCB6", "#FF9DA7", "#79706E", "#A0CBE8"
     ],
 
     async generate(size, dateString, time, attempts, variant = null) {
@@ -82,11 +84,20 @@ const NumstepBadge = {
         return shareData.variant === "cube" ? shareData.solution.flat(2).map(Number) : shareData.solution.map(Number);
     },
 
-    buildClueColours(shareData) {
+    getClueValues(shareData) {
         const solutionValues = this.getSolutionValues(shareData);
-        const clueValues = [...new Set((shareData.clues || []).map(Number))]
+        const suppliedClues = Array.isArray(shareData.clues) ? shareData.clues.map(Number) : [];
+        const clueValues = suppliedClues.length > 0
+            ? suppliedClues
+            : solutionValues.filter(value => value > 0 && (value === 1 || value % 10 === 0));
+
+        return [...new Set(clueValues)]
             .filter(value => Number.isInteger(value) && solutionValues.includes(value))
             .sort((a, b) => a - b);
+    },
+
+    buildClueColours(shareData) {
+        const clueValues = this.getClueValues(shareData);
         const clueColours = new Map();
         clueValues.forEach((value, index) => clueColours.set(value, this.colourPalette[index % this.colourPalette.length]));
         return clueColours;
@@ -108,8 +119,8 @@ const NumstepBadge = {
         const scale = 2, width = 500, height = 700;
         canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
         ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = this.colors.text; ctx.textAlign = "center"; ctx.font = "bold 32px Arial, sans-serif"; ctx.fillText("NUMSTEP", width / 2, 55);
-        ctx.font = "18px Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(`${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
+        ctx.fillStyle = this.colors.text; ctx.textAlign = "center"; ctx.font = "bold 32px Helvetica, Arial, sans-serif"; ctx.fillText("NUMSTEP", width / 2, 55);
+        ctx.font = "18px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(`${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
         const gridSize = 440, cellSize = gridSize / shareData.size, gridX = (width - gridSize) / 2, gridY = 120;
         const clueColours = this.buildClueColours(shareData), clueValues = [...clueColours.keys()].sort((a, b) => a - b);
         for (let row = 0; row < shareData.size; row += 1) for (let col = 0; col < shareData.size; col += 1) {
@@ -118,8 +129,8 @@ const NumstepBadge = {
             ctx.fillStyle = value === 0 ? this.colors.blackCell : (colour || this.colors.background); ctx.fillRect(x, y, cellSize, cellSize);
             ctx.strokeStyle = this.colors.gridLines; ctx.lineWidth = 2; ctx.strokeRect(x, y, cellSize, cellSize);
         }
-        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Arial, sans-serif"; ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 620);
-        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Arial, sans-serif"; ctx.fillText("Can you beat my result?", width / 2, 655);
+        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif"; ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 620);
+        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif"; ctx.fillText("Can you beat my result?", width / 2, 655);
         return canvas.toDataURL("image/png");
     },
 
@@ -130,65 +141,104 @@ const NumstepBadge = {
         const scale = 2, width = 500, height = 700;
         canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
         ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height);
-        ctx.textAlign = "center"; ctx.font = "bold 32px Arial, sans-serif"; ctx.fillStyle = this.colors.text; ctx.fillText("NUMSTEP: CUBE", width / 2, 55);
-        ctx.font = "18px Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(`${shareData.size}×${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
+        ctx.textAlign = "center";
+        ctx.font = "bold 32px Helvetica, Arial, sans-serif";
+        ctx.fillStyle = this.colors.text;
+        ctx.fillText("NUMSTEP: CUBE", width / 2, 55);
+        ctx.font = "18px Helvetica, Arial, sans-serif";
+        ctx.fillStyle = this.colors.subtext;
+        ctx.fillText(`${shareData.size}×${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
 
         const clueColours = this.buildClueColours(shareData);
         const clueValues = [...clueColours.keys()].sort((a, b) => a - b);
         const size = shareData.size;
-        const side = Math.min(52, 250 / size);
-        const half = side / 2;
-        const rise = side * Math.sqrt(3) / 2;
-        // u and v have equal length and an exact 60° included angle, so every
-        // rhombus has 60°/120° interior angles. z is the third isometric axis.
-        const u = [half, rise];
-        const v = [-half, rise];
-        const z = [0, side];
-        const centre = [width / 2, 245];
-        const add = (p, d, n = 1) => [p[0] + d[0] * n, p[1] + d[1] * n];
-        const cellPolygon = (origin, d1, d2) => [origin, add(origin, d1), add(add(origin, d1), d2), add(origin, d2)];
+        const side = Math.min(56, 230 / size);
+        const halfWidth = side * Math.sqrt(3) / 2;
+        const halfHeight = side / 2;
 
-        const paintCell = (points, value) => {
-            ctx.beginPath();
-            points.forEach((p, index) => index === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
-            ctx.closePath();
+        // All three projected cube axes have equal length and are separated by
+        // exactly 120 degrees. Therefore every square face is a 60/120-degree
+        // rhombus, including the top and both visible side faces.
+        const xAxis = [halfWidth, halfHeight];
+        const yAxis = [-halfWidth, halfHeight];
+        const zAxis = [0, -side];
+        const origin = [width / 2, 250 + (size - 1) * side / 2];
+        const project = (layer, row, col) => [
+            origin[0] + col * xAxis[0] + row * yAxis[0] + layer * zAxis[0],
+            origin[1] + col * xAxis[1] + row * yAxis[1] + layer * zAxis[1]
+        ];
+        const offset = (point, vector) => [point[0] + vector[0], point[1] + vector[1]];
+        const polygon = (point, first, second) => [
+            point,
+            offset(point, first),
+            offset(offset(point, first), second),
+            offset(point, second)
+        ];
+
+        const drawFace = (points, value, shade = 0) => {
             const chainColour = this.getChainColour(value, clueValues, clueColours);
-            ctx.fillStyle = value === 0 ? this.colors.blackCell : (chainColour || this.colors.background);
+            if (!chainColour) return;
+
+            ctx.beginPath();
+            points.forEach((point, index) => {
+                if (index === 0) ctx.moveTo(point[0], point[1]);
+                else ctx.lineTo(point[0], point[1]);
+            });
+            ctx.closePath();
+
+            // Keep each chain identifiable while giving the three cube faces
+            // enough tonal separation to make the 3-D form read clearly.
+            ctx.fillStyle = shade === 0 ? chainColour : this.adjustColour(chainColour, shade);
             ctx.fill();
             ctx.strokeStyle = this.colors.gridLines;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 2;
             ctx.stroke();
         };
 
-        // Draw only the three visible faces. Every rendered cell is taken directly
-        // from the 3-D solution in the _share.json and receives the same clue/chain
-        // colour rule used by the puzzle: the clue starts a colour and all subsequent
-        // chain values inherit that clue colour.
-        for (let row = 0; row < size; row += 1) {
-            for (let col = 0; col < size; col += 1) {
-                paintCell(cellPolygon(
-                    add(add(centre, u, -(size - col)), v, -(size - row)), u, v
-                ), shareData.solution[0][row][col] || 0);
-            }
-        }
-        for (let row = 0; row < size; row += 1) {
-            for (let col = 0; col < size; col += 1) {
-                paintCell(cellPolygon(
-                    add(add(centre, z, row), v, -(size - col)), z, v
-                ), shareData.solution[row][size - 1][col] || 0);
-            }
-        }
-        for (let row = 0; row < size; row += 1) {
-            for (let col = 0; col < size; col += 1) {
-                paintCell(cellPolygon(
-                    add(add(centre, z, row), u, -(size - col)), z, u
-                ), shareData.solution[row][col][size - 1] || 0);
+        // Painter's order: back/deeper cubes first. Only exposed faces are drawn,
+        // so adjacent cubes read as a single isometric structure while zero cells
+        // create the same open gaps as the puzzle.
+        const cubes = [];
+        for (let layer = 0; layer < size; layer += 1) {
+            for (let row = 0; row < size; row += 1) {
+                for (let col = 0; col < size; col += 1) {
+                    const value = shareData.solution[layer][row][col] || 0;
+                    if (value > 0) cubes.push({ layer, row, col, value, depth: layer + row + col });
+                }
             }
         }
 
-        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Arial, sans-serif"; ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 590);
-        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Arial, sans-serif"; ctx.fillText("Can you beat my result?", width / 2, 625);
+        cubes.sort((a, b) => b.depth - a.depth);
+
+        cubes.forEach(({ layer, row, col, value }) => {
+            const point = project(layer, row, col);
+            const cube = shareData.solution;
+
+            if (layer === 0 || cube[layer - 1][row][col] === 0) {
+                drawFace(polygon(point, xAxis, yAxis), value, 0);
+            }
+            if (row === size - 1 || cube[layer][row + 1][col] === 0) {
+                drawFace(polygon(point, yAxis, zAxis), value, -18);
+            }
+            if (col === size - 1 || cube[layer][row][col + 1] === 0) {
+                drawFace(polygon(point, xAxis, zAxis), value, -30);
+            }
+        });
+
+        ctx.fillStyle = this.colors.text;
+        ctx.font = "bold 24px Helvetica, Arial, sans-serif";
+        ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 610);
+        ctx.fillStyle = this.colors.subtext;
+        ctx.font = "16px Helvetica, Arial, sans-serif";
+        ctx.fillText("Can you beat my result?", width / 2, 645);
         return canvas.toDataURL("image/png");
+    },
+
+    adjustColour(hex, amount) {
+        const value = hex.replace("#", "");
+        const channels = [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16));
+        const adjusted = channels.map(channel => Math.max(0, Math.min(255, channel + amount)));
+        return `#${adjusted.map(channel => channel.toString(16).padStart(2, "0")).join("")}`;
     }
 };
 
