@@ -6,7 +6,7 @@ body {
     --border: #000000;
     --muted: #666666;
     --overlay: rgba(0, 0, 0, 0.65);
-    font-family: Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     text-align: center;
     margin: 20px;
     background: var(--page-bg);
@@ -41,7 +41,6 @@ h2 {
 #timer {
     font-size: 28px;
     margin: 20px;
-    font-family: monospace;
 }
 
 .shareModal {
@@ -99,18 +98,9 @@ h2 {
     margin: 15px 0;
 }
 
-.shareStat {
-    margin: 15px 0;
-}
-
-.shareStat strong {
-    display: block;
-    font-size: 32px;
-}
-
-.shareStat span {
-    color: var(--muted);
-}
+.shareStat { margin: 15px 0; }
+.shareStat strong { display: block; font-size: 32px; }
+.shareStat span { color: var(--muted); }
 
 .shareButtons {
     display: flex;
@@ -140,20 +130,9 @@ h2 {
     margin: 25px auto;
 }
 
-#grid[style*="repeat(5"] {
-    width: min(90%, 300px);
-    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-}
-
-#grid[style*="repeat(7"] {
-    width: min(90%, 420px);
-    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-}
-
-#grid[style*="repeat(9"] {
-    width: min(90%, 504px);
-    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
-}
+#grid[style*="repeat(5"] { width: min(90%, 300px); grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+#grid[style*="repeat(7"] { width: min(90%, 420px); grid-template-columns: repeat(7, minmax(0, 1fr)) !important; }
+#grid[style*="repeat(9"] { width: min(90%, 504px); grid-template-columns: repeat(9, minmax(0, 1fr)) !important; }
 
 .cell {
     aspect-ratio: 1;
@@ -166,33 +145,12 @@ h2 {
     user-select: none;
     touch-action: none;
 }
+.cell.clue { font-weight: bold; }
+.cell.active { background: black; color: white; }
+.dark-theme .cell.active, .dark-theme .cell.black { background: #000000; color: #ffffff; }
+.cell.black { background: black; border-color: black; cursor: default; }
 
-.cell.clue {
-    font-weight: bold;
-}
-
-.cell.active {
-    background: black;
-    color: white;
-}
-
-.dark-theme .cell.active,
-.dark-theme .cell.black {
-    background: #000000;
-    color: #ffffff;
-}
-
-.cell.black {
-    background: black;
-    border-color: black;
-    cursor: default;
-}
-
-#message {
-    min-height: 30px;
-    margin: 15px;
-    font-size: 18px;
-}
+#message { min-height: 30px; margin: 15px; font-size: 18px; }
 
 button {
     padding: 10px 25px;
@@ -202,283 +160,68 @@ button {
     border: 1px solid var(--border);
     cursor: pointer;
 }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.pdf-date-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.pdf-date-nav button {
-    padding: 10px 18px;
-    cursor: pointer;
-}
-
-#currentDate {
-    min-width: 180px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.pdf-action {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.pdf-action button {
-    padding: 12px 24px;
-    cursor: pointer;
-}
+.pdf-date-nav { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 20px 0; }
+.pdf-date-nav button { padding: 10px 18px; cursor: pointer; }
+#currentDate { min-width: 180px; text-align: center; font-weight: bold; }
+.pdf-action { text-align: center; margin-top: 15px; }
+.pdf-action button { padding: 12px 24px; cursor: pointer; }
 
 .date-navigation {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.shareBox {
-    max-height: 92vh;
-    overflow-y: auto;
-}
-
-.shareBadgeImage {
-    display: block;
-    width: min(100%, 360px);
-    height: auto;
-    margin: 0 auto 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-}
-
-.shareStatsRow {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-    margin: 12px 0;
-}
-
-.shareStatsRow .shareStat {
-    flex: 1;
-    margin: 0;
-}
-
-.shareStatsRow .shareStat strong {
-    font-size: 24px;
-}
-
-.shareDate {
-    margin-top: 12px;
-    color: var(--muted);
-}
-
-.rulesModal {
-    display: none !important;
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
-    z-index: 1100;
-    box-sizing: border-box;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-}
-
-.rulesModal.open {
-    display: flex !important;
-}
-
-.rulesModal[hidden] {
-    display: none !important;
-}
-
-.rulesOverlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--overlay);
-    touch-action: none;
-}
-
-.rulesBox {
-    position: relative;
-    z-index: 1;
-    box-sizing: border-box;
-    width: min(520px, calc(100vw - 24px));
-    max-width: 520px;
-    max-height: min(700px, calc(100vh - 24px));
-    max-height: min(700px, calc(100dvh - 24px));
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding: 46px 24px 24px;
-    margin: 0;
-    background: var(--surface);
-    color: var(--text);
-    border-radius: 16px;
-    text-align: left;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-}
-
-.rulesBox h2 {
-    text-align: center;
-    margin: 0 34px 20px;
-}
-
-.rulesBox p {
-    line-height: 1.55;
-    margin: 0 0 14px;
-}
-
-.rulesClose {
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    z-index: 2;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: inherit;
-    font-size: 32px;
-    line-height: 44px;
-    text-align: center;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-}
-
-#rulesButton {
-    margin: 10px;
-    min-height: 44px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-}
-
-@media (max-width: 480px) {
-    body {
-        margin: 12px;
-    }
-
-    h1 {
-        font-size: 32px;
-    }
-
-    .shareBox {
-        width: min(94%, 420px);
-        padding: 18px;
-    }
-
-    .shareGraphic {
-        padding: 16px 10px;
-    }
-
-    .shareStatsRow .shareStat strong {
-        font-size: 20px;
-    }
-
-    .shareButtons button {
-        flex: 1 1 40%;
-        min-width: 0;
-    }
-
-    .rulesModal {
-        padding: 12px;
-    }
-
-    .rulesBox {
-        width: calc(100vw - 24px);
-        max-width: none;
-        max-height: calc(100vh - 24px);
-        max-height: calc(100dvh - 24px);
-        padding: 46px 18px 22px;
-        border-radius: 14px;
-    }
-
-    .rulesBox h2 {
-        font-size: 24px;
-        margin: 0 34px 18px;
-    }
-
-    .rulesBox p {
-        font-size: 16px;
-        line-height: 1.5;
-    }
-}
-
-.sponsorBox {
-    width: 100%;
-    min-height: 180px;
-    box-sizing: border-box;
-    margin: 18px 0 0;
-    padding: 20px;
-    border: 1px solid var(--border);
-    background: var(--surface-muted);
-    display: flex;
-    flex-direction: column;
     align-items: stretch;
-    justify-content: flex-start;
-    position: relative;
-    overflow-wrap: anywhere;
+    justify-content: center;
+    gap: 12px;
+    margin: 10px 0;
 }
-
-.sponsorBox a {
-    color: inherit;
-    font-size: 18px;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.sponsorBox a:hover,
-.sponsorBox a:focus-visible {
-    text-decoration: underline;
-}
-
-.sponsorMessage {
-    position: absolute;
-    inset: 0;
-    display: flex;
+.date-navigation button {
+    width: 64px;
+    min-width: 64px;
+    height: 56px;
+    padding: 0;
+    font-size: 44px;
+    line-height: 1;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
-    font-size: 18px;
-    line-height: 1.5;
-    text-align: center;
+}
+.date-navigation #currentDate {
+    min-width: 180px;
+    min-height: 56px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.sponsorLink {
-    position: relative;
-    z-index: 1;
-    display: inline-block;
-    align-self: flex-start;
-    color: inherit;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: left;
-}
+.shareBox { max-height: 92vh; overflow-y: auto; }
+.shareBadgeImage { display: block; width: min(100%, 360px); height: auto; margin: 0 auto 16px; border: 1px solid var(--border); border-radius: 8px; }
+.shareStatsRow { display: flex; justify-content: space-around; gap: 10px; margin: 12px 0; }
+.shareStatsRow .shareStat { flex: 1; margin: 0; }
+.shareStatsRow .shareStat strong { font-size: 24px; }
+.shareDate { margin-top: 12px; color: var(--muted); }
 
-.sponsorLink:hover,
-.sponsorLink:focus-visible {
-    text-decoration: none;
-}
+.rulesModal { display: none !important; position: fixed !important; inset: 0 !important; width: 100vw; height: 100vh; height: 100dvh; z-index: 1100; box-sizing: border-box; align-items: center; justify-content: center; padding: 12px; }
+.rulesModal.open { display: flex !important; }
+.rulesModal[hidden] { display: none !important; }
+.rulesOverlay { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--overlay); touch-action: none; }
+.rulesBox { position: relative; z-index: 1; box-sizing: border-box; width: min(520px, calc(100vw - 24px)); max-width: 520px; max-height: min(700px, calc(100vh - 24px)); max-height: min(700px, calc(100dvh - 24px)); overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 46px 24px 24px; margin: 0; background: var(--surface); color: var(--text); border-radius: 16px; text-align: left; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); }
+.rulesBox h2 { text-align: center; margin: 0 34px 20px; }
+.rulesBox p { line-height: 1.55; margin: 0 0 14px; }
+.rulesClose { position: absolute; top: 4px; right: 6px; z-index: 2; width: 44px; height: 44px; padding: 0; border: none; background: transparent; color: inherit; font-size: 32px; line-height: 44px; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+#rulesButton { margin: 10px; min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+.sponsorBox { width: 100%; min-height: 180px; box-sizing: border-box; margin: 18px 0 0; padding: 20px; border: 1px solid var(--border); background: var(--surface-muted); display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: relative; overflow-wrap: anywhere; }
+.sponsorBox a { color: inherit; font-size: 18px; font-weight: bold; text-decoration: none; }
+.sponsorBox a:hover, .sponsorBox a:focus-visible { text-decoration: underline; }
+.sponsorMessage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; font-size: 18px; line-height: 1.5; text-align: center; }
+.sponsorLink { position: relative; z-index: 1; display: inline-block; align-self: flex-start; color: inherit; font-size: 16px; font-weight: bold; text-align: left; }
+.sponsorLink:hover, .sponsorLink:focus-visible { text-decoration: none; }
 
 .siteHeader { display:flex; align-items:center; justify-content:space-between; max-width:900px; margin:0 auto 10px; }
 .siteHeaderBrand { font-size:38px; font-weight:bold; }
 .headerControls { display:flex; align-items:center; gap:8px; }
-.moreButton, .themeToggle { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:var(--surface); color:var(--text); }
+.moreButton, .themeToggle { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; box-sizing:border-box; padding:8px 12px; background:var(--surface); color:var(--text); }
 .hamburgerIcon { font-size:22px; line-height:1; }
 .themeToggleIcon { font-size:18px; line-height:1; }
 .moreMenu { position:absolute; top:64px; right:20px; z-index:1200; min-width:170px; padding:8px; background:var(--surface); color:var(--text); border:1px solid var(--border); text-align:left; box-shadow:0 8px 24px rgba(0,0,0,.15); }
@@ -488,9 +231,23 @@ button:disabled {
 .visuallyHidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
 @media (max-width:480px) {
+    body { margin:12px; }
+    h1 { font-size:32px; }
+    .shareBox { width:min(94%,420px); padding:18px; }
+    .shareGraphic { padding:16px 10px; }
+    .shareStatsRow .shareStat strong { font-size:20px; }
+    .shareButtons button { flex:1 1 40%; min-width:0; }
+    .rulesModal { padding:12px; }
+    .rulesBox { width:calc(100vw - 24px); max-width:none; max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); padding:46px 18px 22px; border-radius:14px; }
+    .rulesBox h2 { font-size:24px; margin:0 34px 18px; }
+    .rulesBox p { font-size:16px; line-height:1.5; }
     .siteHeaderBrand { font-size:32px; }
     .siteHeader { gap:8px; }
     .headerControls { gap:4px; }
-    .moreButton, .themeToggle { padding:8px 10px; }
+    .moreButton, .themeToggle { min-height:42px; padding:8px 10px; }
     .moreMenu { top:56px; right:12px; }
+    .date-navigation button { width:58px; min-width:58px; height:52px; font-size:40px; }
+    .date-navigation #currentDate { min-width:150px; min-height:52px; }
 }
+
+#resetButton { display:none !important; }
