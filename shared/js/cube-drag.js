@@ -15,7 +15,7 @@
         }
 
         activePointerId = event.pointerId;
-        lastPositionKey = cell.dataset.position || null;
+        lastPositionKey = null;
         event.preventDefault();
 
         selectPosition(cell);
