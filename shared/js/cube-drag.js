@@ -1,49 +1,15 @@
 "use strict";
 
-// Use one pointer path for Cube taps and drags. Pointer events cover mouse,
-// pen and touch; handling the initial pointerdown here also preserves taps on
-// browsers where preventDefault() suppresses the compatibility click event.
+// Use pointer events for mouse/pen/touch. The initial pointerdown selects the
+// cell so a touch tap does not depend on a compatibility click event.
 (function setupCubeDrag() {
     let activePointerId = null;
     let lastPositionKey = null;
 
-    document.addEventListener("pointerdown", event => {
-        const cell = event.target.closest?.("#cubeGrid .cubeCell:not(.black)");
-
-        if (!cell || event.button > 0) {
-            return;
-        }
-
-        activePointerId = event.pointerId;
-        lastPositionKey = null;
-        event.preventDefault();
-
-        selectPosition(cell);
-    });
-
-    document.addEventListener("pointermove", event => {
-        if (event.pointerId !== activePointerId) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const element = document.elementFromPoint(event.clientX, event.clientY);
-        const cell = element?.closest?.("#cubeGrid .cubeCell:not(.black)");
-
-        if (!cell) {
-            return;
-        }
-
-        selectPosition(cell);
-    });
-
     function selectPosition(cell) {
-        const positionKey = cell.dataset.position;
+        const positionKey = cell?.dataset.position;
 
-        if (!positionKey || positionKey === lastPositionKey) {
-            return;
-        }
+        if (!positionKey || positionKey === lastPositionKey) return;
 
         lastPositionKey = positionKey;
         const position = positionKey.split(",").map(Number);
@@ -53,13 +19,37 @@
         }
     }
 
-    function endDrag(event) {
+    function cellAtPoint(clientX, clientY) {
+        const element = document.elementFromPoint(clientX, clientY);
+        return element?.closest?.("#cubeGrid .cubeCell:not(.black)");
+    }
+
+    function handlePointerDown(event) {
+        const cell = event.target.closest?.("#cubeGrid .cubeCell:not(.black)");
+        if (!cell || event.button > 0) return;
+
+        activePointerId = event.pointerId;
+        lastPositionKey = null;
+        event.preventDefault();
+        selectPosition(cell);
+    }
+
+    function handlePointerMove(event) {
+        if (event.pointerId !== activePointerId) return;
+
+        event.preventDefault();
+        selectPosition(cellAtPoint(event.clientX, event.clientY));
+    }
+
+    function endPointer(event) {
         if (event.pointerId === activePointerId) {
             activePointerId = null;
             lastPositionKey = null;
         }
     }
 
-    document.addEventListener("pointerup", endDrag);
-    document.addEventListener("pointercancel", endDrag);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", endPointer);
+    document.addEventListener("pointercancel", endPointer);
 })();

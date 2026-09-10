@@ -56,6 +56,43 @@
 #message { min-height: 24px; margin: 10px auto; text-align: center; }
 
 @media (max-width: 700px) {
-    .cubeGrid { grid-template-columns: minmax(0, 1fr); gap: 22px; max-width: 90vw; }
-    .cubeLayer { justify-self: center; }
+    .cubeGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        width: min(76vw, 260px);
+        max-width: 76vw;
+        margin: 14px auto;
+    }
+
+    .cubeLayer {
+        width: min(76vw, 260px);
+        max-width: 260px;
+    }
+
+    .cubeLayerTitle {
+        margin: 0 0 3px;
+        font-size: 11px;
+        line-height: 1.1;
+    }
+
+    .cubeCell {
+        font-size: clamp(12px, 3.5vw, 16px);
+    }
+}
+
+@media (max-height: 760px) and (max-width: 700px) {
+    .cubeGrid {
+        width: min(68vw, 220px);
+        max-width: 68vw;
+        gap: 7px;
+        margin: 10px auto;
+    }
+
+    .cubeLayer {
+        width: min(68vw, 220px);
+        max-width: 220px;
+    }
+
+    .cubeLayerTitle { font-size: 10px; }
+    .cubeCell { font-size: 12px; }
 }
