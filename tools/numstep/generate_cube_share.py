@@ -47,7 +47,12 @@ def main():
     # Use a distinct deterministic seed so the share graphic represents a
     # separate daily puzzle, just as Classic has a separate _share puzzle.
     random.seed(f"numstep-cube-share:{puzzle_date.isoformat()}:{args.size}")
-    grid, steps = generate_walk(args.size, require_unique=False)
+
+    # generate_walk already owns the Cube walk generation and uniqueness
+    # rules. It accepts the cube size and threshold only; the old
+    # require_unique argument was from an earlier generator API and caused
+    # the sharing step to fail before writing its JSON.
+    grid, steps = generate_walk(args.size)
 
     output_root = Path(args.output_root)
     filename = output_root / "data" / f"{puzzle_date.isoformat()}_share.json"
