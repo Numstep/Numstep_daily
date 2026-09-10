@@ -10,9 +10,9 @@ function clue(v){return v>0&&(v===1||v%10===0)}
 function key(p){return p.join(",")}
 function same(a,b){return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]}
 
-// These edge pairings mirror the Box generator exactly, including reversed
-// indexing where folding the flat net flips an edge. Keeping one canonical
-// table prevents the playable game from disagreeing with generated puzzles.
+// Canonical folded-edge mapping copied from the Box generator. Positions use
+// numeric face indexes at runtime, so convert those indexes to the named faces
+// before comparing them with this table.
 const FACE_EDGES=[
  ["FRONT","top","TOP","bottom",false],
  ["FRONT","bottom","BOTTOM","top",false],
@@ -27,7 +27,7 @@ const FACE_EDGES=[
  ["LEFT","right","BACK","left",false],
  ["RIGHT","right","BACK","right",false]
 ];
-function edgeCoordinate(face,edge,row,col,n){
+function edgeCoordinate(edge,row,col,n){
  if(edge==="top")return row===0?col:null;
  if(edge==="bottom")return row===n-1?col:null;
  if(edge==="left")return col===0?row:null;
@@ -36,15 +36,15 @@ function edgeCoordinate(face,edge,row,col,n){
 }
 function surfaceAdjacent(a,b){
  if(a[0]===b[0])return Math.abs(a[1]-b[1])+Math.abs(a[2]-b[2])===1;
- const n=puzzle.size;
- for(const [fa,ea,fb,eb,reverse] of FACE_EDGES){
-  let ia=null,ib=null;
-  if(a[0]===fa&&b[0]===fb){
-   ia=edgeCoordinate(fa,ea,a[1],a[2],n);ib=edgeCoordinate(fb,eb,b[1],b[2],n);
-  }else if(a[0]===fb&&b[0]===fa){
-   ia=edgeCoordinate(fa,ea,b[1],b[2],n);ib=edgeCoordinate(fb,eb,a[1],a[2],n);
+ const n=puzzle.size,fa=puzzle.faces[a[0]],fb=puzzle.faces[b[0]];
+ for(const [faceA,edgeA,faceB,edgeB,reverse] of FACE_EDGES){
+  let first=null,second=null;
+  if(fa===faceA&&fb===faceB){
+   first=edgeCoordinate(edgeA,a[1],a[2],n);second=edgeCoordinate(edgeB,b[1],b[2],n);
+  }else if(fa===faceB&&fb===faceA){
+   first=edgeCoordinate(edgeA,b[1],b[2],n);second=edgeCoordinate(edgeB,a[1],a[2],n);
   }else continue;
-  if(ia!==null&&ib!==null&&ia===(reverse?n-1-ib:ib))return true;
+  if(first!==null&&second!==null&&first===(reverse?n-1-second:second))return true;
  }
  return false;
 }
@@ -60,7 +60,7 @@ function fail(text){attempts++;attemptsEl.textContent=`Attempts: ${attempts}`;co
 function select(p){if(solved)return;if(activeChain===null){if(!clue(value(p))){msg.textContent="Start from a coloured clue.";return}const ch=chains.get(value(p));if(!ch){msg.textContent="That is the final marker.";return}activeChain=value(p);startTimer();render();msg.textContent=`Chain ${value(p)}–${ch.end} started. Select ${value(p)+1} next.`;return}const ch=chains.get(activeChain),last=ch.path[ch.path.length-1],expected=value(last)+1;if(!surfaceAdjacent(last,p)){fail("The next step must share an edge on the box surface.");return}if(ch.path.some(x=>same(x,p))){fail("You cannot revisit a box square.");return}if(value(p)!==expected||value(p)>ch.end){fail(`Wrong next step. You need ${expected}. The current chain is broken.`);return}ch.path.push(p);render();if(value(p)===ch.end){ch.complete=true;activeChain=null;if([...chains.values()].every(x=>x.complete)){solved=true;if(timerHandle)clearInterval(timerHandle);msg.textContent="Solved! Every chain is complete.";shareResult()}else msg.textContent=`Chain ${ch.clue}–${ch.end} complete. Start another coloured clue.`}}
 async function shareResult(){if(typeof showShareModal!=="function")return;showShareModal({size:puzzle.size,date:fd(selectedDate),elapsed:startedAt?Date.now()-startedAt:0,attempts,url:window.location.href,badgeImageUrl:""})}
 function resetGame(){solved=false;attempts=0;attemptsEl.textContent="Attempts: 0";activeChain=null;resetTimer();initialise();msg.textContent="Choose any coloured clue to start.";render()}
-async function loadPuzzleForDate(ds){try{const r=await fetch(`data/${ds}.json`,{cache:"no-store"});if(!r.ok)throw Error();puzzle=await r.json();resetGame()}catch(e){puzzle=null;grid.replaceChildren();progress.textContent="0 / 0";msg.textContent=`No Box puzzle is available for ${dd(selectedDate)}.`}}
+async function loadPuzzleForDate(ds){try{const r=await fetch(`data/${ds}.json`,{cache:"no-store"});if(!r.ok)throw Error();puzzle=await r.json();resetGame()}catch(e){console.error("Failed to load Box puzzle",e);puzzle=null;grid.replaceChildren();progress.textContent="0 / 0";msg.textContent=`No Box puzzle is available for ${dd(selectedDate)}.`}}
 function nav(){const ds=fd(selectedDate);document.getElementById("currentDate").textContent=dd(selectedDate);document.getElementById("pdfLink").href=`printables/${ds}.pdf`;document.getElementById("nextDay").disabled=ds===fd(new Date());loadPuzzleForDate(ds)}
-document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);nav()};document.getElementById("nextDay").onclick=()=>{const n=new Date(selectedDate);n.setDate(n.getDate()+1);if(n<=new Date()){selectedDate=n;nav()}};document.getElementById("resetButton").onclick=()=>puzzle&&resetGame();
+document.getElementById("prevDay").onclick=()=>{selectedDate.setDate(selectedDate.getDate()-1);nav()};document.getElementById("nextDay").onclick=()=>{const n=new Date(selectedDate);n.setDate(n.getDate()+1);if(n<=new Date()){selectedDate=n;nav()}};document.getElementById("resetButton")?.addEventListener("click",()=>puzzle&&resetGame());
 const moreButton=document.getElementById("moreButton"),moreMenu=document.getElementById("moreMenu");moreButton.onclick=()=>{const open=moreButton.getAttribute("aria-expanded")==="true";moreButton.setAttribute("aria-expanded",String(!open));moreMenu.hidden=open};document.addEventListener("click",e=>{if(!moreMenu.hidden&&!moreMenu.contains(e.target)&&!moreButton.contains(e.target)){moreMenu.hidden=true;moreButton.setAttribute("aria-expanded","false")}});nav();
