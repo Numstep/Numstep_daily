@@ -3,6 +3,20 @@
 
     const STORAGE_KEY = "numstep-theme";
     const DARK_BLOCKED = "#6b1f2b";
+    const DARK_PASTELS = {
+        "#4e79a7": "#a8c4e3",
+        "#59a14f": "#b8d8a8",
+        "#f28e2b": "#f6c98d",
+        "#e15759": "#f2a7a7",
+        "#b07aa1": "#d9b9d5",
+        "#76b7b2": "#a9d5d0",
+        "#edc948": "#f2e3a3",
+        "#9c755f": "#cdb6a0",
+        "#86bcb6": "#b8dcd7",
+        "#ff9da7": "#f6bfc5",
+        "#79706e": "#beb9b7",
+        "#a0cbe8": "#c7dceb"
+    };
 
     function getSavedTheme() {
         try {
@@ -27,6 +41,11 @@
         }
     }
 
+    function pastelColour(sourceColour) {
+        if (!sourceColour) return null;
+        return DARK_PASTELS[sourceColour.trim().toLowerCase()] || sourceColour;
+    }
+
     function applyPuzzleColours(dark) {
         document.querySelectorAll(".black").forEach(cell => {
             cell.style.setProperty("background-color", dark ? DARK_BLOCKED : "#000000", "important");
@@ -34,14 +53,19 @@
         });
 
         document.querySelectorAll(".cell.active, .clue, .chainCell, .boxCell:not(.black), .cubeCell:not(.black)").forEach(cell => {
+            const sourceColour = cell.dataset.numstepColour;
+
             if (dark) {
-                cell.style.setProperty("background-color", "#ffffff", "important");
-                cell.style.setProperty("color", "#000000", "important");
-            } else {
-                const sourceColour = cell.dataset.numstepColour;
                 if (sourceColour) {
-                    cell.style.setProperty("background-color", sourceColour, "important");
+                    cell.style.setProperty("background-color", pastelColour(sourceColour), "important");
+                    cell.style.setProperty("color", "#000000", "important");
+                } else if (!cell.classList.contains("clue") && !cell.classList.contains("chainCell")) {
+                    cell.style.setProperty("background-color", "#ffffff", "important");
+                    cell.style.setProperty("color", "#000000", "important");
                 }
+            } else if (sourceColour) {
+                cell.style.setProperty("background-color", sourceColour, "important");
+                cell.style.setProperty("color", "#ffffff", "important");
             }
         });
     }
