@@ -981,9 +981,12 @@ def create_pdf(
 # GENERATE A UNIQUE PUZZLE
 # ============================================================
 
-n = int(
-    input("Enter cube size N: ")
-)
+#n = int(
+#    input("Enter cube size N: ")
+#)
+
+n=3
+
 
 attempt = 0
 
