@@ -7,8 +7,7 @@ const NumstepBadge = {
         blackCell: "#6b1f2b"
     },
 
-    // Keep share colours aligned with the playable Cube palette so a chain has
-    // the same identity in the puzzle and in the exported badge.
+    // Match the colours used by the playable Cube chains.
     colourPalette: [
         "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
         "#B07AA1", "#76B7B2", "#EDC948", "#9C755F",
@@ -153,76 +152,86 @@ const NumstepBadge = {
         const clueValues = [...clueColours.keys()].sort((a, b) => a - b);
         const size = shareData.size;
         const side = Math.min(56, 230 / size);
-        const halfWidth = side * Math.sqrt(3) / 2;
-        const halfHeight = side / 2;
+        const axisX = [side * Math.cos(Math.PI / 6), side * Math.sin(Math.PI / 6)];
+        const axisY = [side * Math.cos(5 * Math.PI / 6), side * Math.sin(5 * Math.PI / 6)];
+        const axisZ = [0, -side];
+        const origin = [width / 2, 310];
 
-        // All three projected cube axes have equal length and are separated by
-        // exactly 120 degrees. Therefore every square face is a 60/120-degree
-        // rhombus, including the top and both visible side faces.
-        const xAxis = [halfWidth, halfHeight];
-        const yAxis = [-halfWidth, halfHeight];
-        const zAxis = [0, -side];
-        const origin = [width / 2, 250 + (size - 1) * side / 2];
-        const project = (layer, row, col) => [
-            origin[0] + col * xAxis[0] + row * yAxis[0] + layer * zAxis[0],
-            origin[1] + col * xAxis[1] + row * yAxis[1] + layer * zAxis[1]
-        ];
-        const offset = (point, vector) => [point[0] + vector[0], point[1] + vector[1]];
-        const polygon = (point, first, second) => [
-            point,
-            offset(point, first),
-            offset(offset(point, first), second),
-            offset(point, second)
+        // Model every occupied cell as a real unit cube. The 3D axes are
+        // projected after a 30-degree isometric rotation: all three axes have
+        // equal projected length and 120-degree separation. Every face is
+        // therefore an exact 60/120-degree rhombus.
+        const project = (x, y, z) => [
+            origin[0] + x * axisX[0] + y * axisY[0] + z * axisZ[0],
+            origin[1] + x * axisX[1] + y * axisY[1] + z * axisZ[1]
         ];
 
-        const drawFace = (points, value, shade = 0) => {
-            const chainColour = this.getChainColour(value, clueValues, clueColours);
-            if (!chainColour) return;
+        const face = (corners, value, depth) => ({ corners, value, depth });
+        const faces = [];
+        const cube = shareData.solution;
 
-            ctx.beginPath();
-            points.forEach((point, index) => {
-                if (index === 0) ctx.moveTo(point[0], point[1]);
-                else ctx.lineTo(point[0], point[1]);
-            });
-            ctx.closePath();
-
-            // Keep each chain identifiable while giving the three cube faces
-            // enough tonal separation to make the 3-D form read clearly.
-            ctx.fillStyle = shade === 0 ? chainColour : this.adjustColour(chainColour, shade);
-            ctx.fill();
-            ctx.strokeStyle = this.colors.gridLines;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        };
-
-        // Painter's order: back/deeper cubes first. Only exposed faces are drawn,
-        // so adjacent cubes read as a single isometric structure while zero cells
-        // create the same open gaps as the puzzle.
-        const cubes = [];
         for (let layer = 0; layer < size; layer += 1) {
+            // Layer 0 is the top of the logical cube, so invert it into z space.
+            const z = size - 1 - layer;
             for (let row = 0; row < size; row += 1) {
                 for (let col = 0; col < size; col += 1) {
-                    const value = shareData.solution[layer][row][col] || 0;
-                    if (value > 0) cubes.push({ layer, row, col, value, depth: layer + row + col });
+                    const value = cube[layer][row][col] || 0;
+                    if (value <= 0) continue;
+
+                    // The cube occupies [col,col+1] × [row,row+1] × [z,z+1].
+                    // Only faces exposed to empty space are rendered. This keeps
+                    // the graphic hollow where the puzzle has burgundy/black cells,
+                    // while every remaining voxel is visually solid.
+                    if (layer === 0 || cube[layer - 1][row][col] === 0) {
+                        faces.push(face([
+                            project(col, row, z + 1),
+                            project(col + 1, row, z + 1),
+                            project(col + 1, row + 1, z + 1),
+                            project(col, row + 1, z + 1)
+                        ], value, col + row + z + 1));
+                    }
+
+                    if (row === size - 1 || cube[layer][row + 1][col] === 0) {
+                        faces.push(face([
+                            project(col, row + 1, z),
+                            project(col + 1, row + 1, z),
+                            project(col + 1, row + 1, z + 1),
+                            project(col, row + 1, z + 1)
+                        ], value, col + row + 1 + z));
+                    }
+
+                    if (col === size - 1 || cube[layer][row][col + 1] === 0) {
+                        faces.push(face([
+                            project(col + 1, row, z),
+                            project(col + 1, row + 1, z),
+                            project(col + 1, row + 1, z + 1),
+                            project(col + 1, row, z + 1)
+                        ], value, col + 1 + row + z));
+                    }
                 }
             }
         }
 
-        cubes.sort((a, b) => b.depth - a.depth);
+        // Painter's algorithm: distant faces first, nearest faces last. The
+        // depth is derived from the same 3D coordinates used for projection,
+        // avoiding the previous face-order artefacts around hollow cells.
+        faces.sort((a, b) => a.depth - b.depth);
 
-        cubes.forEach(({ layer, row, col, value }) => {
-            const point = project(layer, row, col);
-            const cube = shareData.solution;
+        faces.forEach(({ corners, value }) => {
+            const colour = this.getChainColour(value, clueValues, clueColours);
+            if (!colour) return;
 
-            if (layer === 0 || cube[layer - 1][row][col] === 0) {
-                drawFace(polygon(point, xAxis, yAxis), value, 0);
-            }
-            if (row === size - 1 || cube[layer][row + 1][col] === 0) {
-                drawFace(polygon(point, yAxis, zAxis), value, -18);
-            }
-            if (col === size - 1 || cube[layer][row][col + 1] === 0) {
-                drawFace(polygon(point, xAxis, zAxis), value, -30);
-            }
+            ctx.beginPath();
+            corners.forEach((point, index) => {
+                if (index === 0) ctx.moveTo(point[0], point[1]);
+                else ctx.lineTo(point[0], point[1]);
+            });
+            ctx.closePath();
+            ctx.fillStyle = colour;
+            ctx.fill();
+            ctx.strokeStyle = this.colors.gridLines;
+            ctx.lineWidth = 2;
+            ctx.stroke();
         });
 
         ctx.fillStyle = this.colors.text;
@@ -232,13 +241,6 @@ const NumstepBadge = {
         ctx.font = "16px Helvetica, Arial, sans-serif";
         ctx.fillText("Can you beat my result?", width / 2, 645);
         return canvas.toDataURL("image/png");
-    },
-
-    adjustColour(hex, amount) {
-        const value = hex.replace("#", "");
-        const channels = [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16));
-        const adjusted = channels.map(channel => Math.max(0, Math.min(255, channel + amount)));
-        return `#${adjusted.map(channel => channel.toString(16).padStart(2, "0")).join("")}`;
     }
 };
 
