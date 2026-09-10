@@ -46,6 +46,24 @@
         return DARK_PASTELS[sourceColour.trim().toLowerCase()] || sourceColour;
     }
 
+    function isBlockedColour(colour) {
+        if (!colour) return false;
+        const value = colour.trim().toLowerCase();
+        return value === "#000" || value === "#000000" || value === "rgb(0, 0, 0)";
+    }
+
+    function rememberSourceColour(cell) {
+        if (cell.dataset.numstepColour) return cell.dataset.numstepColour;
+
+        const inlineColour = cell.style.backgroundColor;
+        if (inlineColour && !isBlockedColour(inlineColour) && inlineColour !== "rgb(255, 255, 255)") {
+            cell.dataset.numstepColour = inlineColour;
+            return inlineColour;
+        }
+
+        return null;
+    }
+
     function applyPuzzleColours(dark) {
         document.querySelectorAll(".black").forEach(cell => {
             cell.style.setProperty("background-color", dark ? DARK_BLOCKED : "#000000", "important");
@@ -53,19 +71,22 @@
         });
 
         document.querySelectorAll(".cell.active, .clue, .chainCell, .boxCell:not(.black), .cubeCell:not(.black)").forEach(cell => {
-            const sourceColour = cell.dataset.numstepColour;
+            const sourceColour = rememberSourceColour(cell);
 
             if (dark) {
                 if (sourceColour) {
                     cell.style.setProperty("background-color", pastelColour(sourceColour), "important");
                     cell.style.setProperty("color", "#000000", "important");
-                } else if (!cell.classList.contains("clue") && !cell.classList.contains("chainCell")) {
+                } else {
                     cell.style.setProperty("background-color", "#ffffff", "important");
                     cell.style.setProperty("color", "#000000", "important");
                 }
             } else if (sourceColour) {
                 cell.style.setProperty("background-color", sourceColour, "important");
                 cell.style.setProperty("color", "#ffffff", "important");
+            } else {
+                cell.style.removeProperty("background-color");
+                cell.style.removeProperty("color");
             }
         });
     }
