@@ -9,7 +9,45 @@ function dd(d){return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric
 function clue(v){return v>0&&(v===1||v%10===0)}
 function key(p){return p.join(",")}
 function same(a,b){return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]}
-function surfaceAdjacent(a,b){if(a[0]===b[0])return Math.abs(a[1]-b[1])+Math.abs(a[2]-b[2])===1;const f1=puzzle.faces[a[0]],f2=puzzle.faces[b[0]],r1=a[1],c1=a[2],r2=b[1],c2=b[2],n=puzzle.size;const pair=[f1,f2].sort().join("|");if(pair==="FRONT|TOP")return (f1==="FRONT"?r1===0:r2===0)&&(c1===c2);if(pair==="BOTTOM|FRONT")return (f1==="FRONT"?r1===n-1:r2===n-1)&&(c1===c2);if(pair==="FRONT|LEFT")return (f1==="FRONT"?c1===0:c2===0)&&(r1===r2);if(pair==="FRONT|RIGHT")return (f1==="FRONT"?c1===n-1:c2===n-1)&&(r1===r2);if(pair==="LEFT|TOP")return (f1==="LEFT"?r1===0:r2===0)&&((f1==="LEFT"?c1:r2)===(f1==="TOP"?r1:c2));if(pair==="BOTTOM|LEFT")return (f1==="LEFT"?r1===n-1:r2===n-1)&&((f1==="LEFT"?c1:n-1-c2)===(f1==="BOTTOM"?c2:n-1-c1));if(pair==="RIGHT|TOP")return (f1==="RIGHT"?r1===0:r2===0)&&((f1==="RIGHT"?c1:r2)===(f1==="TOP"?r1:c2));if(pair==="BOTTOM|RIGHT")return (f1==="RIGHT"?r1===n-1:r2===n-1)&&((f1==="RIGHT"?c1:c2)===(f1==="BOTTOM"?c2:c1));if(pair==="BACK|TOP")return (f1==="BACK"?r1===0:r2===0)&&((f1==="BACK"?c1:n-1-c2)===(f1==="TOP"?n-1-c1:c2));if(pair==="BACK|BOTTOM")return (f1==="BACK"?r1===n-1:r2===n-1)&&(c1===c2);if(pair==="BACK|LEFT")return (f1==="LEFT"?c1===n-1:c2===n-1)&&(r1===r2);if(pair==="BACK|RIGHT")return (f1==="RIGHT"?c1===n-1:c2===n-1)&&(r1===r2);return false}
+
+// These edge pairings mirror the Box generator exactly, including reversed
+// indexing where folding the flat net flips an edge. Keeping one canonical
+// table prevents the playable game from disagreeing with generated puzzles.
+const FACE_EDGES=[
+ ["FRONT","top","TOP","bottom",false],
+ ["FRONT","bottom","BOTTOM","top",false],
+ ["BACK","top","TOP","top",true],
+ ["BACK","bottom","BOTTOM","bottom",false],
+ ["FRONT","left","LEFT","right",false],
+ ["FRONT","right","RIGHT","left",false],
+ ["LEFT","top","TOP","left",false],
+ ["LEFT","bottom","BOTTOM","left",true],
+ ["RIGHT","top","TOP","right",false],
+ ["RIGHT","bottom","BOTTOM","right",false],
+ ["LEFT","right","BACK","left",false],
+ ["RIGHT","right","BACK","right",false]
+];
+function edgeCoordinate(face,edge,row,col,n){
+ if(edge==="top")return row===0?col:null;
+ if(edge==="bottom")return row===n-1?col:null;
+ if(edge==="left")return col===0?row:null;
+ if(edge==="right")return col===n-1?row:null;
+ return null;
+}
+function surfaceAdjacent(a,b){
+ if(a[0]===b[0])return Math.abs(a[1]-b[1])+Math.abs(a[2]-b[2])===1;
+ const n=puzzle.size;
+ for(const [fa,ea,fb,eb,reverse] of FACE_EDGES){
+  let ia=null,ib=null;
+  if(a[0]===fa&&b[0]===fb){
+   ia=edgeCoordinate(fa,ea,a[1],a[2],n);ib=edgeCoordinate(fb,eb,b[1],b[2],n);
+  }else if(a[0]===fb&&b[0]===fa){
+   ia=edgeCoordinate(fa,ea,b[1],b[2],n);ib=edgeCoordinate(fb,eb,a[1],a[2],n);
+  }else continue;
+  if(ia!==null&&ib!==null&&ia===(reverse?n-1-ib:ib))return true;
+ }
+ return false;
+}
 function value(p){return puzzle.solution[puzzle.faces[p[0]]][p[1]][p[2]]}
 function allValues(){return puzzle.faces.flatMap(face=>puzzle.solution[face].flat())}
 function positions(){const m=new Map();for(let f=0;f<puzzle.faces.length;f++)for(let r=0;r<puzzle.size;r++)for(let c=0;c<puzzle.size;c++){const v=value([f,r,c]);if(clue(v))m.set(v,[f,r,c])}return m}
