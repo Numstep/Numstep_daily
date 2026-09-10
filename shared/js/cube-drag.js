@@ -1,7 +1,8 @@
 "use strict";
 
-// Allow finger/pointer dragging across Cube cells even though the cells are
-// buttons and the board is rendered as several independent layer grids.
+// Use one pointer path for Cube taps and drags. Pointer events cover mouse,
+// pen and touch; handling the initial pointerdown here also preserves taps on
+// browsers where preventDefault() suppresses the compatibility click event.
 (function setupCubeDrag() {
     let activePointerId = null;
     let lastPositionKey = null;
@@ -16,6 +17,8 @@
         activePointerId = event.pointerId;
         lastPositionKey = null;
         event.preventDefault();
+
+        selectPosition(cell);
     });
 
     document.addEventListener("pointermove", event => {
@@ -32,6 +35,10 @@
             return;
         }
 
+        selectPosition(cell);
+    });
+
+    function selectPosition(cell) {
         const positionKey = cell.dataset.position;
 
         if (!positionKey || positionKey === lastPositionKey) {
@@ -44,7 +51,7 @@
         if (position.length === 3 && position.every(Number.isInteger)) {
             selectCell(position);
         }
-    });
+    }
 
     function endDrag(event) {
         if (event.pointerId === activePointerId) {
