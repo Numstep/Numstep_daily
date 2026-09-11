@@ -67,7 +67,7 @@ function closeShareModal() {
 function getShareGameName() {
     const path = window.location.pathname || "";
     if (path.includes("/numstep-cube/")) return "Numstep:Cube";
-    if (path.includes("/numstep-taurus/")) return "Numstep:Taurus";
+    if (path.includes("/numstep-taurus/")) return "Numstep:Torus";
     if (path.includes("/numstep-box/")) return "Numstep:Box";
     return "Numstep:Classic";
 }
