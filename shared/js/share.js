@@ -35,6 +35,47 @@ function createShareModal() {
     document.getElementById("nativeTextShareButton").addEventListener("click", nativeShareText);
 }
 
+async function prepareBadgeImage(badgeImageUrl) {
+    if (!badgeImageUrl) return badgeImageUrl;
+
+    try {
+        const image = new Image();
+        image.src = badgeImageUrl;
+        await new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+        });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return badgeImageUrl;
+
+        ctx.drawImage(image, 0, 0);
+
+        const scale = canvas.width / 500;
+        const footerTop = 635 * scale;
+        const footerBottom = 685 * scale;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, footerTop, canvas.width, footerBottom - footerTop);
+
+        ctx.fillStyle = "#666666";
+        ctx.textAlign = "center";
+        ctx.font = `${16 * scale}px Helvetica, Arial, sans-serif`;
+        ctx.fillText(
+            "I just solved today's puzzle. Can you beat my score? [?]",
+            canvas.width / 2,
+            660 * scale
+        );
+
+        return canvas.toDataURL("image/png");
+    } catch (error) {
+        console.error("Could not update badge footer:", error);
+        return badgeImageUrl;
+    }
+}
+
 function showShareModal(result) {
     createShareModal();
     currentShareResult = result;
@@ -55,6 +96,14 @@ function showShareModal(result) {
     const modal = document.getElementById("shareModal");
     modal.setAttribute("aria-hidden", "false");
     modal.classList.add("open");
+
+    if (result.badgeImageUrl) {
+        prepareBadgeImage(result.badgeImageUrl).then(preparedUrl => {
+            if (!preparedUrl || currentShareResult !== result) return;
+            currentShareResult = { ...result, badgeImageUrl: preparedUrl };
+            badge.src = preparedUrl;
+        });
+    }
 }
 
 function closeShareModal() {
@@ -85,7 +134,7 @@ ${currentShareResult.size}×${currentShareResult.size}
 ⏱️ ${formatShareTime(currentShareResult.elapsed)}
 🎯 ${mistakes} mistake${mistakes === 1 ? "" : "s"}
 
-I just solved today's puzzle. Can you beat me score
+I just solved today's puzzle. Can you beat my score? [?]
 ${currentShareResult.url || window.location.href}`;
 }
 
