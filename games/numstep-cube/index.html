@@ -1,37 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Numstep:Cube - Daily Challenge</title>
-    <link rel="stylesheet" href="../../shared/styles/main.css">
-    <link rel="stylesheet" href="cube.css">
-</head>
-<body>
-<header class="siteHeader">
-    <div class="siteHeaderBrand">NUMSTEP</div>
-    <div class="headerControls">
-        <button class="themeToggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to dark theme"><span class="themeToggleIcon" aria-hidden="true">◐</span><span id="themeToggleLabel">dark</span></button>
-        <button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button>
-    </div>
-</header>
-<nav class="moreMenu" id="moreMenu" hidden aria-label="Site navigation">
-    <a class="gameMenuItem" href="../numstep/index.html">Classic</a>
-    <a class="gameMenuItem active" href="index.html" aria-current="page">Cube</a>
-    <a class="gameMenuItem" href="../numstep-taurus/index.html">Taurus</a>
-    <a class="gameMenuItem" href="../numstep-box/index.html">Box</a>
-    <a class="gameMenuItem" href="rules.html">Rules</a>
-    <a class="gameMenuItem" href="../numstep/about.html">About</a>
-</nav>
-<h1 class="visuallyHidden">NUMSTEP: CUBE</h1>
-<h2>Cube</h2>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Numstep:Cube - Daily Challenge</title><link rel="stylesheet" href="../../shared/styles/main.css"><link rel="stylesheet" href="cube.css"></head>
+<body data-rules-variant="cube">
+<header class="siteHeader"><div class="siteHeaderBrand">NUMSTEP</div><div class="headerControls"><button class="themeToggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to dark theme"><span class="themeToggleIcon" aria-hidden="true">◐</span><span id="themeToggleLabel">dark</span></button><button class="moreButton" id="moreButton" type="button" aria-expanded="false" aria-controls="moreMenu"><span class="hamburgerIcon" aria-hidden="true">☰</span><span>more</span></button></div></header>
+<nav class="moreMenu" id="moreMenu" hidden aria-label="Site navigation"><a class="gameMenuItem" href="../numstep/index.html">Classic</a><a class="gameMenuItem active" href="index.html" aria-current="page">Cube</a><a class="gameMenuItem" href="../numstep-taurus/index.html">Torus</a><a class="gameMenuItem" href="../numstep-box/index.html">Box</a><a class="gameMenuItem" href="../numstep/about.html">About</a></nav>
+<h1 class="visuallyHidden">NUMSTEP: CUBE</h1><h2>Cube</h2>
 <div class="date-navigation"><button id="prevDay" aria-label="Previous day">←</button><div id="currentDate"></div><button id="nextDay" aria-label="Next day">→</button></div>
 <div class="printable-puzzle"><a id="pdfLink" href="#" target="_blank" rel="noopener noreferrer"><button type="button">🖨️ Printable Puzzle</button></a></div>
 <div class="cube-status"><div id="timer">00:00</div><div id="cubeProgress">0 / 0</div><div id="attempts">Mistakes: 0</div></div>
-<div id="cubeGrid" class="cubeGrid" aria-label="Numstep Cube puzzle"></div>
-<div id="message" role="status" aria-live="polite"></div>
-<button id="resetButton" type="button" hidden aria-hidden="true">RESET</button>
-<div class="sponsorBox" id="sponsorBox"></div>
-<script src="../../shared/js/theme.js"></script><script src="../numstep/js/badge.js"></script><script src="../../shared/js/share.js"></script><script src="cube.js?v=20260910-2"></script><script src="../../shared/js/cube-drag.js?v=20260910-2"></script><script src="../../shared/js/sponsor.js"></script>
-</body>
-</html>
+<div id="cubeGrid" class="cubeGrid" aria-label="Numstep Cube puzzle"></div><div id="message" role="status" aria-live="polite"></div><button id="resetButton" type="button" hidden aria-hidden="true">RESET</button><button id="rulesButton" type="button">Rules</button><div class="sponsorBox" id="sponsorBox"></div>
+<script src="../../shared/js/theme.js"></script><script src="../numstep/js/badge.js"></script><script src="../../shared/js/share.js"></script><script src="cube.js?v=20260910-2"></script><script src="../../shared/js/cube-drag.js?v=20260910-2"></script><script src="../../shared/js/rules-modal.js"></script><script src="../../shared/js/sponsor.js"></script>
+</body></html>
