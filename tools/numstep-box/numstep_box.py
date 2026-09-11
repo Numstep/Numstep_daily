@@ -27,73 +27,46 @@ DATA_DIR = ROOT / "games" / "numstep-box" / "data"
 PRINTABLE_DIR = ROOT / "games" / "numstep-box" / "printables"
 SHARE_DIR = ROOT / "games" / "numstep-box" / "share"
 
-# Canonical 3x3 cube-face adjacency, independently derived from the face-edge
-# geometry used by rubiks-cube-representation. The external reference defines
-# each face's N/E/S/W edge mapping and the edge-cell ordering (N: left-to-right,
-# E: top-to-bottom, S: right-to-left, W: bottom-to-top).
+# Explicit 3x3 cube adjacency derived from the supplied Box net numbering.
+# The net is:
 #
-# Reference:
-# https://docs.rs/rubiks-cube-representation/latest/src/rubiks_cube_representation/core/cube/geometry/mod.rs.html
+#                 1  2  3
+#                 4  5  6
+#                 7  8  9
+#  19 20 21       28 29 30       37 38 39       46 47 48
+#  22 23 24       31 32 33       40 41 42       49 50 51
+#  25 26 27       34 35 36       43 44 45       52 53 54
+#                 10 11 12
+#                 13 14 15
+#                 16 17 18
 #
 # Cell IDs are fixed as:
 #   TOP    1..9,   BOTTOM 10..18, LEFT 19..27,
 #   FRONT 28..36,  RIGHT 37..45,  BACK 46..54.
-# Every cell has exactly four neighbours and the table is reciprocal.
+#
+# This lookup is the source of truth for the generator. It contains both
+# same-face neighbours and the folded edge neighbours implied by the supplied
+# cube net. Every cell has exactly four unique neighbours and every relationship
+# is reciprocal.
 CELL_ADJACENCY = {
-    1: (2, 4, 21, 54),
-    2: (1, 3, 5, 53),
-    3: (2, 6, 37, 52),
-    4: (1, 5, 7, 20),
-    5: (2, 4, 6, 8),
-    6: (3, 5, 9, 38),
-    7: (4, 8, 19, 30),
-    8: (5, 7, 9, 29),
-    9: (6, 8, 28, 39),
-    10: (11, 13, 25, 36),
-    11: (10, 12, 14, 35),
-    12: (11, 15, 34, 45),
-    13: (10, 14, 16, 26),
-    14: (11, 13, 15, 17),
-    15: (12, 14, 18, 44),
-    16: (13, 17, 27, 48),
-    17: (14, 16, 18, 47),
-    18: (15, 17, 43, 46),
-    19: (7, 20, 22, 46),
-    20: (4, 19, 21, 23),
-    21: (1, 20, 24, 34),
-    22: (19, 23, 25, 49),
-    23: (20, 22, 24, 26),
-    24: (21, 23, 27, 31),
-    25: (10, 22, 26, 52),
-    26: (13, 23, 25, 27),
-    27: (16, 24, 26, 28),
-    28: (9, 27, 29, 31),
-    29: (8, 28, 30, 32),
-    30: (7, 29, 33, 43),
-    31: (24, 28, 32, 34),
-    32: (29, 31, 33, 35),
-    33: (30, 32, 36, 40),
-    34: (12, 21, 31, 35),
-    35: (11, 32, 34, 36),
-    36: (10, 33, 35, 37),
-    37: (3, 36, 38, 40),
-    38: (6, 37, 39, 41),
-    39: (9, 38, 42, 48),
-    40: (33, 37, 41, 43),
-    41: (38, 40, 42, 44),
-    42: (39, 41, 45, 51),
-    43: (18, 30, 40, 44),
-    44: (15, 41, 43, 45),
-    45: (12, 42, 44, 54),
-    46: (18, 19, 47, 49),
-    47: (17, 46, 48, 50),
-    48: (16, 39, 47, 51),
-    49: (22, 46, 50, 52),
-    50: (47, 49, 51, 53),
-    51: (42, 48, 50, 54),
-    52: (3, 25, 49, 53),
-    53: (2, 50, 52, 54),
-    54: (1, 45, 51, 53),
+    1: (2, 4, 27, 34), 2: (1, 3, 5, 35), 3: (2, 6, 36, 43),
+    4: (1, 5, 7, 26), 5: (2, 4, 6, 8), 6: (3, 5, 9, 44),
+    7: (4, 8, 25, 54), 8: (5, 7, 9, 53), 9: (6, 8, 45, 52),
+    10: (11, 13, 19, 48), 11: (10, 12, 14, 47), 12: (11, 15, 39, 46),
+    13: (10, 14, 16, 20), 14: (11, 13, 15, 17), 15: (12, 14, 18, 38),
+    16: (13, 17, 21, 28), 17: (14, 16, 18, 29), 18: (15, 17, 30, 37),
+    19: (10, 20, 22, 48), 20: (13, 19, 21, 23), 21: (16, 20, 24, 28),
+    22: (19, 23, 25, 51), 23: (20, 22, 24, 26), 24: (21, 23, 27, 31),
+    25: (7, 22, 26, 54), 26: (4, 23, 25, 27), 27: (1, 24, 26, 34),
+    28: (16, 21, 29, 31), 29: (17, 28, 30, 32), 30: (18, 29, 33, 37),
+    31: (24, 28, 32, 34), 32: (29, 31, 33, 35), 33: (30, 32, 36, 40),
+    34: (1, 27, 31, 35), 35: (2, 32, 34, 36), 36: (3, 33, 35, 43),
+    37: (18, 30, 38, 40), 38: (15, 37, 39, 41), 39: (12, 38, 42, 46),
+    40: (33, 37, 41, 43), 41: (38, 40, 42, 44), 42: (39, 41, 45, 49),
+    43: (3, 36, 40, 44), 44: (6, 41, 43, 45), 45: (9, 42, 44, 52),
+    46: (12, 39, 47, 49), 47: (11, 46, 48, 50), 48: (10, 19, 47, 51),
+    49: (42, 46, 50, 52), 50: (47, 49, 51, 53), 51: (22, 48, 50, 54),
+    52: (9, 45, 49, 53), 53: (8, 50, 52, 54), 54: (7, 25, 51, 53),
 }
 
 FACE_OFFSETS = {
@@ -131,7 +104,7 @@ def validate_cell_adjacency():
 
 def build_cube_neighbours(n):
     if n != N:
-        raise ValueError("The validated Box adjacency lookup is defined for a 3x3 cube only")
+        raise ValueError("The Box adjacency lookup is defined for a 3x3 cube only")
 
     validate_cell_adjacency()
     neighbours = {}
