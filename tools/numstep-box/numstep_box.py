@@ -27,49 +27,85 @@ DATA_DIR = ROOT / "games" / "numstep-box" / "data"
 PRINTABLE_DIR = ROOT / "games" / "numstep-box" / "printables"
 SHARE_DIR = ROOT / "games" / "numstep-box" / "share"
 
+# Canonical 3x3 cube-face adjacency, independently derived from the face-edge
+# geometry used by rubiks-cube-representation. The external reference defines
+# each face's N/E/S/W edge mapping and the edge-cell ordering (N: left-to-right,
+# E: top-to-bottom, S: right-to-left, W: bottom-to-top).
+#
+# Reference:
+# https://docs.rs/rubiks-cube-representation/latest/src/rubiks_cube_representation/core/cube/geometry/mod.rs.html
+#
+# Cell IDs are fixed as:
+#   TOP    1..9,   BOTTOM 10..18, LEFT 19..27,
+#   FRONT 28..36,  RIGHT 37..45,  BACK 46..54.
+# Every cell has exactly four neighbours and the table is reciprocal.
+CELL_ADJACENCY = {
+    1: (2, 4, 21, 54), 2: (1, 3, 5, 53), 3: (2, 6, 37, 52),
+    4: (1, 5, 7, 20), 5: (2, 4, 6, 8), 6: (3, 5, 9, 51),
+    7: (4, 8, 19, 30), 8: (5, 7, 9, 29), 9: (6, 8, 28, 39),
+    10: (11, 13, 30, 49), 11: (10, 12, 14, 50), 12: (11, 15, 31, 51),
+    13: (10, 14, 16, 32), 14: (11, 13, 15, 33), 15: (12, 14, 17, 34),
+    16: (13, 17, 18, 35), 17: (14, 16, 18, 36), 18: (15, 17, 27, 46),
+    19: (7, 20, 22, 48), 20: (4, 19, 21, 23), 21: (1, 20, 24, 54),
+    22: (19, 23, 25, 29), 23: (20, 22, 24, 26), 24: (21, 23, 27, 36),
+    25: (22, 26, 28, 47), 26: (23, 25, 27, 35), 27: (18, 24, 26, 46),
+    28: (9, 25, 29, 31), 29: (8, 22, 28, 30), 30: (7, 10, 29, 33),
+    31: (12, 28, 32, 34), 32: (13, 31, 33, 35), 33: (14, 30, 32, 36),
+    34: (15, 31, 35, 43), 35: (16, 32, 34, 44), 36: (17, 24, 33, 45),
+    37: (3, 38, 40, 52), 38: (6, 37, 39, 41), 39: (9, 38, 42, 48),
+    40: (37, 41, 43, 54), 41: (38, 40, 42, 45), 42: (39, 41, 43, 47),
+    43: (34, 40, 44, 46), 44: (35, 43, 45, 47), 45: (36, 41, 44, 48),
+    46: (18, 19, 47, 49), 47: (25, 42, 46, 48), 48: (19, 39, 47, 51),
+    49: (10, 46, 50, 52), 50: (11, 49, 51, 53), 51: (6, 12, 50, 52),
+    52: (3, 37, 49, 53), 53: (2, 50, 52, 54), 54: (1, 21, 40, 53),
+}
+
+FACE_OFFSETS = {
+    "TOP": 0,
+    "BOTTOM": 9,
+    "LEFT": 18,
+    "FRONT": 27,
+    "RIGHT": 36,
+    "BACK": 45,
+}
+
+
+def cell_id(face, row, col):
+    return FACE_OFFSETS[face] + row * N + col + 1
+
 
 def cube_surface_cells(n):
     return [(face, row, col) for face in FACES for row in range(n) for col in range(n)]
 
 
-def add_edge_adjacency(neighbours, a, b):
-    neighbours[a].append(b)
-    neighbours[b].append(a)
+def validate_cell_adjacency():
+    expected_ids = set(range(1, 55))
+    actual_ids = set(CELL_ADJACENCY)
+    if actual_ids != expected_ids:
+        raise ValueError("CELL_ADJACENCY must contain exactly cell IDs 1 through 54")
+
+    for cell, neighbours in CELL_ADJACENCY.items():
+        if len(neighbours) != 4 or len(set(neighbours)) != 4:
+            raise ValueError(f"Cell {cell} must have exactly four unique neighbours")
+        if any(neighbour not in expected_ids for neighbour in neighbours):
+            raise ValueError(f"Cell {cell} contains an invalid neighbour ID")
+        for neighbour in neighbours:
+            if cell not in CELL_ADJACENCY[neighbour]:
+                raise ValueError(f"Adjacency is not reciprocal between {cell} and {neighbour}")
 
 
 def build_cube_neighbours(n):
-    neighbours = {cell: [] for cell in cube_surface_cells(n)}
+    if n != N:
+        raise ValueError("The validated Box adjacency lookup is defined for a 3x3 cube only")
 
-    for face in FACES:
-        for row in range(n):
-            for col in range(n):
-                cell = (face, row, col)
-                if row > 0:
-                    neighbours[cell].append((face, row - 1, col))
-                if row < n - 1:
-                    neighbours[cell].append((face, row + 1, col))
-                if col > 0:
-                    neighbours[cell].append((face, row, col - 1))
-                if col < n - 1:
-                    neighbours[cell].append((face, row, col + 1))
-
-    for col in range(n):
-        add_edge_adjacency(neighbours, ("FRONT", 0, col), ("TOP", n - 1, col))
-        add_edge_adjacency(neighbours, ("FRONT", n - 1, col), ("BOTTOM", 0, col))
-        add_edge_adjacency(neighbours, ("BACK", 0, col), ("TOP", 0, n - 1 - col))
-        add_edge_adjacency(neighbours, ("BACK", n - 1, col), ("BOTTOM", n - 1, col))
-
-    for row in range(n):
-        add_edge_adjacency(neighbours, ("FRONT", row, 0), ("LEFT", row, n - 1))
-        add_edge_adjacency(neighbours, ("FRONT", row, n - 1), ("RIGHT", row, 0))
-        add_edge_adjacency(neighbours, ("LEFT", 0, row), ("TOP", row, 0))
-        add_edge_adjacency(neighbours, ("LEFT", n - 1, row), ("BOTTOM", n - 1 - row, 0))
-        add_edge_adjacency(neighbours, ("RIGHT", 0, row), ("TOP", row, n - 1))
-        add_edge_adjacency(neighbours, ("RIGHT", n - 1, row), ("BOTTOM", row, n - 1))
-        add_edge_adjacency(neighbours, ("LEFT", row, n - 1), ("BACK", row, 0))
-        add_edge_adjacency(neighbours, ("RIGHT", row, n - 1), ("BACK", row, n - 1))
-
-    return {cell: list(dict.fromkeys(values)) for cell, values in neighbours.items()}
+    validate_cell_adjacency()
+    neighbours = {}
+    for face, row, col in cube_surface_cells(n):
+        neighbours[(face, row, col)] = [
+            (FACES[(neighbour - 1) // 9], ((neighbour - 1) % 9) // 3, (neighbour - 1) % 3)
+            for neighbour in CELL_ADJACENCY[cell_id(face, row, col)]
+        ]
+    return neighbours
 
 
 def count_solutions(grid, neighbours, max_solutions=MAX_SOLUTIONS):
