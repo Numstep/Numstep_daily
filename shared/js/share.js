@@ -46,7 +46,7 @@ function showShareModal(result) {
     document.getElementById("shareResult").innerHTML = `
         <div class="shareStatsRow">
             <div class="shareStat"><strong>${result.size}×${result.size}</strong><span>Puzzle</span></div>
-            <div class="shareStat"><strong>${result.attempts}</strong><span>Attempts</span></div>
+            <div class="shareStat"><strong>${result.mistakes ?? result.attempts ?? 0}</strong><span>Mistakes</span></div>
             <div class="shareStat"><strong>${formatShareTime(result.elapsed)}</strong><span>Time</span></div>
         </div>
         <div class="shareDate">${result.date}</div>
@@ -64,18 +64,28 @@ function closeShareModal() {
     modal.classList.remove("open");
 }
 
+function getShareGameName() {
+    const path = window.location.pathname || "";
+    if (path.includes("/numstep-cube/")) return "Numstep:Cube";
+    if (path.includes("/numstep-taurus/")) return "Numstep:Taurus";
+    if (path.includes("/numstep-box/")) return "Numstep:Box";
+    return "Numstep:Classic";
+}
+
 function buildShareText() {
     if (!currentShareResult) return "";
 
-    return `🏆 NUMSTEP
+    const mistakes = currentShareResult.mistakes ?? currentShareResult.attempts ?? 0;
+
+    return `${getShareGameName()}
 
 ${currentShareResult.size}×${currentShareResult.size}
 📅 ${currentShareResult.date}
 
 ⏱️ ${formatShareTime(currentShareResult.elapsed)}
-🎯 ${currentShareResult.attempts} attempt${currentShareResult.attempts === 1 ? "" : "s"}
+🎯 ${mistakes} mistake${mistakes === 1 ? "" : "s"}
 
-Can you beat my result?
+I just solved today's puzzle. Can you beat me score
 ${currentShareResult.url || window.location.href}`;
 }
 
@@ -86,9 +96,7 @@ async function nativeShareBadge() {
 
     try {
         const response = await fetch(currentShareResult.badgeImageUrl);
-        if (!response.ok) {
-            throw new Error("Could not read the badge PNG.");
-        }
+        if (!response.ok) throw new Error("Could not read the badge PNG.");
 
         const blob = await response.blob();
         const file = new File(
@@ -102,10 +110,7 @@ async function nativeShareBadge() {
             return;
         }
 
-        await navigator.share({
-            files: [file],
-            url
-        });
+        await navigator.share({ files: [file], url });
     } catch (error) {
         if (error && error.name !== "AbortError") console.error("Could not share badge:", error);
     }
@@ -119,7 +124,7 @@ async function nativeShareText() {
 
     try {
         await navigator.share({
-            title: "My Numstep Result",
+            title: getShareGameName(),
             text,
             url
         });
@@ -133,4 +138,37 @@ function formatShareTime(milliseconds) {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function normaliseMistakesLabel(node) {
+    if (!node || node.id !== "attempts") return;
+    node.textContent = node.textContent.replace(/\bAttempts?\b/g, "Mistakes");
+}
+
+function setupMistakesTerminology() {
+    const attemptsElement = document.getElementById("attempts");
+    normaliseMistakesLabel(attemptsElement);
+
+    if (!document.body || typeof MutationObserver === "undefined") return;
+
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === "characterData") {
+                normaliseMistakesLabel(mutation.target.parentElement);
+            } else if (mutation.type === "childList") {
+                normaliseMistakesLabel(mutation.target);
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) normaliseMistakesLabel(node);
+                });
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupMistakesTerminology, { once: true });
+} else {
+    setupMistakesTerminology();
 }
