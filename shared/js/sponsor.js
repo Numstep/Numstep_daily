@@ -32,6 +32,9 @@ function renderSponsorBox() {
     message.className = "sponsorMessage";
     message.textContent = getRandomSponsorMessage();
 
+    const sponsorFooter = document.createElement("div");
+    sponsorFooter.className = "sponsorFooter";
+
     const sponsorLink = document.createElement("a");
     sponsorLink.className = "sponsorLink";
     sponsorLink.href = SPONSOR_URL;
@@ -40,7 +43,8 @@ function renderSponsorBox() {
     sponsorLink.textContent =
         "Write your message here by sponsoring this box";
 
-    sponsorBox.replaceChildren(message, sponsorLink);
+    sponsorFooter.appendChild(sponsorLink);
+    sponsorBox.replaceChildren(message, sponsorFooter);
 }
 
 if (document.readyState === "loading") {
