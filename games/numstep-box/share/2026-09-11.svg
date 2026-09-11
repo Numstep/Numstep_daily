@@ -3,48 +3,55 @@
 <style>.cell{stroke:#000;stroke-width:1}.clue{font:700 14px sans-serif;dominant-baseline:middle;text-anchor:middle}.title{font:700 22px sans-serif;text-anchor:middle}.date{font:14px sans-serif;text-anchor:middle}</style>
 <text class="title" x="292.0" y="34">NUMSTEP: BOX</text>
 <text class="date" x="292.0" y="56">2026-09-11</text>
-<rect class="cell" x="166" y="72" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="208" y="72" width="42" height="42" fill="#fff"/>
-<text class="clue" x="229.0" y="93.0">40</text>
+<rect class="cell" x="166" y="72" width="42" height="42" fill="#000"/>
+<text class="clue" x="187.0" y="93.0">0</text>
+<rect class="cell" x="208" y="72" width="42" height="42" fill="#000"/>
+<text class="clue" x="229.0" y="93.0">0</text>
 <rect class="cell" x="250" y="72" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="166" y="114" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="166" y="114" width="42" height="42" fill="#000"/>
+<text class="clue" x="187.0" y="135.0">0</text>
 <rect class="cell" x="208" y="114" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="250" y="114" width="42" height="42" fill="#fff"/>
+<text class="clue" x="271.0" y="135.0">40</text>
 <rect class="cell" x="166" y="156" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="208" y="156" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="250" y="156" width="42" height="42" fill="#fff"/>
-<text class="clue" x="271.0" y="177.0">30</text>
 <rect class="cell" x="166" y="324" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="208" y="324" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="250" y="324" width="42" height="42" fill="#000"/>
-<text class="clue" x="271.0" y="345.0">0</text>
+<rect class="cell" x="208" y="324" width="42" height="42" fill="#000"/>
+<text class="clue" x="229.0" y="345.0">0</text>
+<rect class="cell" x="250" y="324" width="42" height="42" fill="#fff"/>
+<text class="clue" x="271.0" y="345.0">30</text>
 <rect class="cell" x="166" y="366" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="208" y="366" width="42" height="42" fill="#000"/>
 <text class="clue" x="229.0" y="387.0">0</text>
-<rect class="cell" x="250" y="366" width="42" height="42" fill="#000"/>
-<text class="clue" x="271.0" y="387.0">0</text>
+<rect class="cell" x="250" y="366" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="166" y="408" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="208" y="408" width="42" height="42" fill="#fff"/>
+<text class="clue" x="229.0" y="429.0">20</text>
 <rect class="cell" x="250" y="408" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="40" y="198" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="82" y="198" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="124" y="198" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="82" y="198" width="42" height="42" fill="#000"/>
+<text class="clue" x="103.0" y="219.0">0</text>
+<rect class="cell" x="124" y="198" width="42" height="42" fill="#000"/>
+<text class="clue" x="145.0" y="219.0">0</text>
 <rect class="cell" x="40" y="240" width="42" height="42" fill="#fff"/>
-<text class="clue" x="61.0" y="261.0">10</text>
-<rect class="cell" x="82" y="240" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="124" y="240" width="42" height="42" fill="#fff"/>
+<text class="clue" x="61.0" y="261.0">1</text>
+<rect class="cell" x="82" y="240" width="42" height="42" fill="#000"/>
+<text class="clue" x="103.0" y="261.0">0</text>
+<rect class="cell" x="124" y="240" width="42" height="42" fill="#000"/>
+<text class="clue" x="145.0" y="261.0">0</text>
 <rect class="cell" x="40" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="82" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="124" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="166" y="198" width="42" height="42" fill="#fff"/>
-<text class="clue" x="187.0" y="219.0">1</text>
-<rect class="cell" x="208" y="198" width="42" height="42" fill="#000"/>
-<text class="clue" x="229.0" y="219.0">0</text>
+<rect class="cell" x="208" y="198" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="250" y="198" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="166" y="240" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="166" y="240" width="42" height="42" fill="#000"/>
+<text class="clue" x="187.0" y="261.0">0</text>
 <rect class="cell" x="208" y="240" width="42" height="42" fill="#000"/>
 <text class="clue" x="229.0" y="261.0">0</text>
-<rect class="cell" x="250" y="240" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="250" y="240" width="42" height="42" fill="#000"/>
+<text class="clue" x="271.0" y="261.0">0</text>
 <rect class="cell" x="166" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="208" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="250" y="282" width="42" height="42" fill="#fff"/>
@@ -52,17 +59,13 @@
 <rect class="cell" x="334" y="198" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="376" y="198" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="292" y="240" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="334" y="240" width="42" height="42" fill="#000"/>
-<text class="clue" x="355.0" y="261.0">0</text>
-<rect class="cell" x="376" y="240" width="42" height="42" fill="#000"/>
-<text class="clue" x="397.0" y="261.0">0</text>
+<rect class="cell" x="334" y="240" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="376" y="240" width="42" height="42" fill="#fff"/>
+<text class="clue" x="397.0" y="261.0">10</text>
 <rect class="cell" x="292" y="282" width="42" height="42" fill="#fff"/>
-<rect class="cell" x="334" y="282" width="42" height="42" fill="#000"/>
-<text class="clue" x="355.0" y="303.0">0</text>
-<rect class="cell" x="376" y="282" width="42" height="42" fill="#000"/>
-<text class="clue" x="397.0" y="303.0">0</text>
+<rect class="cell" x="334" y="282" width="42" height="42" fill="#fff"/>
+<rect class="cell" x="376" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="418" y="198" width="42" height="42" fill="#fff"/>
-<text class="clue" x="439.0" y="219.0">20</text>
 <rect class="cell" x="460" y="198" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="502" y="198" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="418" y="240" width="42" height="42" fill="#fff"/>
@@ -71,5 +74,5 @@
 <rect class="cell" x="418" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="460" y="282" width="42" height="42" fill="#fff"/>
 <rect class="cell" x="502" y="282" width="42" height="42" fill="#fff"/>
-<text class="date" x="292.0" y="474">45 steps</text>
+<text class="date" x="292.0" y="474">42 steps</text>
 </svg>
