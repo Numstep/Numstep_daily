@@ -139,36 +139,3 @@ function formatShareTime(milliseconds) {
     const seconds = totalSeconds % 60;
     return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
-
-function normaliseMistakesLabel(node) {
-    if (!node || node.id !== "attempts") return;
-    node.textContent = node.textContent.replace(/\bAttempts?\b/g, "Mistakes");
-}
-
-function setupMistakesTerminology() {
-    const attemptsElement = document.getElementById("attempts");
-    normaliseMistakesLabel(attemptsElement);
-
-    if (!document.body || typeof MutationObserver === "undefined") return;
-
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            if (mutation.type === "characterData") {
-                normaliseMistakesLabel(mutation.target.parentElement);
-            } else if (mutation.type === "childList") {
-                normaliseMistakesLabel(mutation.target);
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === Node.ELEMENT_NODE) normaliseMistakesLabel(node);
-                });
-            }
-        });
-    });
-
-    observer.observe(document.body, { childList: true, characterData: true, subtree: true });
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setupMistakesTerminology, { once: true });
-} else {
-    setupMistakesTerminology();
-}
