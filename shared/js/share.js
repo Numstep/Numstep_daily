@@ -85,7 +85,7 @@ ${currentShareResult.size}×${currentShareResult.size}
 ⏱️ ${formatShareTime(currentShareResult.elapsed)}
 🎯 ${mistakes} mistake${mistakes === 1 ? "" : "s"}
 
-I just solved today's puzzle. Can you beat me score
+I just solved today's puzzle. Can you beat my score? [?]
 ${currentShareResult.url || window.location.href}`;
 }
 
