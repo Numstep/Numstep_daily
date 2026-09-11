@@ -1,31 +1,25 @@
 "use strict";
 
-// Match Classic's pointer interaction. The grid captures the active pointer so
-// finger/mouse drags continue across cell boundaries, while elementFromPoint
-// resolves the current cell even after Box re-renders its net.
+// Match Classic's pointer interaction without pointer capture. Box re-renders
+// the whole net after each accepted move, so capturing a cell would capture an
+// element that is immediately removed from the DOM. Keep the pointer on the
+// document and resolve the live cell from the screen position instead.
 (function setupBoxDrag() {
     let activePointerId = null;
     let lastPositionKey = null;
 
     document.addEventListener("pointerdown", event => {
         const cell = event.target.closest?.("#boxGrid .boxCell:not(.black)");
-        const boxGrid = document.getElementById("boxGrid");
 
-        if (!cell || !boxGrid || event.button > 0) {
+        if (!cell || event.button > 0) {
             return;
         }
 
         activePointerId = event.pointerId;
         lastPositionKey = null;
         event.preventDefault();
-        boxGrid.setPointerCapture?.(event.pointerId);
 
-        const positionKey = cell.dataset.position;
-        const parts = positionKey ? positionKey.split(",").map(Number) : [];
-        if (parts.length === 3 && parts.every(Number.isInteger)) {
-            lastPositionKey = positionKey;
-            select(parts);
-        }
+        selectCell(cell);
     }, true);
 
     document.addEventListener("pointermove", event => {
@@ -36,19 +30,25 @@
         event.preventDefault();
         const element = document.elementFromPoint(event.clientX, event.clientY);
         const cell = element?.closest?.("#boxGrid .boxCell:not(.black)");
-        const positionKey = cell?.dataset.position;
 
-        if (!positionKey || positionKey === lastPositionKey) {
+        if (!cell || cell.dataset.position === lastPositionKey) {
+            return;
+        }
+
+        selectCell(cell);
+    }, true);
+
+    function selectCell(cell) {
+        const positionKey = cell?.dataset.position;
+        const parts = positionKey ? positionKey.split(",").map(Number) : [];
+
+        if (parts.length !== 3 || !parts.every(Number.isInteger)) {
             return;
         }
 
         lastPositionKey = positionKey;
-        const position = positionKey.split(",").map(Number);
-
-        if (position.length === 3 && position.every(Number.isInteger)) {
-            select(position);
-        }
-    }, true);
+        select(parts);
+    }
 
     function endPointer(event) {
         if (event.pointerId === activePointerId) {
