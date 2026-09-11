@@ -22,12 +22,8 @@ function createShareModal() {
             </div>
 
             <div class="shareButtons">
-                <button id="nativeShareButton">📤 Share badge + result</button>
-                <button id="whatsappShareButton">WhatsApp text/link</button>
-                <button id="xShareButton">𝕏 text/link</button>
-                <button id="blueskyShareButton">Bluesky text/link</button>
-                <button id="copyShareButton">📋 Copy text/link</button>
-                <button id="downloadBadgeButton">⬇️ Download PNG</button>
+                <button id="nativeBadgeShareButton">📤 Share badge</button>
+                <button id="nativeTextShareButton">📤 Share text</button>
             </div>
         </div>
     `;
@@ -35,12 +31,8 @@ function createShareModal() {
     document.body.appendChild(modal);
     modal.querySelector(".shareClose").addEventListener("click", closeShareModal);
     modal.querySelector(".shareOverlay").addEventListener("click", closeShareModal);
-    document.getElementById("nativeShareButton").addEventListener("click", nativeShareResult);
-    document.getElementById("whatsappShareButton").addEventListener("click", () => openShareUrl("whatsapp"));
-    document.getElementById("xShareButton").addEventListener("click", () => openShareUrl("x"));
-    document.getElementById("blueskyShareButton").addEventListener("click", () => openShareUrl("bluesky"));
-    document.getElementById("copyShareButton").addEventListener("click", copyShareResult);
-    document.getElementById("downloadBadgeButton").addEventListener("click", downloadShareBadge);
+    document.getElementById("nativeBadgeShareButton").addEventListener("click", nativeShareBadge);
+    document.getElementById("nativeTextShareButton").addEventListener("click", nativeShareText);
 }
 
 function showShareModal(result) {
@@ -87,81 +79,53 @@ Can you beat my result?
 ${currentShareResult.url || window.location.href}`;
 }
 
-async function nativeShareResult() {
-    if (!currentShareResult) return;
+async function nativeShareBadge() {
+    if (!currentShareResult?.badgeImageUrl || !navigator.share) return;
 
-    const text = buildShareText();
-    const shareData = {
-        title: "My Numstep Result",
-        text,
-        url: currentShareResult.url || window.location.href
-    };
+    const url = currentShareResult.url || window.location.href;
 
     try {
-        if (currentShareResult.badgeImageUrl && navigator.canShare && navigator.share) {
-            const response = await fetch(currentShareResult.badgeImageUrl);
-            if (!response.ok) {
-                throw new Error("Could not read the badge PNG.");
-            }
-            const blob = await response.blob();
-            const file = new File(
-                [blob],
-                `numstep_${currentShareResult.date}_badge.png`,
-                { type: "image/png" }
-            );
-
-            if (navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    ...shareData,
-                    files: [file]
-                });
-                return;
-            }
+        const response = await fetch(currentShareResult.badgeImageUrl);
+        if (!response.ok) {
+            throw new Error("Could not read the badge PNG.");
         }
 
-        if (navigator.share) {
-            await navigator.share(shareData);
+        const blob = await response.blob();
+        const file = new File(
+            [blob],
+            `numstep_${currentShareResult.date}_badge.png`,
+            { type: "image/png" }
+        );
+
+        if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
+            alert("Badge sharing is not supported on this device.");
             return;
         }
 
-        copyShareResult();
+        await navigator.share({
+            files: [file],
+            url
+        });
+    } catch (error) {
+        if (error && error.name !== "AbortError") console.error("Could not share badge:", error);
+    }
+}
+
+async function nativeShareText() {
+    if (!currentShareResult || !navigator.share) return;
+
+    const text = buildShareText();
+    const url = currentShareResult.url || window.location.href;
+
+    try {
+        await navigator.share({
+            title: "My Numstep Result",
+            text,
+            url
+        });
     } catch (error) {
         if (error && error.name !== "AbortError") console.error("Could not share result:", error);
     }
-}
-
-function openShareUrl(network) {
-    const text = buildShareText();
-    const url = currentShareResult?.url || window.location.href;
-    let shareUrl;
-
-    if (network === "whatsapp") {
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    } else if (network === "x") {
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    } else {
-        shareUrl = `https://bsky.app/intent/compose?text=${encodeURIComponent(text)}`;
-    }
-
-    window.open(shareUrl, "_blank", "noopener,noreferrer");
-}
-
-async function copyShareResult() {
-    try {
-        await navigator.clipboard.writeText(buildShareText());
-        alert("Result copied!");
-    } catch (error) {
-        console.error("Could not copy result:", error);
-    }
-}
-
-function downloadShareBadge() {
-    if (!currentShareResult?.badgeImageUrl) return;
-
-    const link = document.createElement("a");
-    link.download = `numstep_${currentShareResult.date}_badge.png`;
-    link.href = currentShareResult.badgeImageUrl;
-    link.click();
 }
 
 function formatShareTime(milliseconds) {
