@@ -6,15 +6,12 @@ const NumstepBadge = {
         gridLines: "#000000",
         blackCell: "#000000"
     },
-
-    // Match the colours used by the playable Cube chains.
     colourPalette: [
         "#4E79A7", "#59A14F", "#F28E2B", "#E15759",
         "#B07AA1", "#76B7B2", "#EDC948", "#9C755F",
         "#86BCB6", "#FF9DA7", "#79706E", "#A0CBE8"
     ],
-
-    async generate(size, dateString, time, attempts, variant = null) {
+    async generate(size, dateString, time, mistakes, variant = null) {
         variant = variant || this.detectVariant();
         const sharePaths = {
             classic: `data/${size}x${size}/${dateString}_share.json`,
@@ -28,7 +25,6 @@ const NumstepBadge = {
             cube: `data/${dateString}.json`,
             box: `data/${dateString}.json`
         };
-
         try {
             const response = await fetch(sharePaths[variant] || sharePaths.classic, { cache: "no-store" });
             let fileData;
@@ -39,13 +35,12 @@ const NumstepBadge = {
                 fileData = await puzzleResponse.json();
             }
             const shareData = typeof fileData.content === "string" ? JSON.parse(fileData.content) : fileData;
-            return await this.generateFromData(shareData, dateString, time, attempts, variant);
+            return await this.generateFromData(shareData, dateString, time, mistakes, variant);
         } catch (error) {
             console.error("Failed to generate share badge:", error);
             return "";
         }
     },
-
     detectVariant() {
         const path = window.location.pathname || "";
         if (path.includes("/numstep-cube/")) return "cube";
@@ -53,12 +48,10 @@ const NumstepBadge = {
         if (path.includes("/numstep-box/")) return "box";
         return "classic";
     },
-
-    async generateFromData(shareData, dateString, time, attempts, variant = "classic") {
+    async generateFromData(shareData, dateString, time, mistakes, variant = "classic") {
         const data = this.normalise(shareData, variant);
-        return this.drawAndDisplay(data, dateString, time, attempts);
+        return this.drawAndDisplay(data, dateString, time, mistakes);
     },
-
     normalise(shareData, variant) {
         const size = Number(shareData.size);
         let solution = [];
@@ -67,9 +60,7 @@ const NumstepBadge = {
         } else if (variant === "box" && shareData.solution && typeof shareData.solution === "object") {
             solution = {};
             for (const [face, rows] of Object.entries(shareData.solution)) {
-                solution[face] = Array.isArray(rows)
-                    ? rows.map(row => Array.isArray(row) ? row.map(Number) : [])
-                    : [];
+                solution[face] = Array.isArray(rows) ? rows.map(row => Array.isArray(row) ? row.map(Number) : []) : [];
             }
         } else if (Array.isArray(shareData.solution)) {
             if (Array.isArray(shareData.solution[0])) solution = shareData.solution[0].flat().map(Number);
@@ -89,32 +80,23 @@ const NumstepBadge = {
         } else if (solution.length !== size * size) throw new Error("Invalid solution shape in share data.");
         return { ...shareData, size, solution, variant };
     },
-
     getSolutionValues(shareData) {
         if (shareData.variant === "cube") return shareData.solution.flat(2).map(Number);
         if (shareData.variant === "box") return Object.values(shareData.solution).flat(2).map(Number);
         return shareData.solution.map(Number);
     },
-
     getClueValues(shareData) {
         const solutionValues = this.getSolutionValues(shareData);
         const suppliedClues = Array.isArray(shareData.clues) ? shareData.clues.map(Number) : [];
-        const clueValues = suppliedClues.length > 0
-            ? suppliedClues
-            : solutionValues.filter(value => value > 0 && (value === 1 || value % 10 === 0));
-
-        return [...new Set(clueValues)]
-            .filter(value => Number.isInteger(value) && solutionValues.includes(value))
-            .sort((a, b) => a - b);
+        const clueValues = suppliedClues.length > 0 ? suppliedClues : solutionValues.filter(value => value > 0 && (value === 1 || value % 10 === 0));
+        return [...new Set(clueValues)].filter(value => Number.isInteger(value) && solutionValues.includes(value)).sort((a, b) => a - b);
     },
-
     buildClueColours(shareData) {
         const clueValues = this.getClueValues(shareData);
         const clueColours = new Map();
         clueValues.forEach((value, index) => clueColours.set(value, this.colourPalette[index % this.colourPalette.length]));
         return clueColours;
     },
-
     getChainColour(value, clueValues, clueColours) {
         if (value <= 0) return null;
         for (let i = clueValues.length - 1; i >= 0; i -= 1) {
@@ -122,18 +104,17 @@ const NumstepBadge = {
         }
         return null;
     },
-
-    drawAndDisplay(shareData, dateString, time, attempts) {
-        if (shareData.variant === "cube") return this.drawCubeAndDisplay(shareData, dateString, time, attempts);
-        if (shareData.variant === "box") return this.drawBoxAndDisplay(shareData, dateString, time, attempts);
+    drawAndDisplay(shareData, dateString, time, mistakes) {
+        if (shareData.variant === "cube") return this.drawCubeAndDisplay(shareData, dateString, time, mistakes);
+        if (shareData.variant === "box") return this.drawBoxAndDisplay(shareData, dateString, time, mistakes);
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Could not create badge canvas.");
         const scale = 2, width = 500, height = 700;
         canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
         ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = this.colors.text; ctx.textAlign = "center"; ctx.font = "bold 32px Helvetica, Arial, sans-serif"; ctx.fillText("NUMSTEP", width / 2, 55);
-        ctx.font = "18px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(`${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
+        ctx.fillStyle = this.colors.text; ctx.textAlign = "center"; ctx.font = "bold 32px Helvetica, Arial, sans-serif"; ctx.fillText("Numstep:Classic", width / 2, 55);
+        ctx.font = "18px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(dateString, width / 2, 85);
         const gridSize = 440, cellSize = gridSize / shareData.size, gridX = (width - gridSize) / 2, gridY = 120;
         const clueColours = this.buildClueColours(shareData), clueValues = [...clueColours.keys()].sort((a, b) => a - b);
         for (let row = 0; row < shareData.size; row += 1) for (let col = 0; col < shareData.size; col += 1) {
@@ -142,147 +123,62 @@ const NumstepBadge = {
             ctx.fillStyle = value === 0 ? this.colors.blackCell : (colour || this.colors.background); ctx.fillRect(x, y, cellSize, cellSize);
             ctx.strokeStyle = this.colors.gridLines; ctx.lineWidth = 2; ctx.strokeRect(x, y, cellSize, cellSize);
         }
-        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif"; ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 620);
-        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif"; ctx.fillText("Can you beat my result?", width / 2, 655);
+        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif"; ctx.fillText(`${time} • ${mistakes} mistake${mistakes === 1 ? "" : "s"}`, width / 2, 620);
+        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif"; ctx.fillText("I just solved today's puzzle. Can you beat me score", width / 2, 655);
         return canvas.toDataURL("image/png");
     },
-
-    drawBoxAndDisplay(shareData, dateString, time, attempts) {
+    drawBoxAndDisplay(shareData, dateString, time, mistakes) {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Could not create badge canvas.");
         const scale = 2, width = 500, height = 700;
         canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
         ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height);
-        ctx.textAlign = "center";
-        ctx.font = "bold 32px Helvetica, Arial, sans-serif";
-        ctx.fillStyle = this.colors.text;
-        ctx.fillText("NUMSTEP: BOX", width / 2, 55);
-        ctx.font = "18px Helvetica, Arial, sans-serif";
-        ctx.fillStyle = this.colors.subtext;
-        ctx.fillText(`${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
-
-        const clueColours = this.buildClueColours(shareData);
-        const clueValues = [...clueColours.keys()].sort((a, b) => a - b);
-        const size = shareData.size;
-        const side = Math.min(56, 230 / size);
+        ctx.textAlign = "center"; ctx.font = "bold 32px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.text;
+        ctx.fillText("Numstep:Box", width / 2, 55);
+        ctx.font = "18px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(dateString, width / 2, 85);
+        const clueColours = this.buildClueColours(shareData), clueValues = [...clueColours.keys()].sort((a, b) => a - b);
+        const size = shareData.size, side = Math.min(56, 230 / size);
         const axisX = [side * Math.cos(Math.PI / 6), side * Math.sin(Math.PI / 6)];
         const axisY = [side * Math.cos(5 * Math.PI / 6), side * Math.sin(5 * Math.PI / 6)];
-        const axisZ = [0, -side];
-        const origin = [width / 2, 320];
-        const project = (x, y, z) => [
-            origin[0] + x * axisX[0] + y * axisY[0] + z * axisZ[0],
-            origin[1] + x * axisX[1] + y * axisY[1] + z * axisZ[1]
-        ];
-
-        // Box is a surface puzzle, not a solid 3D voxel puzzle. Render the
-        // actual face grids directly onto the three visible sides of the box.
-        // This deliberately does not apply Cube's occupied/empty voxel rules.
+        const axisZ = [0, -side], origin = [width / 2, 320];
+        const project = (x, y, z) => [origin[0] + x * axisX[0] + y * axisY[0] + z * axisZ[0], origin[1] + x * axisX[1] + y * axisY[1] + z * axisZ[1]];
         const faces = [
-            { name: "TOP", cells: shareData.solution.TOP, corners: (r, c) => [
-                project(c, r, size), project(c + 1, r, size),
-                project(c + 1, r + 1, size), project(c, r + 1, size)
-            ]},
-            { name: "FRONT", cells: shareData.solution.FRONT, corners: (r, c) => [
-                project(c, size, size - r - 1), project(c + 1, size, size - r - 1),
-                project(c + 1, size, size - r), project(c, size, size - r)
-            ]},
-            { name: "RIGHT", cells: shareData.solution.RIGHT, corners: (r, c) => [
-                project(size, c, size - r - 1), project(size, c + 1, size - r - 1),
-                project(size, c + 1, size - r), project(size, c, size - r)
-            ]}
+            { cells: shareData.solution.TOP, corners: (r, c) => [project(c, r, size), project(c + 1, r, size), project(c + 1, r + 1, size), project(c, r + 1, size)] },
+            { cells: shareData.solution.FRONT, corners: (r, c) => [project(c, size, size - r - 1), project(c + 1, size, size - r - 1), project(c + 1, size, size - r), project(c, size, size - r)] },
+            { cells: shareData.solution.RIGHT, corners: (r, c) => [project(size, c, size - r - 1), project(size, c + 1, size - r - 1), project(size, c + 1, size - r), project(size, c, size - r)] }
         ];
-
         const drawCell = (points, value) => {
             const colour = value === 0 ? this.colors.blackCell : this.getChainColour(value, clueValues, clueColours);
-            ctx.beginPath();
-            points.forEach((point, index) => {
-                if (index === 0) ctx.moveTo(point[0], point[1]);
-                else ctx.lineTo(point[0], point[1]);
-            });
-            ctx.closePath();
-            ctx.fillStyle = colour || this.colors.background;
-            ctx.fill();
-            ctx.strokeStyle = this.colors.gridLines;
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            ctx.beginPath(); points.forEach((point, index) => index === 0 ? ctx.moveTo(point[0], point[1]) : ctx.lineTo(point[0], point[1])); ctx.closePath();
+            ctx.fillStyle = colour || this.colors.background; ctx.fill(); ctx.strokeStyle = this.colors.gridLines; ctx.lineWidth = 2; ctx.stroke();
         };
-
-        // Draw the three visible faces from back to front. Every 3×3 face cell
-        // is painted independently, including zero/black cells.
-        [faces[0], faces[1], faces[2]].forEach(face => {
-            for (let row = 0; row < size; row += 1) {
-                for (let col = 0; col < size; col += 1) {
-                    drawCell(face.corners(row, col), Number(face.cells[row][col]) || 0);
-                }
-            }
-        });
-
-        ctx.fillStyle = this.colors.text;
-        ctx.font = "bold 24px Helvetica, Arial, sans-serif";
-        ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 625);
-        ctx.fillStyle = this.colors.subtext;
-        ctx.font = "16px Helvetica, Arial, sans-serif";
-        ctx.fillText("Can you beat my result?", width / 2, 660);
+        faces.forEach(face => { for (let row = 0; row < size; row += 1) for (let col = 0; col < size; col += 1) drawCell(face.corners(row, col), Number(face.cells[row][col]) || 0); });
+        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif"; ctx.fillText(`${time} • ${mistakes} mistake${mistakes === 1 ? "" : "s"}`, width / 2, 625);
+        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif"; ctx.fillText("I just solved today's puzzle. Can you beat me score", width / 2, 660);
         return canvas.toDataURL("image/png");
     },
-
-    drawCubeAndDisplay(shareData, dateString, time, attempts) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+    drawCubeAndDisplay(shareData, dateString, time, mistakes) {
+        const canvas = document.createElement("canvas"); const ctx = canvas.getContext("2d");
         if (!ctx) throw new Error("Could not create badge canvas.");
-        const scale = 2, width = 500, height = 700;
-        canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
-        ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height);
-        ctx.textAlign = "center";
-        ctx.font = "bold 32px Helvetica, Arial, sans-serif";
-        ctx.fillStyle = this.colors.text;
-        ctx.fillText("NUMSTEP: CUBE", width / 2, 55);
-        ctx.font = "18px Helvetica, Arial, sans-serif";
-        ctx.fillStyle = this.colors.subtext;
-        ctx.fillText(`${shareData.size}×${shareData.size}×${shareData.size} • ${dateString}`, width / 2, 85);
-
-        const clueColours = this.buildClueColours(shareData);
-        const clueValues = [...clueColours.keys()].sort((a, b) => a - b);
-        const size = shareData.size;
-        const side = Math.min(56, 230 / size);
-        const axisX = [side * Math.cos(Math.PI / 6), side * Math.sin(Math.PI / 6)];
-        const axisY = [side * Math.cos(5 * Math.PI / 6), side * Math.sin(5 * Math.PI / 6)];
-        const axisZ = [0, -side];
-        const origin = [width / 2, 310];
+        const scale = 2, width = 500, height = 700; canvas.width = width * scale; canvas.height = height * scale; ctx.scale(scale, scale);
+        ctx.fillStyle = this.colors.background; ctx.fillRect(0, 0, width, height); ctx.textAlign = "center";
+        ctx.font = "bold 32px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.text; ctx.fillText("Numstep:Cube", width / 2, 55);
+        ctx.font = "18px Helvetica, Arial, sans-serif"; ctx.fillStyle = this.colors.subtext; ctx.fillText(dateString, width / 2, 85);
+        const clueColours = this.buildClueColours(shareData), clueValues = [...clueColours.keys()].sort((a, b) => a - b), size = shareData.size, side = Math.min(56, 230 / size);
+        const axisX = [side * Math.cos(Math.PI / 6), side * Math.sin(Math.PI / 6)], axisY = [side * Math.cos(5 * Math.PI / 6), side * Math.sin(5 * Math.PI / 6)], axisZ = [0, -side], origin = [width / 2, 310];
         const project = (x, y, z) => [origin[0] + x * axisX[0] + y * axisY[0] + z * axisZ[0], origin[1] + x * axisX[1] + y * axisY[1] + z * axisZ[1]];
-        const face = (corners, value, depth) => ({ corners, value, depth });
-        const faces = [];
-        const cube = shareData.solution;
-        for (let layer = 0; layer < size; layer += 1) {
-            const z = size - 1 - layer;
-            for (let row = 0; row < size; row += 1) {
-                for (let col = 0; col < size; col += 1) {
-                    const value = cube[layer][row][col] || 0;
-                    if (value <= 0) continue;
-                    if (layer === 0 || cube[layer - 1][row][col] === 0) faces.push(face([project(col, row, z + 1), project(col + 1, row, z + 1), project(col + 1, row + 1, z + 1), project(col, row + 1, z + 1)], value, col + row + z + 1));
-                    if (row === size - 1 || cube[layer][row + 1][col] === 0) faces.push(face([project(col, row + 1, z), project(col + 1, row + 1, z), project(col + 1, row + 1, z + 1), project(col, row + 1, z + 1)], value, col + row + 1 + z));
-                    if (col === size - 1 || cube[layer][row][col + 1] === 0) faces.push(face([project(col + 1, row, z), project(col + 1, row + 1, z), project(col + 1, row + 1, z + 1), project(col + 1, row, z + 1)], value, col + 1 + row + z));
-                }
-            }
-        }
-        faces.sort((a, b) => a.depth - b.depth);
-        faces.forEach(({ corners, value }) => {
-            const colour = this.getChainColour(value, clueValues, clueColours);
-            if (!colour) return;
-            ctx.beginPath();
-            corners.forEach((point, index) => index === 0 ? ctx.moveTo(point[0], point[1]) : ctx.lineTo(point[0], point[1]));
-            ctx.closePath(); ctx.fillStyle = colour; ctx.fill(); ctx.strokeStyle = this.colors.gridLines; ctx.lineWidth = 2; ctx.stroke();
-        });
-        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif";
-        ctx.fillText(`${time} • ${attempts} attempt${attempts === 1 ? "" : "s"}`, width / 2, 610);
-        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif";
-        ctx.fillText("Can you beat my result?", width / 2, 645);
+        const face = (corners, value, depth) => ({ corners, value, depth }), faces = [], cube = shareData.solution;
+        for (let layer = 0; layer < size; layer += 1) { const z = size - 1 - layer; for (let row = 0; row < size; row += 1) for (let col = 0; col < size; col += 1) {
+            const value = cube[layer][row][col] || 0; if (value <= 0) continue;
+            if (layer === 0 || cube[layer - 1][row][col] === 0) faces.push(face([project(col, row, z + 1), project(col + 1, row, z + 1), project(col + 1, row + 1, z + 1), project(col, row + 1, z + 1)], value, col + row + z + 1));
+            if (row === size - 1 || cube[layer][row + 1][col] === 0) faces.push(face([project(col, row + 1, z), project(col + 1, row + 1, z), project(col + 1, row + 1, z + 1), project(col, row + 1, z + 1)], value, col + row + 1 + z));
+            if (col === size - 1 || cube[layer][row][col + 1] === 0) faces.push(face([project(col + 1, row, z), project(col + 1, row + 1, z), project(col + 1, row + 1, z + 1), project(col + 1, row, z + 1)], value, col + 1 + row + z));
+        }}
+        faces.sort((a, b) => a.depth - b.depth); faces.forEach(({ corners, value }) => { const colour = this.getChainColour(value, clueValues, clueColours); if (!colour) return; ctx.beginPath(); corners.forEach((point, index) => index === 0 ? ctx.moveTo(point[0], point[1]) : ctx.lineTo(point[0], point[1])); ctx.closePath(); ctx.fillStyle = colour; ctx.fill(); ctx.strokeStyle = this.colors.gridLines; ctx.lineWidth = 2; ctx.stroke(); });
+        ctx.fillStyle = this.colors.text; ctx.font = "bold 24px Helvetica, Arial, sans-serif"; ctx.fillText(`${time} • ${mistakes} mistake${mistakes === 1 ? "" : "s"}`, width / 2, 610);
+        ctx.fillStyle = this.colors.subtext; ctx.font = "16px Helvetica, Arial, sans-serif"; ctx.fillText("I just solved today's puzzle. Can you beat me score", width / 2, 645);
         return canvas.toDataURL("image/png");
     }
 };
-
-function sizeLabel(value) {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : "";
-}
+function sizeLabel(value) { const n = Number(value); return Number.isFinite(n) ? n : ""; }
