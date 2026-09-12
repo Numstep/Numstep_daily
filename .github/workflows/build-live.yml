@@ -1,0 +1,60 @@
+name: Build and publish Numstep Live
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ''
+
+      - name: Install Terser
+        run: npm install --no-save --ignore-scripts terser@5
+
+      - name: Build production website
+        run: node tools/build-live.js
+
+      - name: Publish to Numstep_Live
+        env:
+          LIVE_REPO_TOKEN: ${{ secrets.LIVE_REPO_TOKEN }}
+        run: |
+          if [ -z "$LIVE_REPO_TOKEN" ]; then
+            echo "LIVE_REPO_TOKEN is not configured."
+            exit 1
+          fi
+
+          rm -rf live
+          git clone "https://x-access-token:${LIVE_REPO_TOKEN}@github.com/Numstep/Numstep_Live.git" live
+
+          find live -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a .live-build/. live/
+
+          cd live
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Numstep_Live is already up to date."
+            exit 0
+          fi
+
+          git commit -m "Build live site from Numstep_daily ${GITHUB_SHA::7}"
+          git push origin main
