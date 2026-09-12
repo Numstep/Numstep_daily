@@ -34,6 +34,10 @@
             : "../numstep/legal.html";
     }
 
+    function legalPath() {
+        return privacyPath();
+    }
+
     function loadAnalytics() {
         if (window.__numstepGtagLoaded) return;
 
@@ -80,11 +84,11 @@
         bar = document.createElement("div");
         bar.className = "siteBottomBar";
         bar.setAttribute("aria-label", "Site information and privacy controls");
-        bar.innerHTML = '<div class="siteBottomLegal"></div><div class="siteBottomCenter"></div>';
+        bar.innerHTML = '<div class="siteBottomLegal"></div><div class="siteBottomCenter"></div><div></div>';
 
         const legalLink = document.createElement("a");
         legalLink.className = "legalBitsLink";
-        legalLink.href = "legal.html";
+        legalLink.href = legalPath();
         legalLink.textContent = "Legal bits and policies";
         bar.querySelector(".siteBottomLegal").appendChild(legalLink);
 
