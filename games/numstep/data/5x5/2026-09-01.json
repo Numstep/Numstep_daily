@@ -1,10 +1,37 @@
-ewogICAgImRhdGUiOiAiMjAyNi0wOS0wMSIsCiAgICAic2l6ZSI6IDUsCiAg
-ICAic3RlcHMiOiAyMiwKICAgICJjbHVlcyI6IFsKICAgICAgICAyMCwKICAg
-ICAgICAxLAogICAgICAgIDEwCiAgICBdLAogICAgInNvbHV0aW9uIjogWwog
-ICAgICAgIDE3LAogICAgICAgIDE4LAogICAgICAgIDE5LAogICAgICAgIDIs
-CiAgICAgICAgMywKICAgICAgICAxNiwKICAgICAgICAxNSwKICAgICAgICAy
-MCwKICAgICAgICAxLAogICAgICAgIDQsCiAgICAgICAgMCwKICAgICAgICAx
-NCwKICAgICAgICAyMSwKICAgICAgICA2LAogICAgICAgIDUsCiAgICAgICAg
-MTIsCiAgICAgICAgMTMsCiAgICAgICAgMjIsCiAgICAgICAgNywKICAgICAg
-ICAwLAogICAgICAgIDExLAogICAgICAgIDEwLAogICAgICAgIDksCiAgICAg
-ICAgOCwKICAgICAgICAwCiAgICBdCn0=
+{
+    "date": "2026-09-01",
+    "size": 5,
+    "steps": 22,
+    "clues": [
+        20,
+        1,
+        10
+    ],
+    "solution": [
+        17,
+        18,
+        19,
+        2,
+        3,
+        16,
+        15,
+        20,
+        1,
+        4,
+        0,
+        14,
+        21,
+        6,
+        5,
+        12,
+        13,
+        22,
+        7,
+        0,
+        11,
+        10,
+        9,
+        8,
+        0
+    ]
+}
