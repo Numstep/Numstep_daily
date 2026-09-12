@@ -68,8 +68,11 @@ def planar(variant, day, out):
 def cube(day,out):
     data=load(ROOT/"games/numstep-cube/data"/f"{day}.json"); c=canvas.Canvas(str(out),pagesize=A4); header(c,"cube",day); y=rules(c,"cube",H-70)
     size,gx,gy=185,32,30; left=(W-2*size-gx)/2; top=y-size-16
-    pos=[(left,top),(left+size+gx,top),(left,top-size-gy),(left+size+gx,top-size-gy)]
-    for i,(x,py) in enumerate(pos): grid(c,data["solution"][i],x,py,size,f"Layer {i+1}")
+    layers=data["solution"]
+    positions=[(left,top),(left+size+gx,top),(left,top-size-gy)]
+    for i,(x,py) in enumerate(positions): grid(c,layers[i],x,py,size,f"Layer {i+1}")
+    ss,sg=78,12; sx=(W-3*ss-2*sg)/2
+    for i,layer in enumerate(layers): grid(c,layer,sx+i*(ss+sg),35,ss,f"Layer {i+1}",True,True)
     c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
 
 def draw_box_faces(c,faces,x,y,face,upside_down):
