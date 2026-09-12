@@ -61,9 +61,9 @@ def planar(variant, day, out):
     small,gap=145,46; left=(W-2*small-gap)/2; sy=y-small-18
     grid(c,grids[0],left,sy,small,"5 x 5"); grid(c,grids[1],left+small+gap,sy,small,"7 x 7")
     large=255; grid(c,grids[2],(W-large)/2,sy-large-52,large,"9 x 9")
-    ss,sg=48,10; sx=(W-3*ss-2*sg)/2
-    for i,n in enumerate((5,7,9)): grid(c,grids[i],sx+i*(ss+sg),30,ss,f"{n} x {n}",True,True)
-    c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
+    ss,sg=62,10; sx=(W-3*ss-2*sg)/2
+    for i,n in enumerate((5,7,9)): grid(c,grids[i],sx+i*(ss+sg),24,ss,f"{n} x {n}",True,True)
+    c.save()
 
 def cube(day,out):
     data=load(ROOT/"games/numstep-cube/data"/f"{day}.json"); c=canvas.Canvas(str(out),pagesize=A4); header(c,"cube",day); y=rules(c,"cube",H-70)
@@ -71,9 +71,9 @@ def cube(day,out):
     layers=data["solution"]
     positions=[(left,top),(left+size+gx,top),(left,top-size-gy)]
     for i,(x,py) in enumerate(positions): grid(c,layers[i],x,py,size,f"Layer {i+1}")
-    ss,sg=78,12; sx=(W-3*ss-2*sg)/2
-    for i,layer in enumerate(layers): grid(c,layer,sx+i*(ss+sg),35,ss,f"Layer {i+1}",True,True)
-    c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
+    ss,sg=88,12; sx=(W-3*ss-2*sg)/2
+    for i,layer in enumerate(layers): grid(c,layer,sx+i*(ss+sg),18,ss,f"Layer {i+1}",True,True)
+    c.save()
 
 def draw_box_faces(c,solution,x,y,face,upside_down):
     c.saveState()
@@ -92,8 +92,8 @@ def draw_box_faces(c,solution,x,y,face,upside_down):
 def box(day,out):
     solution=load(ROOT/"games/numstep-box/data"/f"{day}.json")["solution"]; c=canvas.Canvas(str(out),pagesize=A4); header(c,"box",day); y=rules(c,"box",H-70)
     face=100; nx=(W-4*face)/2; ny=y-3*face-20; draw_box_faces(c,solution,nx,ny,face,False)
-    sf=48; sx=(W-4*sf)/2; draw_box_faces(c,solution,sx,35,sf,True); c.setFont("Helvetica-Bold",7); c.drawCentredString(W/2,35+3*sf+7,"SOLUTION")
-    c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
+    sf=56; sx=(W-4*sf)/2; draw_box_faces(c,solution,sx,18,sf,True); c.setFont("Helvetica-Bold",7); c.drawCentredString(W/2,18+3*sf+7,"SOLUTION")
+    c.save()
 
 def main():
     day=date.today().isoformat(); jobs=[("classic",ROOT/"games/numstep/printables"/f"{day}.pdf"),("cube",ROOT/"games/numstep-cube/printables"/f"{day}.pdf"),("torus",ROOT/"games/numstep-taurus/printables"/f"{day}.pdf"),("box",ROOT/"games/numstep-box/printables"/f"{day}.pdf")]
