@@ -8,11 +8,9 @@
     function getConsent() {
         const match = document.cookie.match(new RegExp("(?:^|; )" + CONSENT_COOKIE + "=([^;]*)"));
         if (!match) return null;
-
         try {
             const value = JSON.parse(decodeURIComponent(match[1]));
-            if (value.version !== CONSENT_VERSION) return null;
-            return value;
+            return value.version === CONSENT_VERSION ? value : null;
         } catch (error) {
             return null;
         }
@@ -25,10 +23,9 @@
             updatedAt: new Date().toISOString()
         }));
         document.cookie = CONSENT_COOKIE + "=" + value + "; Max-Age=15552000; Path=/; SameSite=Lax";
-    }
-
-    function clearConsent() {
-        document.cookie = CONSENT_COOKIE + "=; Max-Age=0; Path=/; SameSite=Lax";
+        window.dispatchEvent(new CustomEvent("numstep-consent-changed", {
+            detail: { analytics: Boolean(analytics) }
+        }));
     }
 
     function privacyPath() {
@@ -37,7 +34,7 @@
             : "../numstep/privacy.html";
     }
 
-    function ensureGtag() {
+    function loadAnalytics() {
         if (window.__numstepGtagLoaded) return;
 
         window.dataLayer = window.dataLayer || [];
@@ -67,21 +64,6 @@
         window.__numstepGtagLoaded = true;
     }
 
-    function loadAnalytics() {
-        ensureGtag();
-    }
-
-    function disableAnalytics() {
-        if (window.gtag) {
-            window.gtag("consent", "update", {
-                analytics_storage: "denied",
-                ad_storage: "denied",
-                ad_user_data: "denied",
-                ad_personalization: "denied"
-            });
-        }
-    }
-
     function makeButton(label, className, handler) {
         const button = document.createElement("button");
         button.type = "button";
@@ -91,12 +73,17 @@
         return button;
     }
 
+    function applyChoice(analytics) {
+        setConsent(analytics);
+        if (analytics) loadAnalytics();
+        closeBanner();
+    }
+
     function createSettings() {
         const panel = document.createElement("div");
         panel.className = "cookieSettingsPanel";
-        panel.hidden = true;
         panel.innerHTML = [
-            '<h2 id="cookieSettingsTitle">Cookie settings</h2>',
+            '<h2>Cookie settings</h2>',
             '<p>Choose whether Numstep may use Google Analytics to understand how the site is used. Analytics is optional and is off unless you choose it.</p>',
             '<label class="cookieChoice"><input id="cookieAnalytics" type="checkbox"><span><strong>Analytics</strong><small>Google Analytics cookies and similar technologies used for site measurement.</small></span></label>',
             '<div class="cookieActions"></div>'
@@ -104,33 +91,19 @@
 
         const actions = panel.querySelector(".cookieActions");
         actions.appendChild(makeButton("Save choices", "cookiePrimary", function () {
-            const accepted = panel.querySelector("#cookieAnalytics").checked;
-            setConsent(accepted);
-            if (accepted) {
-                loadAnalytics();
-                if (window.gtag) {
-                    window.gtag("consent", "update", {
-                        analytics_storage: "granted",
-                        ad_storage: "denied",
-                        ad_user_data: "denied",
-                        ad_personalization: "denied"
-                    });
-                }
-            } else {
-                disableAnalytics();
-            }
-            closeBanner();
+            applyChoice(panel.querySelector("#cookieAnalytics").checked);
         }));
-
+        actions.appendChild(makeButton("Reject analytics", "cookieSecondary", function () {
+            applyChoice(false);
+        }));
         return panel;
     }
 
     let banner;
-    let settings;
 
     function closeBanner() {
         if (banner) banner.remove();
-        if (settings) settings.remove();
+        banner = null;
         createSettingsLink();
     }
 
@@ -173,54 +146,29 @@
 
         const introActions = banner.querySelector(".cookieIntro .cookieActions");
         introActions.appendChild(makeButton("Accept analytics", "cookiePrimary", function () {
-            setConsent(true);
-            loadAnalytics();
-            if (window.gtag) {
-                window.gtag("consent", "update", {
-                    analytics_storage: "granted",
-                    ad_storage: "denied",
-                    ad_user_data: "denied",
-                    ad_personalization: "denied"
-                });
-            }
-            closeBanner();
+            applyChoice(true);
         }));
         introActions.appendChild(makeButton("Reject analytics", "cookieSecondary", function () {
-            setConsent(false);
-            closeBanner();
+            applyChoice(false);
         }));
         introActions.appendChild(makeButton("Manage choices", "cookieSecondary", openSettings));
 
-        settings = createSettings();
-        banner.querySelector(".cookieSettings").appendChild(settings);
-        settings.hidden = false;
-        banner.querySelector(".cookieSettings").hidden = true;
-
-        if (settingsOnly) openSettings();
+        banner.querySelector(".cookieSettings").appendChild(createSettings());
         document.body.appendChild(banner);
+        if (settingsOnly) openSettings();
     }
 
     function init() {
         const consent = getConsent();
         if (consent && consent.analytics) {
             loadAnalytics();
-            if (window.gtag) {
-                window.gtag("consent", "update", {
-                    analytics_storage: "granted",
-                    ad_storage: "denied",
-                    ad_user_data: "denied",
-                    ad_personalization: "denied"
-                });
-            }
             createSettingsLink();
             return;
         }
-
         if (consent && consent.analytics === false) {
             createSettingsLink();
             return;
         }
-
         showBanner(false);
     }
 
