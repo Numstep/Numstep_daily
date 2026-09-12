@@ -75,7 +75,7 @@ def cube(day,out):
     for i,layer in enumerate(layers): grid(c,layer,sx+i*(ss+sg),35,ss,f"Layer {i+1}",True,True)
     c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
 
-def draw_box_faces(c,faces,x,y,face,upside_down):
+def draw_box_faces(c,solution,x,y,face,upside_down):
     c.saveState()
     if upside_down: c.translate(x+2*face,y+1.5*face); c.rotate(180); x,y=-2*face,-1.5*face
     pos={"TOP":(1,0),"LEFT":(0,1),"FRONT":(1,1),"RIGHT":(2,1),"BACK":(3,1),"BOTTOM":(1,2)}; cell=face/3
@@ -83,16 +83,16 @@ def draw_box_faces(c,faces,x,y,face,upside_down):
         ox,oy=x+gx*face,y+(2-gy)*face
         for r in range(3):
             for col in range(3):
-                value=faces[name][r][col]; px,py=ox+col*cell,oy+(2-r)*cell
+                value=solution[name][r][col]; px,py=ox+col*cell,oy+(2-r)*cell
                 if value==0: c.setFillColorRGB(0,0,0); c.rect(px,py,cell,cell,fill=1,stroke=0)
                 c.setStrokeColorRGB(0,0,0); c.rect(px,py,cell,cell,fill=0,stroke=1)
                 if value and (upside_down or value==1 or value%10==0): c.setFont("Helvetica" if upside_down else "Helvetica-Bold",3 if upside_down else 7); c.drawCentredString(px+cell/2,py+cell*.34,str(value))
     c.restoreState()
 
 def box(day,out):
-    faces=load(ROOT/"games/numstep-box/data"/f"{day}.json")["faces"]; c=canvas.Canvas(str(out),pagesize=A4); header(c,"box",day); y=rules(c,"box",H-70)
-    face=100; nx=(W-4*face)/2; ny=y-3*face-20; draw_box_faces(c,faces,nx,ny,face,False)
-    sf=48; sx=(W-4*sf)/2; draw_box_faces(c,faces,sx,35,sf,True); c.setFont("Helvetica-Bold",7); c.drawCentredString(W/2,35+3*sf+7,"SOLUTION")
+    solution=load(ROOT/"games/numstep-box/data"/f"{day}.json")["solution"]; c=canvas.Canvas(str(out),pagesize=A4); header(c,"box",day); y=rules(c,"box",H-70)
+    face=100; nx=(W-4*face)/2; ny=y-3*face-20; draw_box_faces(c,solution,nx,ny,face,False)
+    sf=48; sx=(W-4*sf)/2; draw_box_faces(c,solution,sx,35,sf,True); c.setFont("Helvetica-Bold",7); c.drawCentredString(W/2,35+3*sf+7,"SOLUTION")
     c.setFont("Helvetica-Oblique",8); c.drawCentredString(W/2,14,FOOTER); c.save()
 
 def main():
