@@ -1,16 +1,41 @@
 "use strict";
 
 (function () {
-    const wrapper = document.createElement("div");
-    wrapper.className = "siteVisitorCounter";
+    function addCounter() {
+        if (document.querySelector(".siteVisitorCounter")) return;
 
-    const badge = document.createElement("img");
-    badge.src = "https://visitor-badge.laobi.icu/badge?page_id=Numstep.Numstep_daily";
-    badge.alt = "Site visits";
-    badge.loading = "lazy";
-    badge.width = 110;
-    badge.height = 20;
+        const wrapper = document.createElement("div");
+        wrapper.className = "siteVisitorCounter";
 
-    wrapper.appendChild(badge);
-    document.body.appendChild(wrapper);
+        const badge = document.createElement("img");
+        badge.src = "https://visitor-badge.laobi.icu/badge?page_id=Numstep.Numstep_daily";
+        badge.alt = "Site visits";
+        badge.width = 110;
+        badge.height = 20;
+
+        wrapper.appendChild(badge);
+        document.body.appendChild(wrapper);
+    }
+
+    function init() {
+        try {
+            const match = document.cookie.match(/(?:^|; )numstep_consent=([^;]*)/);
+            if (match) {
+                const consent = JSON.parse(decodeURIComponent(match[1]));
+                if (consent.version === "1" && consent.analytics === true) addCounter();
+            }
+        } catch (error) {
+            // Leave the counter disabled if consent cannot be read safely.
+        }
+
+        window.addEventListener("numstep-consent-changed", function (event) {
+            if (event.detail && event.detail.analytics === true) addCounter();
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
 })();

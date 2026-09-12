@@ -94,7 +94,21 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .visuallyHidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .siteVisitorCounter { display:flex; justify-content:center; align-items:center; min-height:20px; margin:18px auto 4px; }
 .siteVisitorCounter img { display:block; width:110px; height:20px; }
+.cookieBanner { position:fixed; left:16px; right:16px; bottom:16px; z-index:2000; box-sizing:border-box; max-width:900px; margin:0 auto; padding:18px 20px; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.28); text-align:left; }
+.cookieBanner h2 { margin:0 0 8px; font-size:22px; font-weight:bold; }
+.cookieBanner p { margin:0 0 10px; line-height:1.5; }
+.cookieLinks a { color:inherit; text-decoration:underline; }
+.cookieActions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.cookieActions button { min-height:42px; }
+.cookiePrimary { font-weight:bold; }
+.cookieSecondary { background:var(--surface); }
+.cookieSettingsLink { position:fixed; right:12px; bottom:12px; z-index:1999; padding:7px 10px; font-size:12px; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:6px; }
+.cookieSettingsPanel h2 { font-size:22px; margin:0 0 10px; font-weight:bold; }
+.cookieChoice { display:flex; align-items:flex-start; gap:10px; padding:12px; border:1px solid var(--border); border-radius:8px; }
+.cookieChoice input { width:20px; height:20px; margin:2px 0 0; flex:0 0 auto; }
+.cookieChoice span { display:flex; flex-direction:column; gap:4px; }
+.cookieChoice small { color:var(--muted); line-height:1.4; }
 @media (max-width:480px) {
- body{margin:12px;} h1{font-size:32px;} .shareBox{width:min(94%,420px);padding:18px;} .shareGraphic{padding:16px 10px;} .shareStatsRow .shareStat strong{font-size:20px;} .shareButtons button{flex:1 1 40%;min-width:0;} .rulesModal{padding:12px;} .rulesBox{width:calc(100vw - 24px);max-width:none;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);padding:46px 18px 22px;border-radius:14px;} .rulesBox h2{font-size:24px;margin:0 34px 18px;} .rulesBox p{font-size:16px;line-height:1.5;} .siteHeaderBrand{font-size:32px;} .siteHeader{gap:8px;} .headerControls{gap:4px;} .moreButton,.themeToggle{min-height:42px;padding:8px 10px;} .moreMenu{top:56px;right:12px;} .date-navigation button{width:58px;min-width:58px;height:52px;font-size:40px;} .date-navigation #currentDate{min-width:150px;min-height:52px;}
+ body{margin:12px;} h1{font-size:32px;} .shareBox{width:min(94%,420px);padding:18px;} .shareGraphic{padding:16px 10px;} .shareStatsRow .shareStat strong{font-size:20px;} .shareButtons button{flex:1 1 40%;min-width:0;} .rulesModal{padding:12px;} .rulesBox{width:calc(100vw - 24px);max-width:none;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);padding:46px 18px 22px;border-radius:14px;} .rulesBox h2{font-size:24px;margin:0 34px 18px;} .rulesBox p{font-size:16px;line-height:1.5;} .siteHeaderBrand{font-size:32px;} .siteHeader{gap:8px;} .headerControls{gap:4px;} .moreButton,.themeToggle{min-height:42px;padding:8px 10px;} .moreMenu{top:56px;right:12px;} .date-navigation button{width:58px;min-width:58px;height:52px;font-size:40px;} .date-navigation #currentDate{min-width:150px;min-height:52px;} .cookieBanner{left:8px;right:8px;bottom:8px;padding:16px;} .cookieSettingsLink{right:8px;bottom:8px;} .cookieActions button{flex:1 1 100%;} .cookieBanner{max-height:calc(100dvh - 16px);overflow:auto;}
 }
 #resetButton { display:none !important; }
