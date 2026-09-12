@@ -1,27 +1,16 @@
 "use strict";
 
 (function () {
-    const counter = document.createElement("div");
-    counter.className = "siteVisitorCounter";
-    counter.setAttribute("aria-label", "Numstep website visits");
+    const wrapper = document.createElement("div");
+    wrapper.className = "siteVisitorCounter";
 
-    const widget = document.createElement("div");
-    widget.className = "counterapi";
-    widget.setAttribute("ns", "numstepdaily");
-    widget.setAttribute("action", "view");
-    widget.setAttribute("key", "all-website-traffic");
-    widget.setAttribute("icon", "eye");
-    widget.setAttribute("label", "site visits");
-    widget.setAttribute("noIcon", "true");
-    widget.setAttribute("noCss", "true");
-    widget.setAttribute("noFormatting", "false");
-    widget.setAttribute("noAnim", "true");
+    const badge = document.createElement("img");
+    badge.src = "https://visitor-badge.laobi.icu/badge?page_id=Numstep.Numstep_daily";
+    badge.alt = "Site visits";
+    badge.loading = "lazy";
+    badge.width = 110;
+    badge.height = 20;
 
-    counter.appendChild(widget);
-    document.body.appendChild(counter);
-
-    const script = document.createElement("script");
-    script.src = "https://counterapi.com/c.js?ns=numstepdaily";
-    script.async = true;
-    document.head.appendChild(script);
+    wrapper.appendChild(badge);
+    document.body.appendChild(wrapper);
 })();
