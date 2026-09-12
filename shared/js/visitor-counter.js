@@ -4,6 +4,9 @@
     function addCounter() {
         if (document.querySelector(".siteVisitorCounter")) return;
 
+        const bar = document.querySelector(".siteBottomBar");
+        if (!bar) return;
+
         const wrapper = document.createElement("div");
         wrapper.className = "siteVisitorCounter";
 
@@ -14,7 +17,7 @@
         badge.height = 20;
 
         wrapper.appendChild(badge);
-        document.body.appendChild(wrapper);
+        bar.querySelector(".siteBottomCenter").appendChild(wrapper);
     }
 
     function init() {

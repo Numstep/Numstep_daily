@@ -30,8 +30,12 @@
 
     function privacyPath() {
         return window.location.pathname.includes("/games/numstep/")
-            ? "privacy.html"
-            : "../numstep/privacy.html";
+            ? "legal.html"
+            : "../numstep/legal.html";
+    }
+
+    function legalPath() {
+        return privacyPath();
     }
 
     function loadAnalytics() {
@@ -71,6 +75,25 @@
         button.className = className;
         button.addEventListener("click", handler);
         return button;
+    }
+
+    function ensureBottomBar() {
+        let bar = document.querySelector(".siteBottomBar");
+        if (bar) return bar;
+
+        bar = document.createElement("div");
+        bar.className = "siteBottomBar";
+        bar.setAttribute("aria-label", "Site information and privacy controls");
+        bar.innerHTML = '<div class="siteBottomLegal"></div><div class="siteBottomCenter"></div><div></div>';
+
+        const legalLink = document.createElement("a");
+        legalLink.className = "legalBitsLink";
+        legalLink.href = legalPath();
+        legalLink.textContent = "Legal bits and policies";
+        bar.querySelector(".siteBottomLegal").appendChild(legalLink);
+
+        document.body.appendChild(bar);
+        return bar;
     }
 
     function applyChoice(analytics) {
@@ -116,7 +139,9 @@
     }
 
     function createSettingsLink() {
-        if (document.querySelector(".cookieSettingsLink")) return;
+        const bar = ensureBottomBar();
+        if (bar.querySelector(".cookieSettingsLink")) return;
+
         const link = document.createElement("button");
         link.type = "button";
         link.className = "cookieSettingsLink";
@@ -124,7 +149,7 @@
         link.addEventListener("click", function () {
             showBanner(true);
         });
-        document.body.appendChild(link);
+        bar.querySelector(".siteBottomCenter").appendChild(link);
     }
 
     function showBanner(settingsOnly) {
@@ -138,7 +163,7 @@
             '<div class="cookieIntro">',
             '<h2 id="cookieBannerTitle">Cookies and analytics</h2>',
             '<p>Numstep uses essential storage to make the site work. With your permission, we can also use Google Analytics to understand how the site is used and improve it. Analytics is optional.</p>',
-            '<p class="cookieLinks"><a href="' + privacyPath() + '">Privacy &amp; cookies</a></p>',
+            '<p class="cookieLinks"><a href="' + privacyPath() + '">Legal bits and policies</a></p>',
             '<div class="cookieActions" aria-label="Cookie choices"></div>',
             '</div>',
             '<div class="cookieSettings" hidden></div>'
@@ -159,6 +184,7 @@
     }
 
     function init() {
+        ensureBottomBar();
         const consent = getConsent();
         if (consent && consent.analytics) {
             loadAnalytics();
