@@ -15,22 +15,28 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     background-color: var(--surface);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 28px 28px;
     font-size: 0;
     line-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
-.date-navigation #prevDay {
-    background-image: url("https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@15.0.0/black/72x72/2190.png");
+.date-navigation button::before {
+    display: block;
+    font-size: 30px;
+    line-height: 1;
+    font-family: Arial, sans-serif;
+    color: var(--text);
 }
 
-.date-navigation #nextDay {
-    background-image: url("https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@15.0.0/black/72x72/2192.png");
+.date-navigation #prevDay::before {
+    content: "←";
+}
+
+.date-navigation #nextDay::before {
+    content: "→";
 }
 
 .date-navigation button:disabled {
@@ -57,7 +63,10 @@
         width: 58px;
         min-width: 58px;
         height: 52px;
-        background-size: 26px 26px;
+    }
+
+    .date-navigation button::before {
+        font-size: 28px;
     }
 
     .date-navigation #currentDate {
