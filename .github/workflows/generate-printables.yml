@@ -38,3 +38,27 @@ jobs:
           git add games/numstep-box/printables/
           git commit -m "Refresh daily Numstep printables" || echo "No changes to commit"
           git push
+
+      - name: Publish refreshed printables to Numstep_Live
+        env:
+          LIVE_REPO_TOKEN: ${{ secrets.LIVE_REPO_TOKEN }}
+        run: |
+          if [ -z "$LIVE_REPO_TOKEN" ]; then
+            echo "LIVE_REPO_TOKEN is not configured."
+            exit 1
+          fi
+          git clone "https://x-access-token:${LIVE_REPO_TOKEN}@github.com/Numstep/Numstep_Live.git" live
+          mkdir -p live/games/numstep/printables
+          mkdir -p live/games/numstep-cube/printables
+          mkdir -p live/games/numstep-taurus/printables
+          mkdir -p live/games/numstep-box/printables
+          cp -a games/numstep/printables/. live/games/numstep/printables/
+          cp -a games/numstep-cube/printables/. live/games/numstep-cube/printables/
+          cp -a games/numstep-taurus/printables/. live/games/numstep-taurus/printables/
+          cp -a games/numstep-box/printables/. live/games/numstep-box/printables/
+          cd live
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add games/numstep/printables/ games/numstep-cube/printables/ games/numstep-taurus/printables/ games/numstep-box/printables/
+          git commit -m "Publish refreshed Numstep printables" || echo "No changes to commit"
+          git push origin main

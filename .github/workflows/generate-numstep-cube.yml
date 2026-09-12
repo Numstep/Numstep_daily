@@ -41,3 +41,22 @@ jobs:
           git add games/numstep-cube/printables/
           git commit -m "Generate daily Numstep Cube puzzle" || echo "No changes to commit"
           git push
+
+      - name: Publish Cube resources to Numstep_Live
+        env:
+          LIVE_REPO_TOKEN: ${{ secrets.LIVE_REPO_TOKEN }}
+        run: |
+          if [ -z "$LIVE_REPO_TOKEN" ]; then
+            echo "LIVE_REPO_TOKEN is not configured."
+            exit 1
+          fi
+          git clone "https://x-access-token:${LIVE_REPO_TOKEN}@github.com/Numstep/Numstep_Live.git" live
+          mkdir -p live/games/numstep-cube/data live/games/numstep-cube/printables
+          cp -a games/numstep-cube/data/. live/games/numstep-cube/data/
+          cp -a games/numstep-cube/printables/. live/games/numstep-cube/printables/
+          cd live
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add games/numstep-cube/data/ games/numstep-cube/printables/
+          git commit -m "Publish daily Numstep Cube resources" || echo "No changes to commit"
+          git push origin main
